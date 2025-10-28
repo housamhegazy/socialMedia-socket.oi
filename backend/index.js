@@ -10,11 +10,14 @@ app.use(express.json());
 app.use(cors());
 
 //============================================get routes======================================================
+ 
 const registerRoute = require("./Routes/Users.js");
+const posts = require("./Routes/Posts.js")
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 app.use("/api/users", registerRoute);
+app.use("/api/posts",posts)
 
 //=================================================auto refresh================================================
 app.use(methodOverride("_method"));// لتمكين استخدام طرق HTTP مثل PUT و DELETE

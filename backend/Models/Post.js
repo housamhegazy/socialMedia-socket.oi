@@ -2,18 +2,21 @@ const mongoose = require("mongoose");
 
 const PostSchema = new mongoose.Schema(
   {
-    text: {
-      type: String,
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "UserSchema", // ربط هذا الحقل بنموذج المستخدم
+      ref: "User", // ربط هذا الحقل بنموذج المستخدم
+    },
+    text: {
+      type: String,
+    },
+    image: {
+      type: String,
     },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserSchema", // ربط هذا الحقل بنموذج المستخدم
+        ref: "User", // ربط هذا الحقل بنموذج المستخدم
       },
     ],
   },

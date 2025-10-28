@@ -21,12 +21,14 @@ const UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "Password is required."],
-      minlength: [6, 'Password must be at least 6 characters long.'], // الحد الأدنى لطول كلمة المرور
+      minlength: [6, "Password must be at least 6 characters long."], // الحد الأدنى لطول كلمة المرور
       select: false, // لا يتم إرجاع كلمة المرور في الاستعلامات افتراضيًا لأسباب أمنية
     },
     avatar: {
       type: String,
-      default: process.env.CLOUDINARY_DEFAULT_AVATAR_URL || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+      default:
+        process.env.CLOUDINARY_DEFAULT_AVATAR_URL ||
+        "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     },
     lastLogin: {
       // <--- NEW FIELD: lastLogin
@@ -39,7 +41,4 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-
 module.exports = mongoose.model("User", UserSchema);
-
-
