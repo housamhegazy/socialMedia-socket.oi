@@ -12,12 +12,14 @@ app.use(cors());
 //============================================get routes======================================================
  
 const registerRoute = require("./Routes/Users.js");
-const posts = require("./Routes/Posts.js")
+const postsRoute = require("./Routes/Posts.js")
+const commentsRoute = require("./Routes/Comments.js")
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 app.use("/api/users", registerRoute);
-app.use("/api/posts",posts)
+app.use("/api/posts",postsRoute)
+app.use("/api/comments",commentsRoute)
 
 //=================================================auto refresh================================================
 app.use(methodOverride("_method"));// لتمكين استخدام طرق HTTP مثل PUT و DELETE

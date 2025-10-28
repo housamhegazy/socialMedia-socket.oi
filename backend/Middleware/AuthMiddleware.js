@@ -23,5 +23,6 @@ const AuthMiddleware = (req, res, next) => {
     }
 };
 
+
 // 4. تصدير الكود بصيغة CommonJS
 module.exports = { AuthMiddleware };
