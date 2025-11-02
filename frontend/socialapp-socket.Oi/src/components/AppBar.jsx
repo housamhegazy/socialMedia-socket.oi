@@ -8,14 +8,12 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
-const AppBarComponent = ({ handleDrawerToggle, drawerWidth }) => {
+const AppBarComponent = ({ handleDrawerToggle, drawerWidth, sidebarWidth }) => {
   //===========================================================================
   const navigate = useNavigate();
-
   return (
-    <Box component={"header"}>
-      <AppBar position="static">
-        <Toolbar sx={{ marginLeft: { sm: `${drawerWidth}px` } }}>
+      <AppBar component={"header"} position="static" sx={{minHeight:"64px"}} >
+        <Toolbar sx={{ marginLeft: { sm: `${drawerWidth}px` }, marginRight: { md: `${sidebarWidth}px` }  }}>
           <IconButton
             sx={{ color: "white", display: { sm: "none" } }}
             onClick={handleDrawerToggle}
@@ -57,7 +55,6 @@ const AppBarComponent = ({ handleDrawerToggle, drawerWidth }) => {
           <Avatar sx={{ cursor: "pointer" }} alt={"fullName"} src={"/"} />
         </Toolbar>
       </AppBar>
-    </Box>
   );
 };
 

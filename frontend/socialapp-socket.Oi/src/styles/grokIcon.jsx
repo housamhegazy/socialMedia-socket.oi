@@ -1,28 +1,15 @@
-const GrokIcon = ({ className = '', size = 24,color }) => {
+const GrokIcon = ({ color }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      color={color}
+      x="0px"
+      y="0px"
+      width="20"
+      height="20"
+      viewBox="0 0 48 48"
+      style={{ fill: color }}
     >
-      {/* الخطوط الأساسية لحرف X */}
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-      
-      {/* لمسة الشبكة العصبية / النقاط التقنية */}
-      <circle cx="12" cy="12" r="2" fill="currentColor" />
-      <circle cx="6" cy="6" r="1" fill="currentColor" />
-      <circle cx="18" cy="18" r="1" fill="currentColor" />
-      <circle cx="18" cy="6" r="1" fill="currentColor" />
-      <circle cx="6" cy="18" r="1" fill="currentColor" />
+      <path d="M18.542 30.532l15.956-11.776c.783-.576 1.902-.354 2.274.545 1.962 4.728 1.084 10.411-2.819 14.315-3.903 3.901-9.333 4.756-14.299 2.808l-5.423 2.511c7.778 5.315 17.224 4 23.125-1.903 4.682-4.679 6.131-11.058 4.775-16.812l.011.011c-1.966-8.452.482-11.829 5.501-18.735C47.759 1.332 47.88 1.166 48 1l-6.602 6.599V7.577l-22.86 22.958M15.248 33.392c-5.582-5.329-4.619-13.579.142-18.339 3.521-3.522 9.294-4.958 14.331-2.847l5.412-2.497c-.974-.704-2.224-1.46-3.659-1.994-6.478-2.666-14.238-1.34-19.505 3.922C6.904 16.701 5.31 24.488 8.045 31.133c2.044 4.965-1.307 8.48-4.682 12.023C2.164 44.411.967 45.67 0 47l15.241-13.608"></path>
     </svg>
   );
 };

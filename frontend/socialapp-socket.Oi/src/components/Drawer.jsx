@@ -10,7 +10,6 @@ import IconButton from "@mui/material/IconButton";
 import {
   Bookmark,
   BusinessCenter,
-  Cloud,
   DarkMode,
   ElectricBolt,
   Explore,
@@ -20,15 +19,15 @@ import {
   More,
   Notifications,
   Person,
-  PrecisionManufacturingOutlined,
+  PostAdd,
   Sunny,
-  UploadFile,
   WorkspacePremium,
+  X,
 } from "@mui/icons-material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import HomeIcon from "@mui/icons-material/Home";
 import { Link, useLocation, useNavigate } from "react-router";
 import GrokIcon from "../styles/grokIcon";
+import { Button } from "@mui/material";
 
 function ResponsiveDrawer({
   handleDrawerClose,
@@ -104,27 +103,35 @@ function ResponsiveDrawer({
       title: "more",
       icon: <More color={iconColor} />,
       pathname: "/more",
-    }
+    },
   ];
   const drawer = (
-    <div>
-      <Box sx={{height:"80px",display:"flex",justifyContent:"center",alignItems:"center"}}>
+    <>
+      <Box
+        sx={{
+          height: "80px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <Link
           to="/"
           // underline="none"
           style={{
-            height:"100%",
-            fontSize: "1rem",
+            height: "100%",
+            fontSize: "2rem",
             color: "inherit",
-            display:"flex",
-            justifyContent:"center",
-            alignItems:"center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textDecoration: "none",
           }}
         >
-          Customer Dashboard
+          <X sx={{ ml: 0.5, fontSize: "2.5rem", fontWeight: "bold" }} />
         </Link>
       </Box>
-          <Divider/>
+      <Divider />
       {/* <Toolbar /> */}
       <IconButton
         onClick={handleTheme}
@@ -135,50 +142,91 @@ function ResponsiveDrawer({
       </IconButton>
       <List>
         <Divider />
-          <>
-            {myList.map((item, index) => {
-              return (
-                <ListItem
-                  sx={{
-                    backgroundColor:
-                      location.pathname === item.pathname
-                        ? theme.palette.action.selected
-                        : "inherit",
-                  }}
-                  key={index}
-                  onClick={() => {
-                    navigate(item.pathname);
-                    handleDrawerClose();
-                  }}
-                  disablePadding
-                >
-                  <ListItemButton>
-                    <ListItemIcon>{item.icon}</ListItemIcon>
-                    <ListItemText primary={item.title} />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-            <ListItem onClick={() => {}} sx={{ mt: 5, px: 0 }}>
-              <ListItemButton>
-                <ListItemIcon>
-                  <Logout color={"error"} />
-                </ListItemIcon>
-                <ListItemText primary="Logout" sx={{ color: "red" }} />
-              </ListItemButton>
-            </ListItem>
-          </>
+        <>
+          {myList.map((item, index) => {
+            return (
+              <ListItem
+                sx={{
+                  backgroundColor:
+                    location.pathname === item.pathname
+                      ? theme.palette.action.selected
+                      : "inherit",
+                }}
+                key={index}
+                onClick={() => {
+                  navigate(item.pathname);
+                  handleDrawerClose();
+                }}
+                disablePadding
+              >
+                <ListItemButton>
+                  <ListItemIcon
+                    sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    sx={{ display: { xs: "block", sm: "none", lg: "block" } }}
+                    primary={item.title}
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+
+          {/* add post */}
+          <ListItem
+            onClick={() => {}}
+            sx={{ mt: 5, px: 0, display: "flex", justifyContent: "center" }}
+          >
+            <IconButton>
+              <PostAdd
+              color={iconColor}
+                sx={{ mr: 1, display: { xs: "none", sm: "block", lg: "none" } }}
+              />
+            </IconButton>
+            <Button
+              sx={{
+                backgroundColor: theme.palette.mode === "dark" ? "white" : theme.palette.primary.main,
+                color: theme.palette.primary.main,
+                border: "none",
+                fontSize: "15px",
+                borderRadius: "10px",
+                padding: "5px 10px",
+                cursor: "pointer",
+                textTransform: "none",
+                display: { xs: "block", sm: "none", lg: "block" },
+              }}
+            >
+              Add Post
+            </Button>
+          </ListItem>
+          <ListItem onClick={() => {}} sx={{ mt: 5, px: 0 }}>
+            <ListItemButton>
+              <ListItemIcon
+                sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
+              >
+                <Logout color={"error"} />
+              </ListItemIcon>
+              <ListItemText
+                sx={{
+                  display: { xs: "block", sm: "none", lg: "block" },
+                  color: "red",
+                }}
+                primary="Logout"
+              />
+            </ListItemButton>
+          </ListItem>
+          
+        </>
         {/* )} */}
       </List>
-    </div>
+    </>
   );
 
   return (
-    <Box
-      component="nav"
-      sx={{ width: { sm: `${drawerWidth}px` }, flexShrink: { sm: 0 } }}
-    >
-      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+    // Mobile drawer
+    <>
       <Drawer
         variant="temporary"
         open={mobileOpen} // Mobile drawer open state
@@ -186,7 +234,7 @@ function ResponsiveDrawer({
         onClose={handleDrawerClose} // close drawer when press on any place outside drawer
         sx={{
           display: { xs: "block", sm: "none" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
+          "& .MuiDrawer-paper": { boxSizing: "border-box", width: "240px" },
         }}
         slotProps={{
           root: {
@@ -196,17 +244,22 @@ function ResponsiveDrawer({
       >
         {drawer}
       </Drawer>
+      {/* Permanent drawer for larger screens */}
       <Drawer
         variant="permanent"
         sx={{
           display: { xs: "none", sm: "block" },
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
+          "& .MuiDrawer-paper": {
+            boxSizing: "border-box",
+            width: { lg: drawerWidth },
+            transition: 'width 0.3s ease-out',
+          },
         }}
         open
       >
         {drawer}
       </Drawer>
-    </Box>
+    </>
   );
 }
 

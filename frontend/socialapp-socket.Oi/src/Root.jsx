@@ -5,7 +5,9 @@ import Footer from "./components/Footer";
 import ResponsiveDrawer from "./components/Drawer";
 import { useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
-const drawerWidth = 240;
+import SideBar from "./components/SideBar";
+const drawerWidth = { xs: "70px",  md: "200px" };
+const sidebarWidth = 240
 const Root = () => {
   //open and close drawer functions
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -50,7 +52,11 @@ const Root = () => {
         <AppBarComponent
           drawerWidth={drawerWidth}
           handleDrawerToggle={handleDrawerToggle}
+          sidebarWidth={sidebarWidth}
         />
+        {/* sidebar component */}
+        <SideBar {...{ drawerWidth, sidebarWidth }} />
+        {/* drawer component */}
         <ResponsiveDrawer
           handleDrawerClose={handleDrawerClose}
           handleDrawerTransitionEnd={handleDrawerTransitionEnd}
