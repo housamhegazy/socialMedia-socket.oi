@@ -109,7 +109,7 @@ function ResponsiveDrawer({
     <>
       <Box
         sx={{
-          height: "80px",
+          height: "64px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -166,7 +166,7 @@ function ResponsiveDrawer({
                     {item.icon}
                   </ListItemIcon>
                   <ListItemText
-                    sx={{ display: { xs: "block", sm: "none", lg: "block" } }}
+                    sx={{ display: { xs: "block", sm: "none", md: "block" } }}
                     primary={item.title}
                   />
                 </ListItemButton>
@@ -223,7 +223,6 @@ function ResponsiveDrawer({
       </List>
     </>
   );
-
   return (
     // Mobile drawer
     <>
@@ -232,7 +231,7 @@ function ResponsiveDrawer({
         open={mobileOpen} // Mobile drawer open state
         onTransitionEnd={handleDrawerTransitionEnd} // Handle transition end
         onClose={handleDrawerClose} // close drawer when press on any place outside drawer
-        sx={{
+        sx={{ml: { xs: 0, sm: "240px"},
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": { boxSizing: "border-box", width: "240px" },
         }}
@@ -247,12 +246,22 @@ function ResponsiveDrawer({
       {/* Permanent drawer for larger screens */}
       <Drawer
         variant="permanent"
+
         sx={{
           display: { xs: "none", sm: "block" },
+          // الحل للمشكلة: position: sticky
+            position: "sticky",
+            top: '64px', // يلتصق أسفل AppBar
+            height: "calc(100vh - 64px)", // الارتفاع المتبقي من الشاشة
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: { lg: drawerWidth },
+            width: { sm:"100px",md:`100%` },
             transition: 'width 0.3s ease-out',
+             position: 'sticky', 
+            top: "64px",
+            height: `calc(100vh - 64px)`,
+             borderRight: '1px solid',
+                borderColor: 'divider',
           },
         }}
         open

@@ -9,10 +9,9 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
-        
-        py: 3,
+        Width:`100%`,
+  
         px: 2,
-        ml: { sm: "240px" },
         mt: "auto",
         backgroundColor: (theme) =>
           theme.palette.mode === "dark"

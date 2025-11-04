@@ -1,75 +1,49 @@
 import {
   Avatar,
   AvatarGroup,
-  Badge,
   Box,
   Button,
   Divider,
   List,
   ListItem,
   Stack,
-  styled,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
-const StyledBadge = styled(Badge)(({ theme }) => ({
-  "& .MuiBadge-badge": {
-    backgroundColor: "#44b700",
-    color: "#44b700",
-    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    "&::after": {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      borderRadius: "50%",
-      animation: "ripple 1.2s infinite ease-in-out",
-      border: "1px solid currentColor",
-      content: '""',
-    },
-  },
-  "@keyframes ripple": {
-    "0%": {
-      transform: "scale(.8)",
-      opacity: 1,
-    },
-    "100%": {
-      transform: "scale(2.4)",
-      opacity: 0,
-    },
-  },
-}));
+import TrendsCard from "./trendCard";
 
-const SmallAvatar = styled(Avatar)(({ theme }) => ({
-  width: 22,
-  height: 22,
-  border: `2px solid ${theme.palette.background.paper}`,
-}));
-
-const SideBar = ({ sidebarWidth }) => {
+const SideBar = () => {
+  const theme = useTheme();
   return (
     <Box
       sx={{
+        // width:{md:"200px",lg:"200px"},
         display: { xs: "none", md: "block" },
-        width: sidebarWidth,
-        position: "fixed",
-        top: 0,
-        right: 0,
-        height: "100%",
+        position: "sticky",
+        top: "64px",
+        height: "calc(100vh - 64px)",
         bgcolor: "background.paper",
-        boxShadow: 1,
-        pt: 2,
-        // px: 2,
+        overflowY: "auto",
+        // boxShadow: 1,
+        // flexShrink: 0,
+        borderLeft: `1px solid ${theme.palette.divider}`,
       }}
       role="presentation"
     >
       {/* search box */}
-      <TextField id="outlined-search" label="Search field" type="search" />
+      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",py:2}}>
+        <TextField
+          id="outlined-search"
+          label="Search field"
+          type="search"
+          
+        />
+      </Box>
       <Divider />
       <List>
         <ListItem>
-          <Stack direction="column" spacing={2}>
+          <Stack direction="column" spacing={2} sx={{width:"100%"}}>
             <Typography
               color="inhirit"
               sx={{ fontSize: "16px", fontWeight: "bold" }}
@@ -86,7 +60,7 @@ const SideBar = ({ sidebarWidth }) => {
         </ListItem>
         <Divider />
         <ListItem>
-          <Stack direction="column" spacing={2}>
+          <Stack direction="column" spacing={2} sx={{width:"100%"}}>
             <Box>
               <Typography
                 sx={{ fontSize: "16px", fontWeight: "bold", pb: 1 }}
@@ -104,12 +78,18 @@ const SideBar = ({ sidebarWidth }) => {
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
                 <AvatarGroup spacing={24} sx={{ justifyContent: "flex-end" }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                  <Avatar
+                    alt="Remy Sharp"
+                    src="https://images.pexels.com/photos/609549/pexels-photo-609549.jpeg"
+                  />
                   <Avatar
                     alt="Travis Howard"
-                    src="/static/images/avatar/2.jpg"
+                    src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
                   />
-                  <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+                  <Avatar
+                    alt="Cindy Baker"
+                    src="https://images.pexels.com/photos/2218786/pexels-photo-2218786.jpeg"
+                  />
                 </AvatarGroup>
                 <span style={{ fontSize: "10px", marginLeft: "4px" }}>
                   last seen 2 hours ago
@@ -125,12 +105,18 @@ const SideBar = ({ sidebarWidth }) => {
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
                 <AvatarGroup spacing={24} sx={{ justifyContent: "flex-end" }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                  <Avatar
+                    alt="Remy Sharp"
+                    src="https://images.pexels.com/photos/609549/pexels-photo-609549.jpeg"
+                  />
                   <Avatar
                     alt="Travis Howard"
-                    src="/static/images/avatar/2.jpg"
+                    src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
                   />
-                  <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+                  <Avatar
+                    alt="Cindy Baker"
+                    src="https://images.pexels.com/photos/2218786/pexels-photo-2218786.jpeg"
+                  />
                 </AvatarGroup>
                 <span style={{ fontSize: "10px", marginLeft: "4px" }}>
                   last seen 2 hours ago
@@ -146,12 +132,18 @@ const SideBar = ({ sidebarWidth }) => {
               </Typography>
               <Box sx={{ display: "flex", alignItems: "center", pb: 2 }}>
                 <AvatarGroup spacing={24} sx={{ justifyContent: "flex-end" }}>
-                  <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+                  <Avatar
+                    alt="Remy Sharp"
+                    src="https://images.pexels.com/photos/609549/pexels-photo-609549.jpeg"
+                  />
                   <Avatar
                     alt="Travis Howard"
-                    src="/static/images/avatar/2.jpg"
+                    src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
                   />
-                  <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
+                  <Avatar
+                    alt="Cindy Baker"
+                    src="https://images.pexels.com/photos/2218786/pexels-photo-2218786.jpeg"
+                  />
                 </AvatarGroup>
                 <span style={{ fontSize: "10px", marginLeft: "4px" }}>
                   last seen 2 hours ago
@@ -159,24 +151,20 @@ const SideBar = ({ sidebarWidth }) => {
               </Box>
             </Box>
             <Divider />
-            <Box>
-              <Typography
-                sx={{ fontSize: "16px", fontWeight: "bold", pb: 1 }}
-                color="inhirit"
-              >
-                {" "}
-                what's happening
-              </Typography>
-              <Typography variant="body1" color="inhirit">
-                Get real-time updates on current events and trending topics
-              </Typography>
-            </Box>
+            
           </Stack>
         </ListItem>
         <ListItem>
-          <Typography variant="body1" color="initial">
-            Item 2
-          </Typography>
+          <Box
+              sx={{
+                width: "100%",
+                // p: 2,
+                // إخفاء الكارد على الشاشات الصغيرة (xs و sm) وعرضه على الشاشات الكبيرة (lg)
+                display: { xs: "none", md: "block" },
+              }}
+            >
+              <TrendsCard />
+            </Box>
         </ListItem>
         <ListItem>
           <Typography variant="body1" color="initial">

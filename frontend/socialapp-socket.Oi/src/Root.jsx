@@ -1,4 +1,10 @@
-import { Box, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import {
+  Box,
+  createTheme,
+  CssBaseline,
+  Grid,
+  ThemeProvider,
+} from "@mui/material";
 import AppBarComponent from "./components/AppBar";
 import { Outlet } from "react-router";
 import Footer from "./components/Footer";
@@ -6,8 +12,9 @@ import ResponsiveDrawer from "./components/Drawer";
 import { useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
-const drawerWidth = { xs: "70px",  md: "200px" };
-const sidebarWidth = 240
+const drawerWidth = 200;
+const sidebarWidth = 280;
+const ContainerMaxWidth = 1400
 const Root = () => {
   //open and close drawer functions
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -48,36 +55,52 @@ const Root = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box className="root">
+      <Box className="root" sx={{  display: 'flex', flexDirection: 'column' }}>
         <AppBarComponent
-          drawerWidth={drawerWidth}
           handleDrawerToggle={handleDrawerToggle}
-          sidebarWidth={sidebarWidth}
+          ContainerMaxWidth = {ContainerMaxWidth}
         />
-        {/* sidebar component */}
-        <SideBar {...{ drawerWidth, sidebarWidth }} />
-        {/* drawer component */}
-        <ResponsiveDrawer
-          handleDrawerClose={handleDrawerClose}
-          handleDrawerTransitionEnd={handleDrawerTransitionEnd}
-          mobileOpen={mobileOpen}
-          drawerWidth={drawerWidth}
-          theme={theme}
-          handleTheme={handleTheme}
-        />
-        <Box component={"main"}
+        <Grid
+          container
+          spacing={0}
           sx={{
-            ml: { sm: `${drawerWidth}px` },
-            width: { sm: `calc(100% - ${drawerWidth}px)` },
-            p: 3,
-            minHeight: "calc(100vh - 64px)",
-            padding: "20px",
-            marginTop: "20px",
-            flex: 1,
+            maxWidth: `${ContainerMaxWidth}px`,
+            margin: "0 auto",
+            flexDirection: "row",
+            flexWrap: "nowrap",
+            flexGrow: 1,
           }}
         >
-          <Outlet />
-        </Box>
+          {/* <Box sx={{ flexGrow: 1 }}></Box> */}
+          <Grid item size={{xs:0,sm:2,md:3}} sx={{ borderRight: '1px solid', borderColor: 'divider' }}>
+            <ResponsiveDrawer
+              handleDrawerClose={handleDrawerClose}
+              handleDrawerTransitionEnd={handleDrawerTransitionEnd}
+              mobileOpen={mobileOpen}
+              drawerWidth={drawerWidth}
+              theme={theme}
+              handleTheme={handleTheme}
+            />
+          </Grid>
+
+          <Grid item size={{xs:12,sm:10,md:6}}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              backgroundColor: theme.palette.background.default,
+              borderRight: '1px solid', 
+              borderColor: 'divider',
+              // هذا هو العمود الذي يجب أن يسمح بمرور التمرير
+              minHeight: '200vh', // لضمان تمرير الصفحة بالكامل
+              width: '100%',
+            }}
+          >
+            <Outlet />
+          </Grid>
+          <Grid item size={{xs:0,sm:0,md:3}} >
+            <SideBar />
+          </Grid>
+        </Grid>
         <Footer />
       </Box>
     </ThemeProvider>

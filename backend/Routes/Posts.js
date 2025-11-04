@@ -2,22 +2,28 @@ const express = require("express");
 const router = express.Router();
 const PostModel = require("../Models/Post.js");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
-const cloudinary = require("../Utils/cloudinary.js");
+const {
+  cloudinary,
+  bufferToDataUri,
+  upload,
+} = require("../Utils/cloudinary.js");
 require("dotenv").config();
 
-router.post("/", AuthMiddleware, async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { image, text } = req.body;
+    const { text } = req.body;
+    const imageFile = req.file;
     // upload image to cloudinary
     let imageURl = null;
-    //  التحقق: يجب أن يكون هناك نص أو صورة على الأقل
-    if (!image && !text) {
+    if (!imageFile && !text) {
       return res
         .status(400)
-        .json({ message: "Post must contain either text or an image." });
+        .json({ message: "Post must contain either text or an imageFile." });
     }
-    if (image) {
-      const result = await cloudinary.uploader.upload(image, {
+    if (imageFile) {
+      // 1. تحويل Buffer إلى Data URI (Base64 String)
+      const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
+      const result = await cloudinary.uploader.upload(dataUri, {
         folder: "socialmediaApp/posts",
       });
       //get image url from cloudinary
@@ -25,7 +31,7 @@ router.post("/", AuthMiddleware, async (req, res) => {
     }
     // upload all data to mongoo db
     const newPost = new PostModel({
-      owner: req.user.id,
+      owner: req.user ? req.user.id : null,
       text,
       image: imageURl,
     });
@@ -36,7 +42,7 @@ router.post("/", AuthMiddleware, async (req, res) => {
   }
 });
 
-router.get("/", AuthMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const posts = await PostModel.find()
       .populate("owner", "name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
