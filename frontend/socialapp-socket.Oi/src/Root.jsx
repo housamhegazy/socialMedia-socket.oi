@@ -12,8 +12,8 @@ import ResponsiveDrawer from "./components/Drawer";
 import { useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
-const drawerWidth = 200;
-const sidebarWidth = 280;
+// const drawerWidth = 200;
+// const sidebarWidth = 280;
 const ContainerMaxWidth = 1200;
 const Root = () => {
   //open and close drawer functions
