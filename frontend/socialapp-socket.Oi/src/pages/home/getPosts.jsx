@@ -5,7 +5,6 @@ import {
   CardContent,
   IconButton,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import CardHeader from "@mui/material/CardHeader";
@@ -43,30 +42,21 @@ const ExpandMore = styled((props) => {
 }));
 import { useEffect, useState } from "react";
 
-const GetPosts = () => {
-  const theme = useTheme();
-  const [posts, setPosts] = useState([]);
+// start 
+const GetPosts = ({handleGetPosts,posts}) => {
   const [expanded, setExpanded] = useState(false);
-  const handleGetPosts = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/posts`, {
-        method: "GET",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        setPosts(data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
   useEffect(() => {
-    handleGetPosts();
+    handleGetPosts()
   }, []);
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+if(!posts || posts.length < 1){
+  return(
+    <Box  sx={{  margin: "0 auto",my:5 }}>no data</Box>
+  )
+}
 return(
   <Box>
     {

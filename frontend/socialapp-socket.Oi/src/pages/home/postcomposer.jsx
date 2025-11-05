@@ -21,8 +21,7 @@ import {
   Public,
 } from "@mui/icons-material";
 import GrokIcon from "../../styles/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
-
-const PostComposer = () => {
+const PostComposer = ({handleGetPosts}) => {
   const theme = useTheme();
   const [postText, setPostText] = useState("");
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -110,9 +109,6 @@ const PostComposer = () => {
         body: formData,
         // credentials:"include"
       });
-      if (!response) {
-        console.log("no data");
-      }
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Post creation failed:", errorData);
@@ -123,7 +119,7 @@ const PostComposer = () => {
         return;
       }
       const data = await response.json();
-      console.log("Post created successfully", data);
+      handleGetPosts()
       setPostText("");
       setFile(null);
       setPreview(null);

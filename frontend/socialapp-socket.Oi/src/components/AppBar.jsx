@@ -3,7 +3,7 @@ import Toolbar from "@mui/material/Toolbar";
 import { Avatar, IconButton, Box, Button } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
-const AppBarComponent = ({ handleDrawerToggle, ContainerMaxWidth }) => {
+const AppBarComponent = ({ handleDrawerToggle }) => {
   //===========================================================================
   const navigate = useNavigate();
   return (
@@ -12,10 +12,6 @@ const AppBarComponent = ({ handleDrawerToggle, ContainerMaxWidth }) => {
       position="sticky"
       sx={{
         minHeight: "64px",
-        maxWidth: `${ContainerMaxWidth}px`,
-        margin: "0 auto",
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-        
       }}
     >
       <Toolbar>

@@ -33,7 +33,6 @@ function ResponsiveDrawer({
   handleDrawerClose,
   handleDrawerTransitionEnd,
   mobileOpen,
-  drawerWidth,
   theme,
   handleTheme,
 }) {
@@ -113,6 +112,7 @@ function ResponsiveDrawer({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          
         }}
       >
         <Link
@@ -159,9 +159,9 @@ function ResponsiveDrawer({
                 }}
                 disablePadding
               >
-                <ListItemButton>
+                <ListItemButton sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}>
                   <ListItemIcon
-                    sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
+                    sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}
                   >
                     {item.icon}
                   </ListItemIcon>
@@ -182,7 +182,7 @@ function ResponsiveDrawer({
             <IconButton>
               <PostAdd
               color={iconColor}
-                sx={{ mr: 1, display: { xs: "none", sm: "block", lg: "none" } }}
+                sx={{ mr: 1, display: { xs: "none", sm: "block", md: "none" } }}
               />
             </IconButton>
             <Button
@@ -195,14 +195,14 @@ function ResponsiveDrawer({
                 padding: "5px 10px",
                 cursor: "pointer",
                 textTransform: "none",
-                display: { xs: "block", sm: "none", lg: "block" },
+                display: { xs: "block", sm: "none", md: "block" },
               }}
             >
               Add Post
             </Button>
           </ListItem>
           <ListItem onClick={() => {}} sx={{ mt: 5, px: 0 }}>
-            <ListItemButton>
+            <ListItemButton sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}>
               <ListItemIcon
                 sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
               >
@@ -210,7 +210,7 @@ function ResponsiveDrawer({
               </ListItemIcon>
               <ListItemText
                 sx={{
-                  display: { xs: "block", sm: "none", lg: "block" },
+                  display: { xs: "block", sm: "none", md: "block" },
                   color: "red",
                 }}
                 primary="Logout"
@@ -256,12 +256,13 @@ function ResponsiveDrawer({
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
             width: { sm:"100px",md:`100%` },
+            minWidth:"100%",
             transition: 'width 0.3s ease-out',
              position: 'sticky', 
             top: "64px",
             height: `calc(100vh - 64px)`,
              borderRight: '1px solid',
-                borderColor: 'divider',
+              borderColor: 'divider',
           },
         }}
         open
