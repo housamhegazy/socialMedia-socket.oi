@@ -86,7 +86,7 @@ const Root = () => {
             width: "100%",
             maxWidth: `${ContainerMaxWidth}px`,
             margin: "0 auto",
-            height: "200vh",
+            minHeight: "200vh",
             flexWrap: "nowrap",
             alignItems: "stretch",
           }}

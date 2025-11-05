@@ -65,7 +65,7 @@ function ResponsiveDrawer({
     },
     {
       title: "Grok",
-      icon: <GrokIcon color={iconColor} />,
+      icon: <GrokIcon />,
       pathname: "/grok",
     },
     {
@@ -267,8 +267,10 @@ function ResponsiveDrawer({
         }}
         open
       >
+      
         {drawer}
       </Drawer>
+      
     </>
   );
 }
