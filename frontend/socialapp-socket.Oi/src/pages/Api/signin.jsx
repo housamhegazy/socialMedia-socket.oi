@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -12,24 +12,28 @@ import {
   CircularProgress,
   IconButton,
   InputAdornment,
-} from '@mui/material';
-import { LockOpenOutlined, Visibility, VisibilityOff } from '@mui/icons-material'; // تم تغيير الأيقونة إلى LockOpen
-import { useTheme } from '@mui/material/styles';
+} from "@mui/material";
+import {
+  LockOpenOutlined,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material"; // تم تغيير الأيقونة إلى LockOpen
+import { useTheme } from "@mui/material/styles";
 
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
   const theme = useTheme();
   // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   // حالات التحقق من الأخطاء
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState({ text: '', type: '' });
+  const [message, setMessage] = useState({ text: "", type: "" });
 
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
@@ -42,12 +46,12 @@ const LoginForm = () => {
     if (errors[name]) {
       setErrors({
         ...errors,
-        [name]: '',
+        [name]: "",
       });
     }
     // مسح رسالة النجاح/الفشل عند التعديل
     if (message.text) {
-        setMessage({ text: '', type: '' });
+      setMessage({ text: "", type: "" });
     }
   };
 
@@ -57,11 +61,11 @@ const LoginForm = () => {
     let isValid = true;
 
     if (!formData.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)) {
-      tempErrors.email = 'يرجى إدخال بريد إلكتروني صالح.';
+      tempErrors.email = "please enter a valid email address.";
       isValid = false;
     }
     if (!formData.password) {
-      tempErrors.password = 'كلمة المرور مطلوبة.';
+      tempErrors.password = "password is required.";
       isValid = false;
     }
 
@@ -70,59 +74,61 @@ const LoginForm = () => {
   };
 
   // وظيفة لمعالجة إرسال النموذج وإجراء اتصال API
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
       setIsSubmitting(true);
-      
-      try{
+
+      try {
         // استخدام نقطة نهاية تسجيل الدخول (login)
         const response = await fetch(`http://localhost:3000/api/users/login`, {
           method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData)
-        })
-        
-        // التحقق من حالة الاستجابة
-        if(response.ok){
-          const result = await response.json();
-          console.log('User logged in successfully:', result);
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        });
 
-          setMessage({ 
-              text: `تم تسجيل الدخول بنجاح. مرحباً بك يا ${result.user?.name || formData.email}!`, 
-              type: 'success' 
+        // التحقق من حالة الاستجابة
+        if (response.ok) {
+          const result = await response.json();
+          console.log("User logged in successfully:", result);
+
+          setMessage({
+            text: `Login successful. Welcome ${
+              result.user?.name || formData.email
+            }!`,
+            type: "success",
           });
           // في التطبيق الحقيقي، هنا يتم حفظ التوكن (Token) وإعادة توجيه المستخدم
-          setFormData({ email: '', password: '' });
-
+          setFormData({ email: "", password: "" });
         } else {
           // التعامل مع أخطاء الخادم (مثل بيانات اعتماد غير صحيحة)
           const errorData = await response.json();
-          const errorMessage = errorData.message || 'فشل تسجيل الدخول. يرجى التحقق من بياناتك.';
-          console.error('Login failed:', errorMessage);
+          const errorMessage =
+            errorData.message || "Login failed. Please try again.";
+          console.error("Login failed:", errorMessage);
 
-          setMessage({ 
-            text: errorMessage, 
-            type: 'error' 
+          setMessage({
+            text: errorMessage,
+            type: "error",
           });
         }
-      } catch(error){
-        console.error('Network or API call error:', error);
-        setMessage({ 
-          text: 'حدث خطأ في الاتصال بالخادم.', 
-          type: 'error' 
+      } catch (error) {
+        console.error("Network or API call error:", error);
+        setMessage({
+          text: "Network or API call error.",
+          type: "error",
         });
       } finally {
         // سواء نجح الإرسال أو فشل، نوقف حالة التحميل
         setIsSubmitting(false);
       }
-
     } else {
-      setMessage({ 
-        text: 'يرجى إدخال بيانات صالحة لتسجيل الدخول.', 
-        type: 'error' 
+      setMessage({
+        text: "please enter valid credentials to sign in.",
+        type: "error",
       });
     }
   };
@@ -134,12 +140,15 @@ const LoginForm = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           p: 3,
           borderRadius: 2,
-          boxShadow: theme.palette.mode === 'dark' ? '0 0 20px rgba(255, 255, 255, 0.1)' : '0 0 20px rgba(0, 0, 0, 0.1)',
+          boxShadow:
+            theme.palette.mode === "dark"
+              ? "0 0 20px rgba(255, 255, 255, 0.1)"
+              : "0 0 20px rgba(0, 0, 0, 0.1)",
           bgcolor: theme.palette.background.paper,
         }}
       >
@@ -147,45 +156,53 @@ const LoginForm = () => {
           <LockOpenOutlined />
         </Avatar>
         <Typography component="h1" variant="h5">
-          تسجيل الدخول
+          Sign In
         </Typography>
 
         {/* رسالة النجاح أو الخطأ */}
         {message.text && (
-            <Typography 
-                color={message.type === 'success' ? theme.palette.success.main : theme.palette.error.main} 
-                sx={{ mt: 2, fontWeight: 'bold' }}
-            >
-                {message.text}
-            </Typography>
+          <Typography
+            color={
+              message.type === "success"
+                ? theme.palette.success.main
+                : theme.palette.error.main
+            }
+            sx={{ mt: 2, fontWeight: "bold" }}
+          >
+            {message.text}
+          </Typography>
         )}
 
-        <Box component="form" noValidate onSubmit={handleSubmit}  sx={{ mt: 3 }}>
-          <Grid container spacing={2} direction="column" justifyContent="center">
-            
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Grid
+            container
+            spacing={2}
+            direction="column"
+            justifyContent="center"
+          >
             {/* البريد الإلكتروني */}
-            <Grid  >
+            <Grid>
               <TextField
                 required
                 fullWidth
-                label="عنوان البريد الإلكتروني"
+                label="Email Address"
                 name="email"
                 autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 error={!!errors.email}
                 helperText={errors.email}
-                dir="ltr" 
+                dir="ltr"
               />
             </Grid>
             {/* كلمة المرور */}
-            <Grid >
+            <Grid>
               <TextField
                 required
                 fullWidth
                 name="password"
-                label="كلمة المرور"
-                type={showPassword ? 'text' : 'password'}
+                label="Password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 value={formData.password}
                 onChange={handleChange}
@@ -209,12 +226,16 @@ const LoginForm = () => {
               />
             </Grid>
           </Grid>
-          
+
           {/* رابط نسيت كلمة المرور */}
           <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
-            <Grid >
-              <Link href="#" variant="body2" sx={{ color: theme.palette.primary.light }}>
-                هل نسيت كلمة المرور؟
+            <Grid>
+              <Link
+                href="#"
+                variant="body2"
+                sx={{ color: theme.palette.primary.light }}
+              >
+                you forgot password?
               </Link>
             </Grid>
           </Grid>
@@ -224,19 +245,27 @@ const LoginForm = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5, position: 'relative' }}
+            sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'تسجيل الدخول'}
+            {isSubmitting ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              "تسجيل الدخول"
+            )}
           </Button>
 
           {/* رابط لإنشاء حساب جديد */}
           <Grid container justifyContent="center">
-            <Grid >
+            <Grid>
               <Typography variant="body2" color="text.secondary">
-                ليس لديك حساب؟
-                <Link href="#" variant="body2" sx={{ ml: 1, fontWeight: 'bold' }}>
-                    سجل الآن
+                Don't have an account?
+                <Link
+                  href="/signup"
+                  variant="body2"
+                  sx={{ ml: 1, fontWeight: "bold" }}
+                >
+                  Register
                 </Link>
               </Typography>
             </Grid>

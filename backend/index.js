@@ -6,9 +6,14 @@ require("dotenv").config();
 const cors = require("cors"); // للسماح لـ frontend بالاتصال بـ backend
 const path = require("path");
 const methodOverride = require("method-override");
-app.use(express.json());
-app.use(cors());
+const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
 
+app.use(cors({
+  origin: "http://localhost:5173", // استبدل هذا بعنوان الـ frontend الخاص بك
+  credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
+}));
+app.use(cookieParser());
+app.use(express.json());
 //============================================get routes======================================================
  
 const registerRoute = require("./Routes/Users.js");

@@ -28,6 +28,9 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
 import GrokIcon from "../styles/grokIcon";
 import { Button } from "@mui/material";
+import { useSignOutMutation } from "../pages/Api/Redux/userApi"; // Your RTK Query hook
+import { useDispatch } from "react-redux";
+import { HandleLogout } from "../pages/Api/auth";
 
 function ResponsiveDrawer({
   handleDrawerClose,
@@ -41,6 +44,8 @@ function ResponsiveDrawer({
   const location = useLocation();
   const iconColor = theme.palette.mode === "dark" ? "inherit" : "primary";
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [signOut, { isLoading, isSuccess, error }] = useSignOutMutation();
   //list items data
   const myList = [
     {
@@ -112,7 +117,6 @@ function ResponsiveDrawer({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          
         }}
       >
         <Link
@@ -159,9 +163,11 @@ function ResponsiveDrawer({
                 }}
                 disablePadding
               >
-                <ListItemButton sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}>
+                <ListItemButton
+                  sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
+                >
                   <ListItemIcon
-                    sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}
+                    sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
                   >
                     {item.icon}
                   </ListItemIcon>
@@ -181,14 +187,18 @@ function ResponsiveDrawer({
           >
             <IconButton>
               <PostAdd
-              color={iconColor}
+                color={iconColor}
                 sx={{ mr: 1, display: { xs: "none", sm: "block", md: "none" } }}
               />
             </IconButton>
-            <Button variant="outlined"
+            <Button
+              variant="outlined"
               sx={{
-                backgroundColor: theme.palette.mode === "dark" ? "white" : theme.palette.background.default,
-                color:  theme.palette.text.default,
+                backgroundColor:
+                  theme.palette.mode === "dark"
+                    ? "white"
+                    : theme.palette.background.default,
+                color: theme.palette.text.default,
                 border: "none",
                 fontSize: "15px",
                 borderRadius: "10px",
@@ -201,8 +211,16 @@ function ResponsiveDrawer({
               Add Post
             </Button>
           </ListItem>
-          <ListItem onClick={() => {}} sx={{ mt: 5, px: 0 }}>
-            <ListItemButton sx={{ justifyContent: { sm: "center", lg: "flex-start" }}}>
+          <ListItem
+            
+            sx={{ mt: 5, px: 0 }}
+          >
+            <ListItemButton
+            onClick={() => {
+              HandleLogout(dispatch, signOut);
+            }}
+              sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
+            >
               <ListItemIcon
                 sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
               >
@@ -217,12 +235,12 @@ function ResponsiveDrawer({
               />
             </ListItemButton>
           </ListItem>
-          
         </>
         {/* )} */}
       </List>
     </>
   );
+
   return (
     // Mobile drawer
     <>
@@ -231,7 +249,8 @@ function ResponsiveDrawer({
         open={mobileOpen} // Mobile drawer open state
         onTransitionEnd={handleDrawerTransitionEnd} // Handle transition end
         onClose={handleDrawerClose} // close drawer when press on any place outside drawer
-        sx={{ml: { xs: 0, sm: "240px"},
+        sx={{
+          ml: { xs: 0, sm: "240px" },
           display: { xs: "block", sm: "none" },
           "& .MuiDrawer-paper": { boxSizing: "border-box", width: "240px" },
         }}
@@ -246,31 +265,28 @@ function ResponsiveDrawer({
       {/* Permanent drawer for larger screens */}
       <Drawer
         variant="permanent"
-
         sx={{
           display: { xs: "none", sm: "block" },
           // الحل للمشكلة: position: sticky
-            position: "sticky",
-            top: '64px', // يلتصق أسفل AppBar
-            height: "calc(100vh - 64px)", // الارتفاع المتبقي من الشاشة
+          position: "sticky",
+          top: "64px", // يلتصق أسفل AppBar
+          height: "calc(100vh - 64px)", // الارتفاع المتبقي من الشاشة
           "& .MuiDrawer-paper": {
             boxSizing: "border-box",
-            width: { sm:"100px",md:`100%` },
-            minWidth:"100%",
-            transition: 'width 0.3s ease-out',
-             position: 'sticky', 
+            width: { sm: "100px", md: `100%` },
+            minWidth: "100%",
+            transition: "width 0.3s ease-out",
+            position: "sticky",
             top: "64px",
             height: `calc(100vh - 64px)`,
-             borderRight: '1px solid',
-              borderColor: 'divider',
+            borderRight: "1px solid",
+            borderColor: "divider",
           },
         }}
         open
       >
-      
         {drawer}
       </Drawer>
-      
     </>
   );
 }

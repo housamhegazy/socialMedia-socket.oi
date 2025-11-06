@@ -2,8 +2,11 @@ const jwt = require("jsonwebtoken");
 
 const AuthMiddleware = (req, res, next) => {
     // 1. استبدال 'Bearer' الصحيحة وإزالة المسافات البيضاء
-    const token = req.header("authorization")?.replace("Bearer", "").trim();
-
+    // هذا إذا كنت ترسل التوكن في الهيدر
+    // const headertToken = req.header("authorization")?.replace("Bearer", "").trim(); // نضيف في الفرونت كود هيدر بهذا الشكل: { Authorization: `Bearer ${token}` }
+    // هذا إذا كنت تستخدم الكوكيز لتخزين التوكن وهو اكثر أماناً في بعض الحالات
+    const cookiesToken = req.cookies?.token ; // نضيف في الفرونت كود الكوكيز   withCredentials: true
+    const token = cookiesToken;
     // 2. إرجاع الاستجابة في حالة عدم وجود توكن
     if (!token) {
         return res.status(401).json({ error: "no token provided" });
@@ -11,15 +14,14 @@ const AuthMiddleware = (req, res, next) => {
     try {
         // 3. استخدام jwt.verify لفحص التوكن
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
         // يمكن تخزين id المستخدم مباشرة في req.user
         // (إذا كانت الـ payload تحتوي على { id: user._id })
-        req.user = decoded; 
-        
+        console.log(decoded);
+        req.user = { id: decoded.id }; 
         next();
     } catch (error) {
-        // في حال فشل التحقق (انتهاء الصلاحية، توقيع خاطئ...)
-        return res.status(401).json({ error: "invalid token" });
+        console.error("❌ JWT verification error:", error.message);
+    return res.status(401).json({ error: "Invalid or expired token" });
     }
 };
 

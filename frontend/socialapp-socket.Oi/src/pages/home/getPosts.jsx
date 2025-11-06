@@ -47,7 +47,7 @@ const GetPosts = ({ posts, loading }) => {
               <CardHeader
                 avatar={
                   <Avatar sx={{ bgcolor: "#d93526" }} aria-label="recipe">
-                    <img src={post.owner ? post.owner.image : ""} alt="" />R
+                    <img src={post.owner && post.owner.image } alt="" />R
                   </Avatar>
                 }
                 action={
@@ -65,6 +65,7 @@ const GetPosts = ({ posts, loading }) => {
                 height="194"
                 image={post.image}
                 alt="Paella dish"
+                loading="lazy"
               />
               <CardContent>
                 <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -72,9 +73,10 @@ const GetPosts = ({ posts, loading }) => {
                 </Typography>
               </CardContent>
               <CardActions disableSpacing>
-                <IconButton aria-label="add to favorites">
-                  <FavoriteIcon />
+                <IconButton aria-label="likes">
+                  <FavoriteIcon /> 
                 </IconButton>
+                {Array.isArray(post?.likes) ? post.likes.length : 0}
                 <IconButton aria-label="share">
                   <ShareIcon />
                 </IconButton>

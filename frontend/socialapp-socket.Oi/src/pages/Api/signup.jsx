@@ -59,15 +59,15 @@ const SignUpForm = () => {
     let isValid = true;
 
     if (!formData.name.trim()) {
-      tempErrors.name = 'الاسم الأول مطلوب.';
+      tempErrors.name = 'First name is required.';
       isValid = false;
     }
     if (!formData.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)) {
-      tempErrors.email = 'البريد الإلكتروني غير صالح.';
+      tempErrors.email = 'Invalid email address.';
       isValid = false;
     }
     if (formData.password.length < 6) {
-      tempErrors.password = 'كلمة المرور يجب أن لا تقل عن 6 أحرف.';
+      tempErrors.password = 'password must be at least 6 characters long.';
       isValid = false;
     }
 
@@ -75,19 +75,19 @@ const SignUpForm = () => {
     return isValid;
   };
 
-  // وظيفة لمعالجة إرسال النموذج
+  // signup form submission handler
   const handleSubmit = async(e) => {
     e.preventDefault();
     if (validate()) {
       // هنا تضع منطق إرسال البيانات إلى الخادم (مثل API call)
       setIsSubmitting(true);
-      
       try{
         const response = await fetch(`http://localhost:3000/api/users/register`, {
           method: "POST",
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify(formData)
         })
          // التحقق من حالة الاستجابة
@@ -96,7 +96,7 @@ const SignUpForm = () => {
           console.log('User registered successfully:', result);
 
           setMessage({ 
-              text: `تم التسجيل بنجاح للبريد الإلكتروني: ${formData.email}`, 
+              text: `Registration successful for email: ${formData.email}`, 
               type: 'success' 
           });
           // مسح النموذج بعد التسجيل الناجح
@@ -105,7 +105,7 @@ const SignUpForm = () => {
         } else {
           // التعامل مع أخطاء الخادم (مثل بريد إلكتروني موجود مسبقًا)
           const errorData = await response.json();
-          const errorMessage = errorData.message || 'فشل التسجيل. يرجى المحاولة مرة أخرى.';
+          const errorMessage = errorData.message || 'Registration failed. Please try again.';
           console.error('Registration failed:', errorMessage);
 
           setMessage({ 
@@ -116,7 +116,7 @@ const SignUpForm = () => {
       }catch(error){
          console.error('Network or API call error:', error);
         setMessage({ 
-          text: 'حدث خطأ في الاتصال بالخادم.', 
+          text: 'Network or API call error.', 
           type: 'error' 
         });
       }finally {
@@ -126,7 +126,7 @@ const SignUpForm = () => {
 
     } else {
       setMessage({ 
-        text: 'يرجى تصحيح الأخطاء في النموذج قبل الإرسال.', 
+        text: 'please fix the errors above.', 
         type: 'error' 
       });
     }
@@ -152,7 +152,7 @@ const SignUpForm = () => {
           <LockOutlined />
         </Avatar>
         <Typography component="h1" variant="h5">
-          إنشاء حساب جديد
+          Create an Account
         </Typography>
 
         {/* رسالة النجاح أو الخطأ */}
@@ -173,7 +173,7 @@ const SignUpForm = () => {
                 name="name"
                 required
                 fullWidth
-                label="الاسم الأول"
+                label="Name"
                 autoFocus
                 value={formData.name}
                 onChange={handleChange}
@@ -187,7 +187,7 @@ const SignUpForm = () => {
               <TextField
                 required
                 fullWidth
-                label="عنوان البريد الإلكتروني"
+                label=" Email Address"
                 name="email"
                 autoComplete="email"
                 value={formData.email}
@@ -243,8 +243,8 @@ const SignUpForm = () => {
           {/* رابط لتسجيل الدخول */}
           <Grid container justifyContent="flex-end">
             <Grid >
-              <Link href="#" variant="body2" sx={{ color: theme.palette.primary.light }}>
-                هل لديك حساب بالفعل؟ قم بتسجيل الدخول
+              <Link href="/login" variant="body2" sx={{ color: theme.palette.getContrastText(theme.palette.background.paper) }}>
+                 you already have an account? Sign in
               </Link>
             </Grid>
           </Grid>

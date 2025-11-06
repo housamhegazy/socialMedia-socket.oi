@@ -3,8 +3,8 @@ import Root from "./Root";
 import Home from "./pages/home/Home";
 import LoadingPage from "./components/loadingPage";
 import Err_404Page from "./components/NotFound-404";
-import SignUpForm from "./pages/signup/signup";
-import LoginForm from "./pages/signup/signin";
+import SignUpForm from "./pages/Api/signup";
+import LoginForm from "./pages/Api/signin";
 
 function App() {
   const router = createBrowserRouter([

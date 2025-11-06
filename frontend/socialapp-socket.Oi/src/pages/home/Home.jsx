@@ -2,22 +2,32 @@ import Box from "@mui/material/Box/";
 import PostComposer from "./postcomposer";
 import GetPosts from "./getPosts";
 import { useEffect, useState } from "react";
+import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
+
 
 const Home = () => {
   //get posts states
   const [posts, setPosts] = useState([]);
-  const [loading,setLoading] = useState(false)
-  //send posts states 
+  const [loading, setLoading] = useState(false);
+  //send posts states
   const [postText, setPostText] = useState(""); // post text
-  const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box 
-  const [file, setFile] = useState(null); // save image to send to db 
+  const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
+  const [file, setFile] = useState(null); // save image to send to db
   const [preview, setPreview] = useState(null); // save image in preview in page
-  const [isPosting, setIsPosting] = useState(false);// loading during post tweet (for button loading)
+  const [isPosting, setIsPosting] = useState(false); // loading during post tweet (for button loading)
   const [errorMessage, setErrorMessage] = useState(null); // error message
+  const {
+    data: user, 
+    isLoading: userLoading,
+    refetch, // ✅ استخراج دالة refetch هنا
+    isError,
+  } = useGetUserByNameQuery(); // Fetch current user
 
+  {user && console.log("user fetched "  , user);}
   //======================================= get posts function ====================================================
-    const handleGetPosts = async () => {
-      setLoading(true)
+  const handleGetPosts = async () => {
+
+    setLoading(true);
     try {
       const response = await fetch(`http://localhost:3000/api/posts`, {
         method: "GET",
@@ -29,12 +39,12 @@ const Home = () => {
       }
     } catch (error) {
       console.log(error);
-    }finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
-    handleGetPosts()
+    handleGetPosts();
   }, []);
   //========================== save image to preview and in file to send it to backend  =================================
   const handleImage = async (e) => {
@@ -91,8 +101,8 @@ const Home = () => {
         return;
       }
       const data = await response.json();
-      console.log("data send successfully",data);
-      handleGetPosts()
+      console.log("data send successfully", data);
+      handleGetPosts();
       setPostText("");
       setFile(null);
       setPreview(null);
@@ -105,16 +115,28 @@ const Home = () => {
     }
   };
 
-
   //==========================================remove preview====================================
-    const handleRemoveImage = () => {
+  const handleRemoveImage = () => {
     setFile(null);
     setPreview(null);
   };
   return (
-    <Box sx={{width:"100%"}}>
-      <PostComposer {...{postText,preview,setPostText,handleRemoveImage,loadingPreview,isPosting,handlePost,handleImage,errorMessage,file}} />
-      <GetPosts {...{posts,loading}}/>
+    <Box sx={{ width: "100%" }}>
+      <PostComposer
+        {...{
+          postText,
+          preview,
+          setPostText,
+          handleRemoveImage,
+          loadingPreview,
+          isPosting,
+          handlePost,
+          handleImage,
+          errorMessage,
+          file,
+        }}
+      />
+      <GetPosts {...{ posts, loading }} />
     </Box>
   );
 };

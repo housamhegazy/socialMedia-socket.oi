@@ -3,6 +3,21 @@ const router = express.Router();
 const User = require("../Models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
+
+
+// protected route to set auth cookie
+function setAuthCookie(res, token) {
+  // إعداد الكوكيز مع الخيارات المناسبة
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 1 أسبوع
+  });
+}
+// dont forget to npm install cookie-parser in backend
+
 
 router.post("/register", async (req, res) => {
   // Handle user registration
@@ -29,6 +44,7 @@ router.post("/register", async (req, res) => {
     const token = jwt.sign({ id: NewUser._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
+    setAuthCookie(res, token);
 
     res.status(201).json({
       message: "user registered successfully",
@@ -63,6 +79,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
+    setAuthCookie(res, token);
     // تحديث حقل lastLogin
     user.lastLogin = new Date();
     await user.save();
@@ -81,10 +98,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  // Retrieve user by ID
+
+// get my profile (used in redux to get user data)
+router.get("/me/profile", AuthMiddleware, async (req, res) => {
+    // Retrieve user by ID
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.user.id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -94,17 +113,38 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.get("/me/profile", async (req, res) => {
-    // Retrieve user by ID
+
+router.post("/logout", (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true, // ✅ يمنع الوصول للتوكن من الجافاسكريبت في المتصفح
+      secure: process.env.NODE_ENV === "production", // ✅ الكوكي تكون محمية في HTTPS فقط في الإنتاج
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ⚠️ تعديل مهم
+      path: "/", // ✅ يضمن حذف الكوكي من كل المسارات
+    });
+    console.log("signedout");
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("❌ Logout error:", error.message);
+    return res.status(500).json({ error: "Logout failed" });
+  }
+});
+
+
+// الدخول على صفحة اي مستخدم في تويتر عن طريق الاي دي
+router.get("/:id", async (req, res) => {
+  // Retrieve user by ID
   try {
     const user = await User.findById(req.params.id).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 module.exports = router;
