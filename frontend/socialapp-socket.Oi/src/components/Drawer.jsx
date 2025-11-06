@@ -185,10 +185,10 @@ function ResponsiveDrawer({
                 sx={{ mr: 1, display: { xs: "none", sm: "block", md: "none" } }}
               />
             </IconButton>
-            <Button
+            <Button variant="outlined"
               sx={{
-                backgroundColor: theme.palette.mode === "dark" ? "white" : theme.palette.primary.main,
-                color: theme.palette.primary.main,
+                backgroundColor: theme.palette.mode === "dark" ? "white" : theme.palette.background.default,
+                color:  theme.palette.text.default,
                 border: "none",
                 fontSize: "15px",
                 borderRadius: "10px",

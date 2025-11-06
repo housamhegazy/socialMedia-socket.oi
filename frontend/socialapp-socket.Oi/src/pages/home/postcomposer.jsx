@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+
 import {
   Box,
   Avatar,
@@ -21,42 +21,11 @@ import {
   Public,
 } from "@mui/icons-material";
 import GrokIcon from "../../styles/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
-const PostComposer = ({handleGetPosts}) => {
+const PostComposer = ({postText,preview,setPostText,handleRemoveImage,loadingPreview,isPosting,handlePost,handleImage,errorMessage,file}) => {
   const theme = useTheme();
-  const [postText, setPostText] = useState("");
-  const [loadingPreview, setLoadingPreview] = useState(false);
-  const [file, setFile] = useState(null); // لتخزين الملف لإرساله
-  const [preview, setPreview] = useState(null); // لعرض الصوره في الصفحه بمجرد تحميلها
-  const [isPosting, setIsPosting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null); // لعرض رسالة خطأ بدلاً من alert
 
-  const handleImage = async (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-      return;
-    }
-    setFile(file);
-    setLoadingPreview(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      // 4. تعيين المسار المؤقت (Data URL) كقيمة للمعاينة
-      setPreview(reader.result);
-      setLoadingPreview(false);
-    };
-    reader.onerror = () => {
-      // 5. التعامل مع الخطأ (إذا فشلت القراءة)
-      console.error("FileReader failed to read the file.");
-      setLoadingPreview(false);
-      // يمكنك إضافة رسالة خطأ للمستخدم هنا
-    };
-    // 6. ⭐️ قراءة الملف كـ Data URL
-    reader.readAsDataURL(file);
-  };
 
-  const handleRemoveImage = () => {
-    setFile(null);
-    setPreview(null);
-  };
+
   // function to upload image to cloudinary and preview it in page from react
   // const handleImage = async (e) => {
   //   const image = e.target.files[0];
@@ -88,49 +57,7 @@ const PostComposer = ({handleGetPosts}) => {
   // };
 
   //function to send post to mongoo database
-  const handlePost = async () => {
-    setErrorMessage(null);
-    if (!postText.trim() && !file) {
-      setErrorMessage("Please enter text or select an image to post.");
-      return;
-    }
-
-    setIsPosting(true);
-    const formData = new FormData();
-    formData.append("text", postText.trim()); // إضافة النص
-
-    if (file) {
-      formData.append("image", file);
-    }
-
-    try {
-      const response = await fetch(`http://localhost:3000/api/posts`, {
-        method: "POST",
-        body: formData,
-        // credentials:"include"
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Post creation failed:", errorData);
-        setErrorMessage(
-          errorData.message ||
-            `Post creation failed with status: ${response.status}`
-        );
-        return;
-      }
-      const data = await response.json();
-      handleGetPosts()
-      setPostText("");
-      setFile(null);
-      setPreview(null);
-      setErrorMessage("Post uploaded successfully!");
-    } catch (error) {
-      console.error("Network or fetch error:", error);
-      setErrorMessage("Failed to connect to the server.");
-    } finally {
-      setIsPosting(false);
-    }
-  };
+  
   // تحديد ما إذا كان زر النشر نشطاً
   const isPostButtonEnabled = postText.trim().length > 0 || !!file;
   return (
