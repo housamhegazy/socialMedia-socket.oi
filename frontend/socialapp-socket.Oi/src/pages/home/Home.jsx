@@ -26,11 +26,11 @@ const Home = () => {
   {user && console.log("user fetched "  , user);}
   //======================================= get posts function ====================================================
   const handleGetPosts = async () => {
-
     setLoading(true);
     try {
       const response = await fetch(`http://localhost:3000/api/posts`, {
         method: "GET",
+        credentials:"include"
       });
       if (response.ok) {
         const data = await response.json();
@@ -84,12 +84,11 @@ const Home = () => {
     if (file) {
       formData.append("image", file);
     }
-
     try {
       const response = await fetch(`http://localhost:3000/api/posts`, {
         method: "POST",
         body: formData,
-        // credentials:"include"
+        credentials:"include"
       });
       if (!response.ok) {
         const errorData = await response.json();

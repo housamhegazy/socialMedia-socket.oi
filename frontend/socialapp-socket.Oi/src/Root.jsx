@@ -12,6 +12,8 @@ import ResponsiveDrawer from "./components/Drawer";
 import { useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
+import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
+
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
 const ContainerMaxWidth = 1200;
@@ -60,6 +62,12 @@ const Root = () => {
   //====== grid outlet  (no height)
   //====== grid sidebar (no height) position: 'sticky' top: "64px",
   //3-====footer
+    const {
+      data: user, 
+      isLoading: userLoading,
+      refetch, // ✅ استخراج دالة refetch هنا
+      isError,
+    } = useGetUserByNameQuery(); // Fetch current user
 
   return (
     <ThemeProvider theme={theme}>
@@ -86,12 +94,12 @@ const Root = () => {
             width: "100%",
             maxWidth: `${ContainerMaxWidth}px`,
             margin: "0 auto",
-            minHeight: "200vh",
+            minHeight: user ? "200vh" : `calc(100vh - 64px)`,
             flexWrap: "nowrap",
             alignItems: "stretch",
           }}
         >
-          <Grid
+        {user && <Grid
             size={{ xs: 0, sm: 2, md: 3 }}
             sx={{
               borderRight: "1px solid",
@@ -109,15 +117,16 @@ const Root = () => {
               theme={theme}
               handleTheme={handleTheme}
             />
-          </Grid>
-
+          </Grid>}
           <Grid
-            size={{ xs: 12, sm: 10, md: 6 }}
+            
+            size={user ? { xs: 12, sm: 10, md: 6 } : 12}
             sx={{
               display: "flex",
               flexDirection: "column",
               backgroundColor: theme.palette.background.default,
               borderRight: "1px solid",
+              borderLeft:"1px solid",
               borderColor: "divider",
               flexGrow: 1,
               minHeight: "calc(100vh - 64px)",
@@ -125,7 +134,7 @@ const Root = () => {
           >
             <Outlet />
           </Grid>
-          <Grid
+          {user && <Grid
             size={{ xs: 0, sm: 0, md: 3 }}
             sx={{
               position: "sticky",
@@ -134,7 +143,8 @@ const Root = () => {
             }}
           >
             <SideBar />
-          </Grid>
+          </Grid>}
+          
         </Grid>
         <Footer />
       </Box>

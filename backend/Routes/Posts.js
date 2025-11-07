@@ -9,7 +9,7 @@ const {
 } = require("../Utils/cloudinary.js");
 require("dotenv").config();
 
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", AuthMiddleware,upload.single("image"), async (req, res) => {
   try {
     const { text } = req.body;
     const imageFile = req.file;
@@ -42,7 +42,7 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/",AuthMiddleware, async (req, res) => {
   try {
     const posts = await PostModel.find()
       .populate("owner", "name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست

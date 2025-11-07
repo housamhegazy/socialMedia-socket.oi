@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -19,10 +19,13 @@ import {
   VisibilityOff,
 } from "@mui/icons-material"; // تم تغيير الأيقونة إلى LockOpen
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router";
+import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
 
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
   const theme = useTheme();
+  const navigate = useNavigate()
   // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
   const [formData, setFormData] = useState({
     email: "",
@@ -34,7 +37,18 @@ const LoginForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
+  const {
+    data: user, 
+    isLoading: userLoading,
+    refetch, // ✅ استخراج دالة refetch هنا
+    isError,
+  } = useGetUserByNameQuery(); // Fetch current user
 
+useEffect(() => {
+  if (user && !userLoading) {
+    navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
+  }
+}, [user, userLoading, navigate]);
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,6 +117,7 @@ const LoginForm = () => {
           });
           // في التطبيق الحقيقي، هنا يتم حفظ التوكن (Token) وإعادة توجيه المستخدم
           setFormData({ email: "", password: "" });
+          navigate("/")
         } else {
           // التعامل مع أخطاء الخادم (مثل بيانات اعتماد غير صحيحة)
           const errorData = await response.json();

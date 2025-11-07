@@ -15,11 +15,12 @@ import {
 } from '@mui/material';
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router';
 
 // المكون الرئيسي لتسجيل الدخول
 const SignUpForm = () => {
   const theme = useTheme();
-  
+  const navigate = useNavigate()
   // حالات تخزين بيانات النموذج
   const [formData, setFormData] = useState({
     name: '',
@@ -101,7 +102,7 @@ const SignUpForm = () => {
           });
           // مسح النموذج بعد التسجيل الناجح
           setFormData({ name: '', email: '', password: '' });
-
+          navigate("/")
         } else {
           // التعامل مع أخطاء الخادم (مثل بريد إلكتروني موجود مسبقًا)
           const errorData = await response.json();
