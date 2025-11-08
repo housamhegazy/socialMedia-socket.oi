@@ -20,8 +20,10 @@ export async function UserApi(userId) {
 export async function HandleLogout(dispatch, signOut, navigate) {
   try {
     await signOut().unwrap(); // ✅ ينفّذ الـ POST /api/users/logout
-   dispatch(clearAuthUser()); // ✅ يمسح بيانات المستخدم من الستور
-  window.location.replace("/signin"); // ✅ بدل navigate
+    window.location.replace("/signin"); // ✅ بدل navigate
+    setTimeout(() => {
+      dispatch(clearAuthUser());
+    }, 300); // ✅ يمسح بيانات المستخدم من الستور
     
   } catch (err) {
     console.error("Logout failed:", err);

@@ -85,15 +85,15 @@ const Root = () => {
     dispatch(setLoadingAuth(false));
   }, [apiuser, userLoading, isError, dispatch]);
 
-  //loading whene userloading
+  // loading whene userloading
   if (userLoading) {
     return <LoadingPage />;
   }
 
   // loading whene logpout and navigate to signin 
-  if (!isAuthenticated && !window.location.pathname.includes("/signin")) {
-    return <LoadingPage />;
-  }
+  // if (!isAuthenticated && !window.location.pathname.includes("/signin")) {
+  //   return <LoadingPage />;
+  // }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
