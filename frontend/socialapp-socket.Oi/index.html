@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -6,12 +6,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>socialapp-socket-oi</title>
     <link
-  rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
-/>
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    />
+    <style>
+      /* ✅ إزالة أي فراغ أو حواف بيضاء افتراضية من المتصفح */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000; /* دارك افتراضي */
+        overflow: hidden;
+      }
+
+      /* ✅ شاشة التحميل */
+      #startup-loader {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #000; /* دارك */
+        transition: opacity 0.4s ease;
+      }
+
+      /* ✅ الشعار في المنتصف */
+      #startup-loader img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        animation: fadeIn 1s ease-in-out infinite alternate;
+      }
+
+      /* ✅ تأثير خفيف زي تويتر */
+      @keyframes fadeIn {
+        from {
+          opacity: 0.6;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div id="root">
+       <!-- شاشة تحميل أولية -->
+      <div id="startup-loader">
+        <img src="https://img.freepik.com/free-vector/new-2023-twitter-logo-x-icon-design_1017-45418.jpg?semt=ais_hybrid&w=740&q=80" alt="Loading..." />
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx">
+// ✅ لما React يبدأ، نحذف شاشة التحميل بسلاسة
+      window.addEventListener("DOMContentLoaded", () => {
+        const root = document.getElementById("root");
+        const loader = document.getElementById("startup-loader");
+        const observer = new MutationObserver(() => {
+          if (root.children.length > 1) {
+            loader.style.opacity = "0";
+            setTimeout(() => loader.remove(), 400);
+            observer.disconnect();
+          }
+        });
+        observer.observe(root, { childList: true });
+      });
+    </script>
   </body>
 </html>

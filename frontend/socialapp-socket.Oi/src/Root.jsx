@@ -29,7 +29,6 @@ const Root = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -87,13 +86,12 @@ const Root = () => {
 
   // loading whene userloading
   if (userLoading) {
-    return <LoadingPage />;
+    return <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <LoadingPage />
+    </ThemeProvider>
   }
 
-  // loading whene logpout and navigate to signin 
-  // if (!isAuthenticated && !window.location.pathname.includes("/signin")) {
-  //   return <LoadingPage />;
-  // }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
