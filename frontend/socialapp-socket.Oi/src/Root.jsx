@@ -14,7 +14,11 @@ import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
 import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthUser, clearAuthUser, setLoadingAuth } from "./pages/Api/Redux/authSlice";
+import {
+  setAuthUser,
+  clearAuthUser,
+  setLoadingAuth,
+} from "./pages/Api/Redux/authSlice";
 import LoadingPage from "./components/loadingPage";
 
 // const drawerWidth = 200;
@@ -25,7 +29,7 @@ const Root = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -67,22 +71,29 @@ const Root = () => {
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
   //import user from auth slice to control drawer and sidebar
-  const { user,isAuthenticated ,isLoadingAuth} = useSelector((state) => state.auth);
+  const { user, isAuthenticated, isLoadingAuth } = useSelector(
+    (state) => state.auth
+  );
   useEffect(() => {
     dispatch(setLoadingAuth(true));
-        if (userLoading) return; // لسه بيجيب من السيرفر
-      if (apiuser) {
-        dispatch(setAuthUser(apiuser));
-      } else if (isError) {
-        dispatch(clearAuthUser());
-      }
+    if (userLoading) return; // لسه بيجيب من السيرفر
+    if (apiuser) {
+      dispatch(setAuthUser(apiuser));
+    } else if (isError) {
+      dispatch(clearAuthUser());
+    }
     dispatch(setLoadingAuth(false));
   }, [apiuser, userLoading, isError, dispatch]);
 
+  //loading whene userloading
   if (userLoading) {
     return <LoadingPage />;
   }
 
+  // loading whene logpout and navigate to signin 
+  if (!isAuthenticated && !window.location.pathname.includes("/signin")) {
+    return <LoadingPage />;
+  }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -123,7 +134,7 @@ const Root = () => {
                 position: "sticky",
                 top: "64px",
                 height: "100vh",
-                backgroundColor:theme.palette.background.default
+                backgroundColor: theme.palette.background.default,
               }}
             >
               <ResponsiveDrawer
@@ -146,7 +157,6 @@ const Root = () => {
               borderColor: "divider",
               flexGrow: 1,
               minHeight: "calc(100vh - 64px)",
-              
             }}
           >
             <Outlet />
@@ -158,7 +168,7 @@ const Root = () => {
                 position: "sticky",
                 top: "64px",
                 height: "100vh",
-                backgroundColor:theme.palette.background.default
+                backgroundColor: theme.palette.background.default,
               }}
             >
               <SideBar />
