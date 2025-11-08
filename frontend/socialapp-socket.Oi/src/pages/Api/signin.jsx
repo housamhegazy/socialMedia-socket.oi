@@ -123,6 +123,7 @@ const LoginForm = () => {
           setFormData({ email: "", password: "" });
           // window.location.reload(); // ✅ علشان يعيد تحميل التطبيق وتحديث بيانات المستخدم
           refetch()
+          // dispatch(setAuthUser(result.user));
           navigate("/");
         } else {
           // التعامل مع أخطاء الخادم (مثل بيانات اعتماد غير صحيحة)

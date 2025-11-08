@@ -15,6 +15,8 @@ import SideBar from "./components/SideBar";
 import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import { setAuthUser, clearAuthUser } from "./pages/Api/Redux/authSlice";
+import LoadingPage from "./components/loadingPage";
+
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
 const ContainerMaxWidth = 1200;
@@ -22,7 +24,8 @@ const Root = () => {
   //open and close drawer functions
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
+
   const handleDrawerClose = () => {
     setIsClosing(true);
     setMobileOpen(false);
@@ -56,13 +59,14 @@ const Root = () => {
     localStorage.setItem("localTheme", newMode);
   };
 
-// import data from api only here and update it in authslice in all website 
+
+  // const { user, isAuthenticated,isLoadingAuth } = useSelector((state) => state.auth);
+  // import data from api only here and update it in authslice to all website 
   const {
+    data: user,
     isLoading: userLoading,
-    refetch, // ✅ استخراج دالة refetch هنا
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
-  const { user } = useSelector((state) => state.auth);
 
 
 
@@ -76,6 +80,7 @@ const Root = () => {
     }
   }, [user, userLoading, isError, dispatch]);
 
+  if(userLoading){return (<LoadingPage/>)}
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
