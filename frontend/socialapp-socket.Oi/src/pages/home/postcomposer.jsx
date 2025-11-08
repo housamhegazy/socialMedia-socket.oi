@@ -6,8 +6,6 @@ import {
   Typography,
   Divider,
   Button,
-  Tabs,
-  Tab,
   IconButton,
   useTheme,
 } from "@mui/material";

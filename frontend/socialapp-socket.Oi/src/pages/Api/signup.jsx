@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Box,
@@ -16,11 +16,14 @@ import {
 import { LockOutlined, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
+import LoadingPage from '../../components/loadingPage';
 
 // المكون الرئيسي لتسجيل الدخول
 const SignUpForm = () => {
   const theme = useTheme();
   const navigate = useNavigate()
+    const { user, isAuthenticated,isLoadingAuth } = useSelector((state) => state.auth);
   // حالات تخزين بيانات النموذج
   const [formData, setFormData] = useState({
     name: '',
@@ -33,7 +36,11 @@ const SignUpForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
-
+useEffect(() => {
+  if (user && !isLoadingAuth) {
+    navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
+  }
+}, [user, isLoadingAuth, navigate]);
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -133,6 +140,7 @@ const SignUpForm = () => {
     }
   };
 
+if(!user){
   return (
     // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
     <Container component="main" maxWidth="xs">
@@ -253,6 +261,7 @@ const SignUpForm = () => {
       </Box>
     </Container>
   );
+}
 };
 
 

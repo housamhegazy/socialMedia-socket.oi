@@ -9,11 +9,12 @@ import AppBarComponent from "./components/AppBar";
 import { Outlet } from "react-router";
 import Footer from "./components/Footer";
 import ResponsiveDrawer from "./components/Drawer";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
 import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
-
+import { useDispatch, useSelector } from "react-redux";
+import { setAuthUser, clearAuthUser } from "./pages/Api/Redux/authSlice";
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
 const ContainerMaxWidth = 1200;
@@ -21,7 +22,7 @@ const Root = () => {
   //open and close drawer functions
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-
+  const dispatch = useDispatch();
   const handleDrawerClose = () => {
     setIsClosing(true);
     setMobileOpen(false);
@@ -55,19 +56,25 @@ const Root = () => {
     localStorage.setItem("localTheme", newMode);
   };
 
-  //container (flex - column )
-  //1-==== appbar
-  //2-====page(grid container)
-  //====== grid drawer (no height) position: 'sticky' top: "64px",
-  //====== grid outlet  (no height)
-  //====== grid sidebar (no height) position: 'sticky' top: "64px",
-  //3-====footer
-    const {
-      data: user, 
-      isLoading: userLoading,
-      refetch, // ✅ استخراج دالة refetch هنا
-      isError,
-    } = useGetUserByNameQuery(); // Fetch current user
+// import data from api only here and update it in authslice in all website 
+  const {
+    isLoading: userLoading,
+    refetch, // ✅ استخراج دالة refetch هنا
+    isError,
+  } = useGetUserByNameQuery(); // Fetch current user
+  const { user } = useSelector((state) => state.auth);
+
+
+
+  useEffect(() => {
+    if (!userLoading) {
+      if (user) {
+        dispatch(setAuthUser(user));
+      } else if (isError) {
+        dispatch(clearAuthUser());
+      }
+    }
+  }, [user, userLoading, isError, dispatch]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -99,34 +106,35 @@ const Root = () => {
             alignItems: "stretch",
           }}
         >
-        {user && <Grid
-            size={{ xs: 0, sm: 2, md: 3 }}
-            sx={{
-              borderRight: "1px solid",
-              borderColor: "divider",
-              flexShrink: 0,
-              position: "sticky",
-              top: "64px",
-              height: "100vh",
-            }}
-          >
-            <ResponsiveDrawer
-              handleDrawerClose={handleDrawerClose}
-              handleDrawerTransitionEnd={handleDrawerTransitionEnd}
-              mobileOpen={mobileOpen}
-              theme={theme}
-              handleTheme={handleTheme}
-            />
-          </Grid>}
+          {user && (
+            <Grid
+              size={{ xs: 0, sm: 2, md: 3 }}
+              sx={{
+                borderRight: "1px solid",
+                borderColor: "divider",
+                flexShrink: 0,
+                position: "sticky",
+                top: "64px",
+                height: "100vh",
+              }}
+            >
+              <ResponsiveDrawer
+                handleDrawerClose={handleDrawerClose}
+                handleDrawerTransitionEnd={handleDrawerTransitionEnd}
+                mobileOpen={mobileOpen}
+                theme={theme}
+                handleTheme={handleTheme}
+              />
+            </Grid>
+          )}
           <Grid
-            
             size={user ? { xs: 12, sm: 10, md: 6 } : 12}
             sx={{
               display: "flex",
               flexDirection: "column",
               backgroundColor: theme.palette.background.default,
               borderRight: "1px solid",
-              borderLeft:"1px solid",
+              borderLeft: "1px solid",
               borderColor: "divider",
               flexGrow: 1,
               minHeight: "calc(100vh - 64px)",
@@ -134,17 +142,18 @@ const Root = () => {
           >
             <Outlet />
           </Grid>
-          {user && <Grid
-            size={{ xs: 0, sm: 0, md: 3 }}
-            sx={{
-              position: "sticky",
-              top: "64px",
-              height: "100vh",
-            }}
-          >
-            <SideBar />
-          </Grid>}
-          
+          {user && (
+            <Grid
+              size={{ xs: 0, sm: 0, md: 3 }}
+              sx={{
+                position: "sticky",
+                top: "64px",
+                height: "100vh",
+              }}
+            >
+              <SideBar />
+            </Grid>
+          )}
         </Grid>
         <Footer />
       </Box>

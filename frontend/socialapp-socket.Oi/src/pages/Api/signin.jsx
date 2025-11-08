@@ -20,12 +20,15 @@ import {
 } from "@mui/icons-material"; // تم تغيير الأيقونة إلى LockOpen
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
+// import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
+import { useDispatch, useSelector } from "react-redux";
+import LoadingPage from "../../components/loadingPage";
+import { useGetUserByNameQuery } from "./Redux/userApi";
 
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
   const theme = useTheme();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
   const [formData, setFormData] = useState({
     email: "",
@@ -37,18 +40,19 @@ const LoginForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-  const {
-    data: user, 
-    isLoading: userLoading,
-    refetch, // ✅ استخراج دالة refetch هنا
-    isError,
-  } = useGetUserByNameQuery(); // Fetch current user
 
-useEffect(() => {
-  if (user && !userLoading) {
-    navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
-  }
-}, [user, userLoading, navigate]);
+  const { user, isAuthenticated, isLoadingAuth } = useSelector(
+    (state) => state.auth
+  );
+
+  const {
+    refetch, // ✅ استخراج دالة refetch هنا
+  } = useGetUserByNameQuery(); // Fetch current user
+  useEffect(() => {
+    if (user && !isLoadingAuth) {
+      navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
+    }
+  }, [user, isLoadingAuth, navigate]);
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -100,7 +104,7 @@ useEffect(() => {
           headers: {
             "Content-Type": "application/json",
           },
-          credentials: 'include',
+          credentials: "include",
           body: JSON.stringify(formData),
         });
 
@@ -117,7 +121,9 @@ useEffect(() => {
           });
           // في التطبيق الحقيقي، هنا يتم حفظ التوكن (Token) وإعادة توجيه المستخدم
           setFormData({ email: "", password: "" });
-          navigate("/")
+          // window.location.reload(); // ✅ علشان يعيد تحميل التطبيق وتحديث بيانات المستخدم
+          refetch()
+          navigate("/");
         } else {
           // التعامل مع أخطاء الخادم (مثل بيانات اعتماد غير صحيحة)
           const errorData = await response.json();
@@ -147,148 +153,158 @@ useEffect(() => {
       });
     }
   };
+  if (isLoadingAuth) {
+    return <LoadingPage />;
+  }
 
-  return (
-    // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          p: 3,
-          borderRadius: 2,
-          boxShadow:
-            theme.palette.mode === "dark"
-              ? "0 0 20px rgba(255, 255, 255, 0.1)"
-              : "0 0 20px rgba(0, 0, 0, 0.1)",
-          bgcolor: theme.palette.background.paper,
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
-          <LockOpenOutlined />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign In
-        </Typography>
-
-        {/* رسالة النجاح أو الخطأ */}
-        {message.text && (
-          <Typography
-            color={
-              message.type === "success"
-                ? theme.palette.success.main
-                : theme.palette.error.main
-            }
-            sx={{ mt: 2, fontWeight: "bold" }}
-          >
-            {message.text}
+  if (!user) {
+    return (
+      // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Box
+          sx={{
+            marginTop: 8,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            p: 3,
+            borderRadius: 2,
+            boxShadow:
+              theme.palette.mode === "dark"
+                ? "0 0 20px rgba(255, 255, 255, 0.1)"
+                : "0 0 20px rgba(0, 0, 0, 0.1)",
+            bgcolor: theme.palette.background.paper,
+          }}
+        >
+          <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
+            <LockOpenOutlined />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Sign In
           </Typography>
-        )}
 
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid
-            container
-            spacing={2}
-            direction="column"
-            justifyContent="center"
+          {/* رسالة النجاح أو الخطأ */}
+          {message.text && (
+            <Typography
+              color={
+                message.type === "success"
+                  ? theme.palette.success.main
+                  : theme.palette.error.main
+              }
+              sx={{ mt: 2, fontWeight: "bold" }}
+            >
+              {message.text}
+            </Typography>
+          )}
+
+          <Box
+            component="form"
+            noValidate
+            onSubmit={handleSubmit}
+            sx={{ mt: 3 }}
           >
-            {/* البريد الإلكتروني */}
-            <Grid>
-              <TextField
-                required
-                fullWidth
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={!!errors.email}
-                helperText={errors.email}
-                dir="ltr"
-              />
+            <Grid
+              container
+              spacing={2}
+              direction="column"
+              justifyContent="center"
+            >
+              {/* البريد الإلكتروني */}
+              <Grid>
+                <TextField
+                  required
+                  fullWidth
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  dir="ltr"
+                />
+              </Grid>
+              {/* كلمة المرور */}
+              <Grid>
+                <TextField
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={!!errors.password}
+                  helperText={errors.password}
+                  dir="ltr"
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          onMouseDown={(e) => e.preventDefault()}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
             </Grid>
-            {/* كلمة المرور */}
-            <Grid>
-              <TextField
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                helperText={errors.password}
-                dir="ltr"
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)}
-                        onMouseDown={(e) => e.preventDefault()}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-          </Grid>
 
-          {/* رابط نسيت كلمة المرور */}
-          <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
-            <Grid>
-              <Link
-                href="#"
-                variant="body2"
-                sx={{ color: theme.palette.primary.light }}
-              >
-                you forgot password?
-              </Link>
-            </Grid>
-          </Grid>
-
-          {/* زر تسجيل الدخول */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <CircularProgress size={24} color="inherit" />
-            ) : (
-              "تسجيل الدخول"
-            )}
-          </Button>
-
-          {/* رابط لإنشاء حساب جديد */}
-          <Grid container justifyContent="center">
-            <Grid>
-              <Typography variant="body2" color="text.secondary">
-                Don't have an account?
+            {/* رابط نسيت كلمة المرور */}
+            <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
+              <Grid>
                 <Link
-                  href="/signup"
+                  href="#"
                   variant="body2"
-                  sx={{ ml: 1, fontWeight: "bold" }}
+                  sx={{ color: theme.palette.primary.light }}
                 >
-                  Register
+                  you forgot password?
                 </Link>
-              </Typography>
+              </Grid>
             </Grid>
-          </Grid>
+
+            {/* زر تسجيل الدخول */}
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "تسجيل الدخول"
+              )}
+            </Button>
+
+            {/* رابط لإنشاء حساب جديد */}
+            <Grid container justifyContent="center">
+              <Grid>
+                <Typography variant="body2" color="text.secondary">
+                  Don't have an account?
+                  <Link
+                    href="/signup"
+                    variant="body2"
+                    sx={{ ml: 1, fontWeight: "bold" }}
+                  >
+                    Register
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
         </Box>
-      </Box>
-    </Container>
-  );
+      </Container>
+    );
+  }
 };
 
 export default LoginForm;

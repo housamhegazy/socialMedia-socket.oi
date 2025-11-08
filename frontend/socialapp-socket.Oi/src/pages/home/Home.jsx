@@ -2,7 +2,10 @@ import Box from "@mui/material/Box/";
 import PostComposer from "./postcomposer";
 import GetPosts from "./getPosts";
 import { useEffect, useState } from "react";
-import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
+// import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
+import { useNavigate } from "react-router";
+import LoadingPage from "../../components/loadingPage";
+import { useSelector } from "react-redux";
 
 
 const Home = () => {
@@ -16,14 +19,9 @@ const Home = () => {
   const [preview, setPreview] = useState(null); // save image in preview in page
   const [isPosting, setIsPosting] = useState(false); // loading during post tweet (for button loading)
   const [errorMessage, setErrorMessage] = useState(null); // error message
-  const {
-    data: user, 
-    isLoading: userLoading,
-    refetch, // ✅ استخراج دالة refetch هنا
-    isError,
-  } = useGetUserByNameQuery(); // Fetch current user
+  const navigate = useNavigate()
+  const { user, isAuthenticated,isLoadingAuth } = useSelector((state) => state.auth);
 
-  {user && console.log("user fetched "  , user);}
   //======================================= get posts function ====================================================
   const handleGetPosts = async () => {
     setLoading(true);
@@ -44,8 +42,14 @@ const Home = () => {
     }
   };
   useEffect(() => {
+      if (isLoadingAuth) return; // لسه بيجيب بيانات المستخدم، استنى
+
+    if(!user){
+      navigate("/signin")
+      return;
+    }
     handleGetPosts();
-  }, []);
+  }, [navigate, user, isLoadingAuth]);
   //========================== save image to preview and in file to send it to backend  =================================
   const handleImage = async (e) => {
     const file = e.target.files[0];
@@ -119,6 +123,12 @@ const Home = () => {
     setFile(null);
     setPreview(null);
   };
+
+  if(isLoadingAuth){
+    return (<LoadingPage/>)
+  }
+  if (!user) return null; // لأن navigate هيشتغل أصلاً، فمش لازم ترندر الصفحة
+
   return (
     <Box sx={{ width: "100%" }}>
       <PostComposer
