@@ -9,12 +9,10 @@ import {
   Stack,
   TextField,
   Typography,
-  useTheme,
 } from "@mui/material";
 import TrendsCard from "./trendCard";
 
 const SideBar = () => {
-  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -31,11 +29,12 @@ const SideBar = () => {
       role="presentation"
     >
       {/* search box */}
-      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",py:2,width:"100%"}}>
+      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",p:2,width:"100%"}}>
         <TextField
           id="outlined-search"
           label="Search field"
           type="search"
+          sx={{width:"100%"}}
           
         />
       </Box>

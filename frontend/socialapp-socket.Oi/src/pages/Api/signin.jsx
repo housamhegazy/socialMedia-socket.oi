@@ -29,30 +29,30 @@ import { useGetUserByNameQuery } from "./Redux/userApi";
 const LoginForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
 
   // حالات التحقق من الأخطاء
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-
   const { user, isAuthenticated, isLoadingAuth } = useSelector(
     (state) => state.auth
   );
 
-  const {
-    refetch, // ✅ استخراج دالة refetch هنا
-  } = useGetUserByNameQuery(); // Fetch current user
+  const { refetch } = useGetUserByNameQuery();
+  // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
   useEffect(() => {
-    if (user && !isLoadingAuth) {
-      navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
+    if (isAuthenticated && user && !isLoadingAuth) {
+      navigate("/"); // ✅ يروح للهوم فقط لما المستخدم فعلاً داخل
     }
-  }, [user, isLoadingAuth, navigate]);
+  }, [isAuthenticated, user, isLoadingAuth, navigate]);
+
+
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -122,7 +122,7 @@ const LoginForm = () => {
           // في التطبيق الحقيقي، هنا يتم حفظ التوكن (Token) وإعادة توجيه المستخدم
           setFormData({ email: "", password: "" });
           // window.location.reload(); // ✅ علشان يعيد تحميل التطبيق وتحديث بيانات المستخدم
-          refetch()
+          refetch();
           // dispatch(setAuthUser(result.user));
           navigate("/");
         } else {

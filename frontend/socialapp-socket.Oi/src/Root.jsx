@@ -6,7 +6,7 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import AppBarComponent from "./components/AppBar";
-import { Outlet } from "react-router";
+import { Outlet, useNavigate } from "react-router";
 import Footer from "./components/Footer";
 import ResponsiveDrawer from "./components/Drawer";
 import { useEffect, useMemo, useState } from "react";
@@ -25,6 +25,7 @@ const Root = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -65,12 +66,11 @@ const Root = () => {
     isLoading: userLoading,
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
-
+  //import user from auth slice to control drawer and sidebar
+  const { user,isAuthenticated ,isLoadingAuth} = useSelector((state) => state.auth);
   useEffect(() => {
     dispatch(setLoadingAuth(true));
         if (userLoading) return; // لسه بيجيب من السيرفر
-
-    
       if (apiuser) {
         dispatch(setAuthUser(apiuser));
       } else if (isError) {
@@ -79,11 +79,10 @@ const Root = () => {
     dispatch(setLoadingAuth(false));
   }, [apiuser, userLoading, isError, dispatch]);
 
-  //import user from auth slice to control drawer and sidebar
-  const { user } = useSelector((state) => state.auth);
   if (userLoading) {
     return <LoadingPage />;
   }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -114,7 +113,7 @@ const Root = () => {
             alignItems: "stretch",
           }}
         >
-          {user && (
+          {isAuthenticated && (
             <Grid
               size={{ xs: 0, sm: 2, md: 3 }}
               sx={{
@@ -137,7 +136,7 @@ const Root = () => {
             </Grid>
           )}
           <Grid
-            size={user ? { xs: 12, sm: 10, md: 6 } : 12}
+            size={isAuthenticated ? { xs: 12, sm: 10, md: 6 } : 12}
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -152,7 +151,7 @@ const Root = () => {
           >
             <Outlet />
           </Grid>
-          {user && (
+          {isAuthenticated && (
             <Grid
               size={{ xs: 0, sm: 0, md: 3 }}
               sx={{

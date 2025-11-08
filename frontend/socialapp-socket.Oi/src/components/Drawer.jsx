@@ -45,7 +45,8 @@ function ResponsiveDrawer({
   const iconColor = theme.palette.mode === "dark" ? "inherit" : "primary";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [signOut, { isLoading, isSuccess, error }] = useSignOutMutation();
+  const [signOut,{ isLoading, isSuccess, error }] = useSignOutMutation();
+  
   //list items data
   const myList = [
     {
