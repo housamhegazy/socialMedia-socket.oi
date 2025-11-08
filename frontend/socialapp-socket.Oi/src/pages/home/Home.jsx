@@ -20,7 +20,8 @@ const Home = () => {
   const [isPosting, setIsPosting] = useState(false); // loading during post tweet (for button loading)
   const [errorMessage, setErrorMessage] = useState(null); // error message
   const navigate = useNavigate()
-  const { user, isAuthenticated,isLoadingAuth } = useSelector((state) => state.auth);
+  // @ts-ignore
+  const { user,isLoadingAuth } = useSelector((state) => state.auth);
 
   //======================================= get posts function ====================================================
   const handleGetPosts = async () => {
@@ -143,6 +144,7 @@ const Home = () => {
           handleImage,
           errorMessage,
           file,
+          user
         }}
       />
       <GetPosts {...{ posts, loading }} />

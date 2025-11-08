@@ -23,16 +23,15 @@ const SideBar = () => {
         position: "sticky",
         top: "64px",
         height: "calc(100vh - 64px)",
-        bgcolor: "background.paper",
         overflowY: "auto",
         // boxShadow: 1,
         // flexShrink: 0,
-        borderLeft: `1px solid ${theme.palette.divider}`,
+        // border: `1px solid ${theme.palette.divider}`,
       }}
       role="presentation"
     >
       {/* search box */}
-      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",py:2}}>
+      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",py:2,width:"100%"}}>
         <TextField
           id="outlined-search"
           label="Search field"
@@ -40,9 +39,9 @@ const SideBar = () => {
           
         />
       </Box>
-      <Divider />
-      <List>
-        <ListItem>
+      
+      <List sx={{width:`calc(100% - 18px)`}}>
+        <ListItem sx={{border:"1px solid",borderColor:"divider",borderRadius:"10px",my:2,mx:"10px"}}>
           <Stack direction="column" spacing={2} sx={{width:"100%"}}>
             <Typography
               color="inhirit"
@@ -58,8 +57,8 @@ const SideBar = () => {
             </Button>
           </Stack>
         </ListItem>
-        <Divider />
-        <ListItem>
+    
+        <ListItem sx={{border:"1px solid",borderColor:"divider",borderRadius:"10px",my:2,mx:"10px"}}>
           <Stack direction="column" spacing={2} sx={{width:"100%"}}>
             <Box>
               <Typography
@@ -150,7 +149,7 @@ const SideBar = () => {
                 </span>
               </Box>
             </Box>
-            <Divider />
+        
             
           </Stack>
         </ListItem>

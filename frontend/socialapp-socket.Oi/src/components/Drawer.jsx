@@ -217,7 +217,7 @@ function ResponsiveDrawer({
           >
             <ListItemButton
             onClick={() => {
-              HandleLogout(dispatch, signOut);
+              HandleLogout(dispatch, signOut,navigate);
             }}
               sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
             >
@@ -267,7 +267,6 @@ function ResponsiveDrawer({
         variant="permanent"
         sx={{
           display: { xs: "none", sm: "block" },
-          // الحل للمشكلة: position: sticky
           position: "sticky",
           top: "64px", // يلتصق أسفل AppBar
           height: "calc(100vh - 64px)", // الارتفاع المتبقي من الشاشة
@@ -279,8 +278,10 @@ function ResponsiveDrawer({
             position: "sticky",
             top: "64px",
             height: `calc(100vh - 64px)`,
-            borderRight: "1px solid",
-            borderColor: "divider",
+            backgroundColor:theme.palette.background.default
+            // borderRight: "1px solid",
+            // borderColor: "divider",
+            
           },
         }}
         open

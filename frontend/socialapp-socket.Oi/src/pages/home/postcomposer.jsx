@@ -1,4 +1,3 @@
-
 import {
   Box,
   Avatar,
@@ -19,10 +18,20 @@ import {
   Public,
 } from "@mui/icons-material";
 import GrokIcon from "../../styles/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
-const PostComposer = ({postText,preview,setPostText,handleRemoveImage,loadingPreview,isPosting,handlePost,handleImage,errorMessage,file}) => {
+const PostComposer = ({
+  postText,
+  preview,
+  setPostText,
+  handleRemoveImage,
+  loadingPreview,
+  isPosting,
+  handlePost,
+  handleImage,
+  errorMessage,
+  file,
+  user
+}) => {
   const theme = useTheme();
-
-
 
   // function to upload image to cloudinary and preview it in page from react
   // const handleImage = async (e) => {
@@ -55,7 +64,7 @@ const PostComposer = ({postText,preview,setPostText,handleRemoveImage,loadingPre
   // };
 
   //function to send post to mongoo database
-  
+
   // تحديد ما إذا كان زر النشر نشطاً
   const isPostButtonEnabled = postText.trim().length > 0 || !!file;
   return (
@@ -71,7 +80,7 @@ const PostComposer = ({postText,preview,setPostText,handleRemoveImage,loadingPre
         {/* صورة المستخدم (Avatar) */}
         <Avatar
           alt="User"
-          src="" // استبدلها بمسار صورة المستخدم الفعلي
+          src= {user?.avatar}
           sx={{ width: 48, height: 48, mt: 1 }}
         />
 
@@ -133,12 +142,12 @@ const PostComposer = ({postText,preview,setPostText,handleRemoveImage,loadingPre
           {/* أيقونة Grok / AI */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <GrokIcon
-              size={20}
-              color={
-                theme.palette.mode == "dark"
-                  ? theme.palette.text.secondary
-                  : theme.palette.primary.main
-              }
+              // size={20}
+              // color={
+              //   theme.palette.mode == "dark"
+              //     ? theme.palette.text.secondary
+              //     : theme.palette.primary.main
+              // }
             />
           </Box>
 

@@ -16,14 +16,14 @@ export async function UserApi(userId) {
   }
 }
 
-
 //logout
-export async function HandleLogout(dispatch,signOut){
-    try {
-      await signOut().unwrap(); // ✅ ينفّذ الـ POST /api/users/logout
-      dispatch(clearAuthUser()); // ✅ يمسح بيانات المستخدم من الستور
-      window.location.href = "/signin"; // ✅ يرجع المستخدم لصفحة تسجيل الدخول
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  };
+export async function HandleLogout(dispatch, signOut, navigate) {
+  try {
+    await signOut().unwrap(); // ✅ ينفّذ الـ POST /api/users/logout
+    dispatch(clearAuthUser()); // ✅ يمسح بيانات المستخدم من الستور
+    navigate("/signin", { replace: true });
+    
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
+}

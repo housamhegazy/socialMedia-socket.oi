@@ -14,7 +14,7 @@ import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
 import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
-import { setAuthUser, clearAuthUser } from "./pages/Api/Redux/authSlice";
+import { setAuthUser, clearAuthUser, setLoadingAuth } from "./pages/Api/Redux/authSlice";
 import LoadingPage from "./components/loadingPage";
 
 // const drawerWidth = 200;
@@ -24,7 +24,7 @@ const Root = () => {
   //open and close drawer functions
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -59,28 +59,31 @@ const Root = () => {
     localStorage.setItem("localTheme", newMode);
   };
 
-
-  // const { user, isAuthenticated,isLoadingAuth } = useSelector((state) => state.auth);
-  // import data from api only here and update it in authslice to all website 
+  // import data from api only here and update it in authslice to all website
   const {
-    data: user,
+    data: apiuser,
     isLoading: userLoading,
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
 
-
-
   useEffect(() => {
-    if (!userLoading) {
-      if (user) {
-        dispatch(setAuthUser(user));
+    dispatch(setLoadingAuth(true));
+        if (userLoading) return; // لسه بيجيب من السيرفر
+
+    
+      if (apiuser) {
+        dispatch(setAuthUser(apiuser));
       } else if (isError) {
         dispatch(clearAuthUser());
       }
-    }
-  }, [user, userLoading, isError, dispatch]);
+    dispatch(setLoadingAuth(false));
+  }, [apiuser, userLoading, isError, dispatch]);
 
-  if(userLoading){return (<LoadingPage/>)}
+  //import user from auth slice to control drawer and sidebar
+  const { user } = useSelector((state) => state.auth);
+  if (userLoading) {
+    return <LoadingPage />;
+  }
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -115,12 +118,13 @@ const Root = () => {
             <Grid
               size={{ xs: 0, sm: 2, md: 3 }}
               sx={{
-                borderRight: "1px solid",
-                borderColor: "divider",
+                // border: "1px solid",
+                // borderColor: "divider",
                 flexShrink: 0,
                 position: "sticky",
                 top: "64px",
                 height: "100vh",
+                backgroundColor:theme.palette.background.default
               }}
             >
               <ResponsiveDrawer
@@ -143,6 +147,7 @@ const Root = () => {
               borderColor: "divider",
               flexGrow: 1,
               minHeight: "calc(100vh - 64px)",
+              
             }}
           >
             <Outlet />
@@ -154,6 +159,7 @@ const Root = () => {
                 position: "sticky",
                 top: "64px",
                 height: "100vh",
+                backgroundColor:theme.palette.background.default
               }}
             >
               <SideBar />

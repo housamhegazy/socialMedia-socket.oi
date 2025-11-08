@@ -3,7 +3,6 @@ import { useTheme } from "@mui/material/styles";
 
 const LoadingPage = ({ text = "Loading..." }) => {
   const theme = useTheme();
-
   return (
     <Box
       sx={{
