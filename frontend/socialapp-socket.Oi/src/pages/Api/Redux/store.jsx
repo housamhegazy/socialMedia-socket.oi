@@ -4,13 +4,16 @@ import { setupListeners } from '@reduxjs/toolkit/query'
 import authReducer from "./user/authSlice"; // <--- استيراد authReducer
 import { userApi } from './user/userApi'
 import { postsApi } from './posts/postsApi';
+import themeReducer from "./theme/themeSlice";
+
 
 export const store = configureStore({
   reducer: {
     // Add the generated reducer as a specific top-level slice
     [userApi.reducerPath]: userApi.reducer,
     [postsApi.reducerPath]: postsApi.reducer, // ربط الـ API بالستور
-    auth: authReducer, // <--- يجب أن يكون هذا موجودًا
+    auth: authReducer, //خاصه بحالة المستخدم
+    theme: themeReducer,// theme
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.

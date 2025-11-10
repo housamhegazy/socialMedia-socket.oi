@@ -7,9 +7,12 @@ import SignUpForm from "./pages/signin-signup/signup";
 import LoginForm from "./pages/signin-signup/signin";
 import UserProfilePage  from "./pages/userprofile/userProfile";
 import { useSelector } from "react-redux";
+// import { lightTheme, darkTheme } from "./pages/Api/Redux/theme/getDesignTokens"; // حسب إعدادك
 
 function App() {
     const {  isAuthenticated } = useSelector((state) => state.auth);
+  // const { mode } = useSelector((state) => state.theme); // مثلا dark/light
+  // const theme = mode === "dark" ? darkTheme : lightTheme;
 
   const router = createBrowserRouter([
     {

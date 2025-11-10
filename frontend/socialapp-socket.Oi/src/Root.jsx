@@ -6,11 +6,11 @@ import {
   ThemeProvider,
 } from "@mui/material";
 import AppBarComponent from "./components/AppBar";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import Footer from "./components/Footer";
 import ResponsiveDrawer from "./components/Drawer";
 import { useEffect, useMemo, useState } from "react";
-import getDesignTokens from "./styles/theme";
+import getDesignTokens from "./pages/Api/Redux/theme/getDesignTokens";
 import SideBar from "./components/SideBar";
 import { useGetUserByNameQuery } from "./pages/Api/Redux/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +20,8 @@ import {
   setLoadingAuth,
 } from "./pages/Api/Redux/user/authSlice";
 import LoadingPage from "./components/loadingPage";
+import { setMode } from "./pages/Api/Redux/theme/themeSlice"; // اضف هذا
+
 
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
@@ -48,18 +50,11 @@ const Root = () => {
   //theme functions
   // ###############################
   //get theme from local storage
-  const localTheme = localStorage.getItem("localTheme");
-  //set initial theme
-  const [mode, setmode] = useState(
-    localTheme === null ? "light" : localTheme === "light" ? "light" : "dark"
-  );
-
-  //memoize theme لانه بيمنع تكرار تغيير الثيم مع كل تحميل للصفحات واستهلاك الباندويدز
+  const mode = useSelector((state) => state.theme.mode);
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
-  //change theme function
   const handleTheme = () => {
     const newMode = mode === "light" ? "dark" : "light";
-    setmode(newMode);
+    dispatch(setMode(newMode));
     localStorage.setItem("localTheme", newMode);
   };
 

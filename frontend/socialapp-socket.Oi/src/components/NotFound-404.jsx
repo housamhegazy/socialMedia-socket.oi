@@ -1,78 +1,82 @@
 import React from "react";
 import { useRouteError } from "react-router-dom";
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, Button, useTheme } from "@mui/material";
 
 const Err_404Page = () => {
   const error = useRouteError();
-  // console.error("Route Error Details:", error); // يمكنك إبقاؤها لتصحيح الأخطاء
-  const theme = useTheme(); // 💡 الوصول إلى الثيم الحالي
-  //============================================
-  let title = "الصفحة غير موجودة (404)";
-  let detailMessage = "نأسف، لا يوجد مسار يطابق طلبك. تأكد من صحة العنوان.";
+  const theme = useTheme();
+
+  // 🔹 القيم الافتراضية لصفحة 404
+  let title = "الصفحة غير موجودة";
+  let detailMessage = "عذرًا، لم نتمكن من العثور على الصفحة التي تبحث عنها.";
   let statusDisplay = "404 🚫";
-  let isNotFoundError = true;
 
-  // 💡 التحقق: إذا كان هناك خطأ مُمرَّر، فهذا ليس خطأ 404 للمسار، بل هو خطأ في الكود/الـ Loader
+  // 🔹 التحقق من نوع الخطأ
   if (error) {
-    isNotFoundError = false;
-    // @ts-ignore
-    statusDisplay = error.status && error.status !== 404 ? error.status : "خطأ";
-    title = "حدث خطأ أثناء تحميل الصفحة! 🛑";
-
-    // محاولة استخراج رسالة الخطأ
-    let errorMessage =
-      error && typeof error === "object" && "message" in error
-        ? error.message
-        : error && typeof error === "object" && "statusText" in error
-        ? error.statusText
-        : "حدث خطأ غير متوقع في جلب البيانات.";
-
-    detailMessage = `التفاصيل الفنية: ${errorMessage}`;
+    const isCustomError = error.status && error.status !== 404;
+    if (isCustomError) {
+      statusDisplay = error.status || "خطأ";
+      title = "حدث خطأ أثناء تحميل الصفحة 🛑";
+      detailMessage =
+        error.statusText ||
+        error.message ||
+        "حدث خطأ غير متوقع أثناء جلب البيانات.";
+    }
   }
 
   return (
     <Box
       sx={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: theme.palette.background.default,
+        color: theme.palette.text.primary,
         textAlign: "center",
-        mt: 8,
-        p: 3,
-        backgroundColor: isNotFoundError && theme.palette.background.default,
-        borderRadius: 2,
-        border: `1px solid ${
-          isNotFoundError
-            ? theme.palette.primary.light
-            : theme.palette.primary.dark
-        }`,
+        px: 3,
       }}
     >
       <Typography
         variant="h1"
-        color={isNotFoundError && theme.palette.text.primary}
-        gutterBottom
+        sx={{
+          fontWeight: "bold",
+          mb: 1,
+          color: theme.palette.primary.main,
+          fontSize: { xs: "4rem", sm: "6rem" },
+        }}
       >
         {statusDisplay}
       </Typography>
 
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" sx={{ mb: 2 }}>
         {title}
       </Typography>
 
-      {/* عرض الرسالة المناسبة للحالة */}
       <Typography
         variant="body1"
-        sx={{ mt: 2, color: isNotFoundError && theme.palette.text.primary }}
+        sx={{
+          mb: 4,
+          maxWidth: "500px",
+          color: theme.palette.text.secondary,
+        }}
       >
         {detailMessage}
       </Typography>
 
-      {!isNotFoundError && (
-        <Typography
-          variant="body2"
-          sx={{ mt: 4, color: theme.palette.text.primary }}
-        >
-          يرجى محاولة تحديث الصفحة أو العودة إلى الصفحة الرئيسية.
-        </Typography>
-      )}
+      <Button
+        variant="contained"
+        onClick={() => (window.location.href = "/")}
+        sx={{
+          borderRadius: "20px",
+          textTransform: "none",
+          fontWeight: "bold",
+          px: 3,
+        }}
+      >
+        العودة إلى الصفحة الرئيسية
+      </Button>
     </Box>
   );
 };
