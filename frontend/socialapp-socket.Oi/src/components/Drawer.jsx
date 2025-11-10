@@ -28,9 +28,9 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
 import GrokIcon from "../styles/grokIcon";
 import { Button } from "@mui/material";
-import { useSignOutMutation } from "../pages/Api/Redux/userApi"; // Your RTK Query hook
+import { useSignOutMutation } from "../pages/Api/Redux/user/userApi"; // Your RTK Query hook
 import { useDispatch } from "react-redux";
-import { HandleLogout } from "../pages/Api/auth";
+import { clearAuthUser } from "../pages/Api/Redux/user/authSlice";
 
 function ResponsiveDrawer({
   handleDrawerClose,
@@ -46,6 +46,20 @@ function ResponsiveDrawer({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [signOut,{ isLoading, isSuccess, error }] = useSignOutMutation();
+  
+
+const HandleLogout = async ()=> {
+    try {
+      await signOut().unwrap(); // ✅ ينفّذ الـ POST /api/users/logout
+      window.location.replace("/signin"); // ✅ بدل navigate
+      setTimeout(() => {
+        dispatch(clearAuthUser());
+      }, 300); // ✅ يمسح بيانات المستخدم من الستور
+      
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  }
   
   //list items data
   const myList = [
@@ -218,7 +232,7 @@ function ResponsiveDrawer({
           >
             <ListItemButton
             onClick={() => {
-              HandleLogout(dispatch, signOut,navigate);
+              HandleLogout();
             }}
               sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
             >

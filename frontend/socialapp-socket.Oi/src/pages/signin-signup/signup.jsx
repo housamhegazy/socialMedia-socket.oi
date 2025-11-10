@@ -13,46 +13,39 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import {
-  LockOpenOutlined,
-  Visibility,
-  VisibilityOff,
-} from "@mui/icons-material"; // تم تغيير الأيقونة إلى LockOpen
+import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-// import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
-import { useDispatch, useSelector } from "react-redux";
-import LoadingPage from "../../components/loadingPage";
-import { useGetUserByNameQuery } from "./Redux/userApi";
+import { useSelector } from "react-redux";
+import { useSignupMutation } from "../Api/Redux/user/userApi";
 
 // المكون الرئيسي لتسجيل الدخول
-const LoginForm = () => {
+const SignUpForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-
-  // حالات التحقق من الأخطاء
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
-  const { user, isAuthenticated, isLoadingAuth } = useSelector(
+  const { user, isLoadingAuth } = useSelector(
     (state) => state.auth
   );
 
-  const { refetch } = useGetUserByNameQuery();
-  // حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)
+  // ==================== signup =============================
+  const [signup, { isLoading, isError, error }] = useSignupMutation();
+  // حالات تخزين بيانات النموذج
   const [formData, setFormData] = useState({
+    username: "",
+    name: "",
     email: "",
     password: "",
   });
 
+  // حالات التحقق من الأخطاء
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
   useEffect(() => {
-    if (isAuthenticated && user && !isLoadingAuth) {
-      navigate("/"); // ✅ يروح للهوم فقط لما المستخدم فعلاً داخل
+    if (user && !isLoadingAuth) {
+      navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
     }
-  }, [isAuthenticated, user, isLoadingAuth, navigate]);
-
-
+  }, [user, isLoadingAuth, navigate]);
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -77,13 +70,31 @@ const LoginForm = () => {
   const validate = () => {
     let tempErrors = {};
     let isValid = true;
-
-    if (!formData.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)) {
-      tempErrors.email = "please enter a valid email address.";
+    // تحقق من أن اسم المستخدم ليس فارغًا
+    if (!formData.username.trim()) {
+      tempErrors.username = "Username is required.";
+      isValid = false;
+    } else if (/\s/.test(formData.username)) {
+      // تحقق من وجود مسافات
+      tempErrors.username = "Username cannot contain spaces.";
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]{3,20}$/.test(formData.username)) {
+      tempErrors.username =
+        "Username should be alphanumeric and between 3-20 characters.";
       isValid = false;
     }
-    if (!formData.password) {
-      tempErrors.password = "password is required.";
+
+    if (!formData.name.trim()) {
+      tempErrors.name = "Name is required.";
+      isValid = false;
+    }
+
+    if (!formData.email.match(/^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i)) {
+      tempErrors.email = "Invalid email address.";
+      isValid = false;
+    }
+    if (formData.password.length < 6) {
+      tempErrors.password = "password must be at least 6 characters long.";
       isValid = false;
     }
 
@@ -91,72 +102,50 @@ const LoginForm = () => {
     return isValid;
   };
 
-  // وظيفة لمعالجة إرسال النموذج وإجراء اتصال API
+  // signup form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      setIsSubmitting(true);
+    if (!validate()) {
+      setMessage({
+        text: "Please enter valid credentials to sign in.",
+        type: "error",
+      });
+      return;
+    }
+    try {
+      const response = await signup(formData).unwrap(); // ✅ RTK Query mutation
+      // التحقق من حالة الاستجابة
+      if (response.ok) {
+        const result = await response.json();
+        console.log("User registered successfully:", result);
 
-      try {
-        // استخدام نقطة نهاية تسجيل الدخول (login)
-        const response = await fetch(`http://localhost:3000/api/users/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(formData),
-        });
-
-        // التحقق من حالة الاستجابة
-        if (response.ok) {
-          const result = await response.json();
-          console.log("User logged in successfully:", result);
-
-          setMessage({
-            text: `Login successful. Welcome ${
-              result.user?.name || formData.email
-            }!`,
-            type: "success",
-          });
-          // في التطبيق الحقيقي، هنا يتم حفظ التوكن (Token) وإعادة توجيه المستخدم
-          setFormData({ email: "", password: "" });
-          // window.location.reload(); // ✅ علشان يعيد تحميل التطبيق وتحديث بيانات المستخدم
-          refetch();
-          // dispatch(setAuthUser(result.user));
-          navigate("/");
-        } else {
-          // التعامل مع أخطاء الخادم (مثل بيانات اعتماد غير صحيحة)
-          const errorData = await response.json();
-          const errorMessage =
-            errorData.message || "Login failed. Please try again.";
-          console.error("Login failed:", errorMessage);
-
-          setMessage({
-            text: errorMessage,
-            type: "error",
-          });
-        }
-      } catch (error) {
-        console.error("Network or API call error:", error);
         setMessage({
-          text: "Network or API call error.",
+          text: `Registration successful for email: ${formData.email}`,
+          type: "success",
+        });
+        // مسح النموذج بعد التسجيل الناجح
+        setFormData({ username: "", name: "", email: "", password: "" });
+        navigate("/");
+      } else {
+        // التعامل مع أخطاء الخادم (مثل بريد إلكتروني موجود مسبقًا)
+        const errorData = await response.json();
+        const errorMessage =
+          errorData.message || "Registration failed. Please try again.";
+        console.error("Registration failed:", errorMessage);
+
+        setMessage({
+          text: errorMessage,
           type: "error",
         });
-      } finally {
-        // سواء نجح الإرسال أو فشل، نوقف حالة التحميل
-        setIsSubmitting(false);
       }
-    } else {
+    } catch (error) {
+      console.error("Network or API call error:", error);
       setMessage({
-        text: "please enter valid credentials to sign in.",
+        text: "Network or API call error.",
         type: "error",
       });
     }
   };
-  if (isLoadingAuth) {
-    return <LoadingPage />;
-  }
 
   if (!user) {
     return (
@@ -178,11 +167,11 @@ const LoginForm = () => {
             bgcolor: theme.palette.background.paper,
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
-            <LockOpenOutlined />
+          <Avatar sx={{ m: 1, bgcolor: theme.palette.secondary.main }}>
+            <LockOutlined />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign In
+            Create an Account
           </Typography>
 
           {/* رسالة النجاح أو الخطأ */}
@@ -208,22 +197,51 @@ const LoginForm = () => {
             <Grid
               container
               spacing={2}
-              direction="column"
-              justifyContent="center"
+              sx={{ flexDirection: "column", justifyContent: "center" }}
             >
+              {/*  username */}
+              <Grid>
+                <TextField
+                  name="username"
+                  required
+                  fullWidth
+                  label="username"
+                  autoFocus
+                  value={formData.username}
+                  onChange={handleChange}
+                  error={!!errors.username}
+                  helperText={errors.username}
+                  dir="rtl"
+                />
+              </Grid>
+              {/* الاسم الأول */}
+              <Grid>
+                <TextField
+                  name="name"
+                  required
+                  fullWidth
+                  label="Name"
+                  autoFocus
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={!!errors.name}
+                  helperText={errors.name}
+                  dir="rtl"
+                />
+              </Grid>
               {/* البريد الإلكتروني */}
               <Grid>
                 <TextField
                   required
                   fullWidth
-                  label="Email Address"
+                  label=" Email Address"
                   name="email"
                   autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   error={!!errors.email}
                   helperText={errors.email}
-                  dir="ltr"
+                  dir="ltr" // البريد الإلكتروني يفضل أن يكون باتجاه اليسار
                 />
               </Grid>
               {/* كلمة المرور */}
@@ -232,9 +250,9 @@ const LoginForm = () => {
                   required
                   fullWidth
                   name="password"
-                  label="Password"
+                  label="كلمة المرور"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
                   error={!!errors.password}
@@ -258,47 +276,35 @@ const LoginForm = () => {
               </Grid>
             </Grid>
 
-            {/* رابط نسيت كلمة المرور */}
-            <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
-              <Grid>
-                <Link
-                  href="#"
-                  variant="body2"
-                  sx={{ color: theme.palette.primary.light }}
-                >
-                  you forgot password?
-                </Link>
-              </Grid>
-            </Grid>
-
-            {/* زر تسجيل الدخول */}
+            {/* زر التسجيل */}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
-              disabled={isSubmitting}
+              disabled={isLoading}
             >
-              {isSubmitting ? (
+              {isLoading ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                "تسجيل الدخول"
+                "Signup"
               )}
             </Button>
 
-            {/* رابط لإنشاء حساب جديد */}
-            <Grid container justifyContent="center">
+            {/* رابط لتسجيل الدخول */}
+            <Grid container justifyContent="flex-end">
               <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Don't have an account?
-                  <Link
-                    href="/signup"
-                    variant="body2"
-                    sx={{ ml: 1, fontWeight: "bold" }}
-                  >
-                    Register
-                  </Link>
-                </Typography>
+                <Link
+                  href="/login"
+                  variant="body2"
+                  sx={{
+                    color: theme.palette.getContrastText(
+                      theme.palette.background.paper
+                    ),
+                  }}
+                >
+                  you already have an account? Sign in
+                </Link>
               </Grid>
             </Grid>
           </Box>
@@ -308,4 +314,4 @@ const LoginForm = () => {
   }
 };
 
-export default LoginForm;
+export default SignUpForm;

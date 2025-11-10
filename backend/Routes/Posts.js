@@ -9,7 +9,7 @@ const {
 } = require("../Utils/cloudinary.js");
 require("dotenv").config();
 
-router.post("/", AuthMiddleware,upload.single("image"), async (req, res) => {
+router.post("/", AuthMiddleware, upload.single("image"), async (req, res) => {
   try {
     const { text } = req.body;
     const imageFile = req.file;
@@ -31,7 +31,7 @@ router.post("/", AuthMiddleware,upload.single("image"), async (req, res) => {
     }
     // upload all data to mongoo db
     const newPost = new PostModel({
-      owner: req.user ? req.user.id : null,
+      owner: req.user.id,
       text,
       image: imageURl,
     });
@@ -42,15 +42,40 @@ router.post("/", AuthMiddleware,upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/",AuthMiddleware, async (req, res) => {
+//get all posts for all users
+router.get("/", AuthMiddleware, async (req, res) => {
   try {
     const posts = await PostModel.find()
-      .populate("owner", "name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
+      .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
       .populate("likes") //الهدف: استبدال كل ID داخل مصفوفة الإعجابات بالبيانات الكاملة للمستخدمين الذين قاموا بالإعجاب.
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+//get posts for one user
+router.get("/:userId", AuthMiddleware, async (req, res) => {
+  const userId = req.params.userId;
+  console.log(userId);
+  try {
+    // استعلام جلب المنشورات الخاصة بالمستخدم باستخدام الـ userId
+    const posts = await PostModel.find({ owner: userId }) // استخدام find للبحث عن منشورات هذا المستخدم
+      .populate("owner", "username name email avatar") // جلب بيانات صاحب المنشور
+      .populate("likes") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
+      .sort({ createdAt: -1 }); // ترتيب المنشورات حسب تاريخ الإنشاء بشكل تنازلي
+
+    if (!posts || posts.length === 0) {
+      console.log("No posts found for this user");
+      return res.status(200).json([]); 
+    }
+
+    console.log("Posts fetched successfully");
+    res.status(200).json(posts); // ✅ حالة النجاح العادية
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message }); // إرجاع رسالة الخطأ إذا فشل الاستعلام
   }
 });
 

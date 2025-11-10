@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
 
-
 // protected route to set auth cookie
 function setAuthCookie(res, token) {
   // إعداد الكوكيز مع الخيارات المناسبة
@@ -18,21 +17,26 @@ function setAuthCookie(res, token) {
 }
 // dont forget to npm install cookie-parser in backend
 
-
 router.post("/register", async (req, res) => {
   // Handle user registration
-  console.log("Registering user:", req.body.name);
   try {
-    const { name, email, password } = req.body;
+    const { username, name, email, password } = req.body;
     // تحقق مما إذا كان المستخدم موجودًا بالفعل
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
+    // تحقق مما إذا كان اسم المستخدم موجودًا بالفعل
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
     // إنشاء مستخدم جديد
 
     const hashedPassword = await bcrypt.hash(password, 10); // 10 مستوى صعوبة التشفير
     const NewUser = new User({
+      username,
       name,
       email,
       password: hashedPassword,
@@ -51,6 +55,7 @@ router.post("/register", async (req, res) => {
       token,
       user: {
         id: NewUser._id,
+        username: NewUser.username,
         name: NewUser.name,
         email: NewUser.email,
         avatar: NewUser.avatar,
@@ -98,10 +103,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
 // get my profile (used in redux to get user data)
 router.get("/me/profile", AuthMiddleware, async (req, res) => {
-    // Retrieve user by ID
+  // Retrieve user by ID
   try {
     const user = await User.findById(req.user.id).select("-password");
     if (!user) {
@@ -112,7 +116,6 @@ router.get("/me/profile", AuthMiddleware, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 router.post("/logout", (req, res) => {
   try {
@@ -130,21 +133,20 @@ router.post("/logout", (req, res) => {
   }
 });
 
-
 // الدخول على صفحة اي مستخدم في تويتر عن طريق الاي دي
-router.get("/:id", async (req, res) => {
+router.get("/:username", AuthMiddleware,async (req, res) => {
   // Retrieve user by ID
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findOne({ username: req.params.username })
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    
     res.status(200).json(user);
+    console.log("user is " , user)
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 module.exports = router;

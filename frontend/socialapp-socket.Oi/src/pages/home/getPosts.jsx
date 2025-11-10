@@ -1,26 +1,41 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import CardHeader from "@mui/material/CardHeader";
-import CardMedia from "@mui/material/CardMedia";
-import CardActions from "@mui/material/CardActions";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Box, Typography } from "@mui/material";
 import LoadingPage from "../../components/loadingPage";
+import CardComponent from "../userprofile/cardComponent";
+import { useGetAllPostsQuery } from "../Api/Redux/posts/postsApi";
 
 // start
-const GetPosts = ({ posts, loading }) => {
-  if (loading) {
+const GetPosts = () => {
+  const {
+    data: posts = [], // 🧩 ندي قيمة افتراضية لتفادي الخطأ لو undefined
+    isLoading,
+    isError,
+    error,
+  } = useGetAllPostsQuery();
+
+  if (isLoading) {
     return <LoadingPage />;
   }
-  if (!posts || posts.length < 1) {
+
+
+  // ❌ حالة الخطأ
+  if (isError) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "50vh",
+        }}
+      >
+        <Typography color="error">
+          {error?.data?.message || "Error while fetching posts"}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (posts.length === 0) {
     return (
       <Box
         sx={{
@@ -30,7 +45,9 @@ const GetPosts = ({ posts, loading }) => {
           justifyContent: "center",
         }}
       >
-        no data
+        <Typography variant="body1" color="text.secondary">
+          No posts available yet.
+        </Typography>
       </Box>
     );
   }
@@ -39,50 +56,7 @@ const GetPosts = ({ posts, loading }) => {
       {posts &&
         posts.length > 0 &&
         posts.map((post) => {
-          return (
-            <Card
-              key={post._id}
-              sx={{ maxWidth: "100%", margin: "0 auto", my: 5 }}
-            >
-              <CardHeader
-                avatar={
-                  <Avatar sx={{ bgcolor: "#d93526" }} aria-label="recipe">
-                    <img src={post.owner && post.owner.image } alt="" />R
-                  </Avatar>
-                }
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
-                  </IconButton>
-                }
-                title={
-                  post.owner ? post.owner.name : "Shrimp and Chorizo Paella"
-                }
-                subheader={post.createdAt}
-              />
-              <CardMedia
-                component="img"
-                height="194"
-                image={post.image}
-                alt="Paella dish"
-                loading="lazy"
-              />
-              <CardContent>
-                <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                  {post.text}
-                </Typography>
-              </CardContent>
-              <CardActions disableSpacing>
-                <IconButton aria-label="likes">
-                  <FavoriteIcon /> 
-                </IconButton>
-                {Array.isArray(post?.likes) ? post.likes.length : 0}
-                <IconButton aria-label="share">
-                  <ShareIcon />
-                </IconButton>
-              </CardActions>
-            </Card>
-          );
+          return <CardComponent post={post} key={post?._id} />;
         })}
     </Box>
   );

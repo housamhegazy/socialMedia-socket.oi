@@ -4,7 +4,7 @@ const PostSchema = new mongoose.Schema(
   {
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      required: false,
+      required: true,
       ref: "User", // ربط هذا الحقل بنموذج المستخدم
     },
     text: {

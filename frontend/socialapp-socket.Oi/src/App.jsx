@@ -3,8 +3,9 @@ import Root from "./Root";
 import Home from "./pages/home/Home";
 import LoadingPage from "./components/loadingPage";
 import Err_404Page from "./components/NotFound-404";
-import SignUpForm from "./pages/Api/signup";
-import LoginForm from "./pages/Api/signin";
+import SignUpForm from "./pages/signin-signup/signup";
+import LoginForm from "./pages/signin-signup/signin";
+import UserProfilePage  from "./pages/userprofile/userProfile";
 import { useSelector } from "react-redux";
 
 function App() {
@@ -19,6 +20,10 @@ function App() {
         {
           index: true,
           element: isAuthenticated ? <Home /> : <Navigate to="/signin" replace />,
+        }, 
+        {
+          path: "/:username",
+          element: isAuthenticated ? <UserProfilePage  /> : <Navigate to="/" replace />,
         }, 
         {
           path: "/signup",

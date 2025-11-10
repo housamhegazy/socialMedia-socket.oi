@@ -12,13 +12,13 @@ import ResponsiveDrawer from "./components/Drawer";
 import { useEffect, useMemo, useState } from "react";
 import getDesignTokens from "./styles/theme";
 import SideBar from "./components/SideBar";
-import { useGetUserByNameQuery } from "./pages/Api/Redux/userApi"; // Your RTK Query hook
+import { useGetUserByNameQuery } from "./pages/Api/Redux/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import {
   setAuthUser,
   clearAuthUser,
   setLoadingAuth,
-} from "./pages/Api/Redux/authSlice";
+} from "./pages/Api/Redux/user/authSlice";
 import LoadingPage from "./components/loadingPage";
 
 // const drawerWidth = 200;

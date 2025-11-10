@@ -11,6 +11,30 @@ export const userApi = createApi({
       query: () => `/api/users/me/profile`,
       providesTags: ['User'],
     }),
+    //get any user profile in website
+    getUserByUserName: builder.query({
+      query: (username) => `/api/users/${username}`,
+      providesTags: ['User'],
+    }),
+        // ✅ Sign up new user
+    signup: builder.mutation({
+      query: (body) => ({
+        url: "/api/users/register",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["User"],
+    }),
+
+    // ✅ Sign in existing user
+    signin: builder.mutation({
+      query: (body) => ({
+        url: "/api/users/login",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["User"],
+    }),
      signOut: builder.mutation({
       query: () => ({
         url: '/api/users/logout',
@@ -22,4 +46,5 @@ export const userApi = createApi({
 })
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetUserByNameQuery ,useSignOutMutation } = userApi
+export const { useGetUserByNameQuery,useGetUserByUserNameQuery ,useSignupMutation,
+  useSigninMutation,useSignOutMutation } = userApi

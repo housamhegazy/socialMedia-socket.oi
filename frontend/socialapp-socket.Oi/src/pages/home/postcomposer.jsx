@@ -18,52 +18,75 @@ import {
   Public,
 } from "@mui/icons-material";
 import GrokIcon from "../../styles/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
-const PostComposer = ({
-  postText,
-  preview,
-  setPostText,
-  handleRemoveImage,
-  loadingPreview,
-  isPosting,
-  handlePost,
-  handleImage,
-  errorMessage,
-  file,
-  user
-}) => {
+import { useState } from "react";
+import {
+  useCreatePostMutation,
+  useGetAllPostsQuery,
+} from "../Api/Redux/posts/postsApi";
+const PostComposer = ({ user }) => {
   const theme = useTheme();
+  const [createPost, { isLoading, isError, error }] = useCreatePostMutation();
+  //store data of post states
+  const [postText, setPostText] = useState(""); // post text
+  const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
+  const [file, setFile] = useState(null); // save image to send to db
+  const [preview, setPreview] = useState(null); // save image in preview in page
+  const [Message, setMessage] = useState(null); // error message
+  const [status, setStatus] = useState(null); // 'success' | 'error' | null
 
-  // function to upload image to cloudinary and preview it in page from react
-  // const handleImage = async (e) => {
-  //   const image = e.target.files[0];
-  //   if (!image) {
-  //     return;
-  //   }
-  //   setLoadingPreview(true);
-  //   //send image to cloudinary and preview it
-  //   const formData = new FormData();
-  //   formData.append("file", image);
-  //   formData.append("upload_preset", "posts-unsigned"); // preset name in cloudinary
-  //   formData.append("folder", "socialmediaApp/posts");
-  //   try {
-  //     const response = await fetch(
-  //       "https://api.cloudinary.com/v1_1/ditaxyrbs/image/upload",
-  //       {
-  //         method: "POST",
-  //         body: formData,
-  //       }
-  //     );
-  //     const data = await response.json();
-  //     setPreview(data.secure_url);
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert("upload failed");
-  //   } finally {
-  //     setLoadingPreview(false);
-  //   }
-  // };
+  const handleImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    setFile(file);
+    setLoadingPreview(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // 4. تعيين المسار المؤقت (Data URL) كقيمة للمعاينة
+      setPreview(reader.result);
+      setLoadingPreview(false);
+    };
+    reader.onerror = () => {
+      // 5. التعامل مع الخطأ (إذا فشلت القراءة)
+      console.error("FileReader failed to read the file.");
+      setLoadingPreview(false);
+      // يمكنك إضافة رسالة خطأ للمستخدم هنا
+    };
+    // 6. ⭐️ قراءة الملف كـ Data URL
+    reader.readAsDataURL(file);
+  };
+  //==============================send posts to database=========================================================
+  const handlePost = async () => {
+    setMessage(null);
+    if (!postText.trim() && !file) {
+      setMessage("Please enter text or select an image to post.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("text", postText.trim()); // إضافة النص
 
-  //function to send post to mongoo database
+    if (file) {
+      formData.append("image", file);
+    }
+    try {
+      await createPost(formData).unwrap(); // unwrap لتعامل أفضل مع الأخطاء
+      setFile(null);
+      setPreview(null);
+      setStatus("success");
+      setMessage("Post uploaded successfully!");
+      // refetch(); // إعادة تحميل البوستات
+    } catch (error) {
+      setStatus("error");
+      setMessage("Failed to connect to the server.");
+    }
+  };
+
+  //==========================================remove preview====================================
+  const handleRemoveImage = () => {
+    setFile(null);
+    setPreview(null);
+  };
 
   // تحديد ما إذا كان زر النشر نشطاً
   const isPostButtonEnabled = postText.trim().length > 0 || !!file;
@@ -80,7 +103,7 @@ const PostComposer = ({
         {/* صورة المستخدم (Avatar) */}
         <Avatar
           alt="User"
-          src= {user?.avatar}
+          src={user?.avatar}
           sx={{ width: 48, height: 48, mt: 1 }}
         />
 
@@ -141,14 +164,7 @@ const PostComposer = ({
           )}
           {/* أيقونة Grok / AI */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <GrokIcon
-              // size={20}
-              // color={
-              //   theme.palette.mode == "dark"
-              //     ? theme.palette.text.secondary
-              //     : theme.palette.primary.main
-              // }
-            />
+            <GrokIcon />
           </Box>
 
           {/* زر تحديد الجمهور (Everyone can reply) */}
@@ -272,7 +288,7 @@ const PostComposer = ({
               variant="contained"
               onClick={handlePost}
               // ⭐️ تم تعديل شرط التعطيل ليشمل النص أو وجود ملف
-              disabled={!isPostButtonEnabled || isPosting}
+              disabled={!isPostButtonEnabled || isLoading}
               sx={{
                 textTransform: "none",
                 fontWeight: "bold",
@@ -281,21 +297,22 @@ const PostComposer = ({
                 padding: "8px 16px",
               }}
             >
-              {isPosting ? "Posting..." : "Post"}
+              {isLoading ? "Posting..." : "Post"}
             </Button>
           </Box>
           {/* رسائل الخطأ/النجاح */}
-          {errorMessage && (
+          {Message && (
             <Typography
               variant="body2"
               sx={{
-                color: errorMessage.includes("success")
-                  ? theme.palette.success.main
-                  : theme.palette.error.main,
+                color:
+                  status === "success"
+                    ? theme.palette.success.main
+                    : theme.palette.error.main,
                 mt: 1,
               }}
             >
-              {errorMessage}
+              {Message}
             </Typography>
           )}
         </Box>
