@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { MoreVert, DeleteForever, PersonAdd } from "@mui/icons-material";
 
-export default function ProfileMenu({ onDelete, isMyProfile }) {
+export default function ProfileMenu({ onDelete, isMyProfile,BtnName }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
@@ -55,7 +55,7 @@ export default function ProfileMenu({ onDelete, isMyProfile }) {
             <ListItemIcon>
               <DeleteForever fontSize="small" color="error" />
             </ListItemIcon>
-            <Typography variant="body2">Delete All</Typography>
+            <Typography variant="body2">{BtnName}</Typography>
           </MenuItem>
         ) : (
           <MenuItem sx={{ color: "text.main" }}>
