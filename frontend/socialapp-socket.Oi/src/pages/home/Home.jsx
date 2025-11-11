@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import LoadingPage from "../../components/loadingPage";
 import { useSelector } from "react-redux";
-import { useCreatePostMutation } from "../Api/Redux/posts/postsApi";
+import { useCreatePostMutation } from "../../Api/posts/postsApi";
 
 const Home = () => {
     const { user, isLoadingAuth } = useSelector((state) => state.auth);

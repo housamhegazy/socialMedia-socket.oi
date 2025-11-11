@@ -13,7 +13,7 @@ import UserProfilePage from "./pages/userprofile/userProfile";
 import { useSelector } from "react-redux";
 import { useMemo } from "react";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
-import getDesignTokens from "./pages/Api/Redux/theme/getDesignTokens";
+import getDesignTokens from "./Api/theme/getDesignTokens";
 // import { lightTheme, darkTheme } from "./pages/Api/Redux/theme/getDesignTokens"; // حسب إعدادك
 
 function App() {

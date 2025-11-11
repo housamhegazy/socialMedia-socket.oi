@@ -17,12 +17,12 @@ import {
   LocationOnOutlined,
   Public,
 } from "@mui/icons-material";
-import GrokIcon from "../../styles/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
+import GrokIcon from "../../components/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
 import { useState } from "react";
 import {
   useCreatePostMutation,
   useGetAllPostsQuery,
-} from "../Api/Redux/posts/postsApi";
+} from "../../Api/posts/postsApi";
 const PostComposer = ({ user }) => {
   const theme = useTheme();
   const [createPost, { isLoading, isError, error }] = useCreatePostMutation();

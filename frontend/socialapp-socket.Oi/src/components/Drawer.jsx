@@ -26,11 +26,11 @@ import {
 } from "@mui/icons-material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
-import GrokIcon from "../styles/grokIcon";
+import GrokIcon from "./grokIcon";
 import { Button } from "@mui/material";
-import { useSignOutMutation } from "../pages/Api/Redux/user/userApi"; // Your RTK Query hook
+import { useSignOutMutation } from "../Api/user/userApi"; // Your RTK Query hook
 import { useDispatch } from "react-redux";
-import { clearAuthUser } from "../pages/Api/Redux/user/authSlice";
+import { clearAuthUser } from "../Api/user/authSlice";
 
 function ResponsiveDrawer({
   handleDrawerClose,

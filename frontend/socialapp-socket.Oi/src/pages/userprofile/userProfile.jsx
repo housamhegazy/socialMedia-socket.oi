@@ -11,8 +11,8 @@ import {
 import { useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
 import CardComponent from "./cardComponent";
-import { useGetUserPostsQuery } from "../Api/Redux/posts/postsApi";
-import { useGetUserByUserNameQuery } from "../Api/Redux/user/userApi";
+import { useGetUserPostsQuery } from "../../Api/posts/postsApi";
+import { useGetUserByUserNameQuery } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
 
 const UserProfilePage = () => {

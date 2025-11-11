@@ -14,13 +14,13 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import { useDeletePostMutation } from "../Api/Redux/posts/postsApi";
+import { useDeletePostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
-import { useGetUserByNameQuery } from "../Api/Redux/user/userApi";
-
+import { useGetUserByNameQuery } from "../../Api/user/userApi";
+import { formatDistance } from "date-fns";
 const CardComponent = ({ post }) => {
   const { user } = useSelector((state) => state.auth);
-    const { refetch } = useGetUserByNameQuery();
+  const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
   const theme = useTheme();
   const navigate = useNavigate();
@@ -45,8 +45,7 @@ const CardComponent = ({ post }) => {
           timer: 1500,
           showConfirmButton: false,
         });
-              await refetch(); // ✅ تحديث البوستات بعد الحذف مباشرة
-
+        await refetch(); // ✅ تحديث البوستات بعد الحذف مباشرة
       } catch (error) {
         console.error("Delete failed:", error);
         Swal.fire({
@@ -75,7 +74,7 @@ const CardComponent = ({ post }) => {
             onClick={() => {
               navigate(`/${post?.owner?.username}`);
             }}
-            sx={{ bgcolor: "#d93526" }}
+            sx={{ bgcolor: "#d93526", cursor: "pointer" }}
             aria-label="recipe"
           >
             <img src={post.owner && post.owner.image} alt="" />R
@@ -87,7 +86,7 @@ const CardComponent = ({ post }) => {
           </IconButton>
         }
         title={post?.owner?.name}
-        subheader={post.createdAt}
+        subheader={formatDistance(new Date(post.createdAt), new Date())}
       />
       <CardMedia
         component="img"

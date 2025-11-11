@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import LoadingPage from "../../components/loadingPage";
 import CardComponent from "../userprofile/cardComponent";
-import { useGetAllPostsQuery } from "../Api/Redux/posts/postsApi";
+import { useGetAllPostsQuery } from "../../Api/posts/postsApi";
 
 // start
 const GetPosts = () => {

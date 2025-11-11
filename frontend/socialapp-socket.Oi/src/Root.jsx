@@ -10,17 +10,17 @@ import { Outlet } from "react-router";
 import Footer from "./components/Footer";
 import ResponsiveDrawer from "./components/Drawer";
 import { useEffect, useMemo, useState } from "react";
-import getDesignTokens from "./pages/Api/Redux/theme/getDesignTokens";
+import getDesignTokens from "./Api/theme/getDesignTokens";
 import SideBar from "./components/SideBar";
-import { useGetUserByNameQuery } from "./pages/Api/Redux/user/userApi"; // Your RTK Query hook
+import { useGetUserByNameQuery } from "./Api/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import {
   setAuthUser,
   clearAuthUser,
   setLoadingAuth,
-} from "./pages/Api/Redux/user/authSlice";
+} from "./Api/user/authSlice";
 import LoadingPage from "./components/loadingPage";
-import { setMode } from "./pages/Api/Redux/theme/themeSlice"; // اضف هذا
+import { setMode } from "./Api/theme/themeSlice"; // اضف هذا
 
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
