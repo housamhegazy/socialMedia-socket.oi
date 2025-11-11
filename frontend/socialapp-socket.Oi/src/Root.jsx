@@ -62,7 +62,7 @@ const Root = () => {
     isLoading: userLoading,
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
-  //import user from auth slice to control drawer and sidebar
+  //import user from auth slice to control drawer and sidebar عشان يكون كل الموقع بيتحدث في نفس اللحظه 
   const { user, isAuthenticated, isLoadingAuth } = useSelector(
     (state) => state.auth
   );
@@ -77,13 +77,10 @@ const Root = () => {
     dispatch(setLoadingAuth(false));
   }, [apiuser, userLoading, isError, dispatch]);
 
-  // loading whene userloading
-  if (userLoading) {
+  // loading whene userloading 
+  if (isLoadingAuth) {
     return (
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
         <LoadingPage />
-      </ThemeProvider>
     );
   }
 

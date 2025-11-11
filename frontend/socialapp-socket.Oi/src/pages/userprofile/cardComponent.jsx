@@ -1,4 +1,11 @@
-import { MoreVert, Favorite, Share, Delete } from "@mui/icons-material";
+import {
+  MoreVert,
+  Favorite,
+  Share,
+  Delete,
+  DeleteForever,
+  PersonAdd,
+} from "@mui/icons-material";
 import {
   Card,
   CardHeader,
@@ -11,6 +18,9 @@ import {
   useTheme,
   CircularProgress,
   Box,
+  ListItemIcon,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
@@ -18,13 +28,31 @@ import { useDeletePostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
-const CardComponent = ({ post }) => {
+import ProfileMenu from "./menuComponent";
+import { useState } from "react";
+const CardComponent = ({ post, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
   const theme = useTheme();
   const navigate = useNavigate();
+  //=================== menu functions ============================
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteMenu = (postId) => {
+    handleClose();
+    handleDelete(postId);
+  };
+  //=============================================================================
   const handleDelete = async (postId) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -80,11 +108,59 @@ const CardComponent = ({ post }) => {
             <img src={post.owner && post.owner.image} alt="" />R
           </Avatar>
         }
+        //========================================= menu ================================================================================
         action={
-          <IconButton aria-label="settings">
-            <MoreVert />
-          </IconButton>
+          <Box style={{ display: "flex", justifyContent: "flex-end" }}>
+            <>
+              <IconButton
+                aria-label="settings"
+                onClick={handleClick}
+                sx={{
+                  color: "text.secondary",
+                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                }}
+              >
+                <MoreVert />
+              </IconButton>
+
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                  sx: {
+                    mt: 1,
+                    minWidth: 180,
+                    borderRadius: 2,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                  },
+                }}
+              >
+                {isMyProfile || post.owner._id == user._id ? (
+                  <MenuItem
+                    onClick={()=>{
+                      handleDeleteMenu(post._id)
+                    }}
+                    sx={{ color: "error.main" }}
+                  >
+                    <ListItemIcon>
+                      <DeleteForever fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <Typography variant="body2">delete </Typography>
+                  </MenuItem>
+                ) : (
+                  <MenuItem sx={{ color: "text.main" }}>
+                    <ListItemIcon>
+                      <PersonAdd fontSize="small" color="inherit" />
+                    </ListItemIcon>
+                    <Typography variant="body2">follow</Typography>
+                  </MenuItem>
+                )}
+              </Menu>
+            </>
+          </Box>
         }
+        //======================================= end menu ==========================================================
         title={post?.owner?.name}
         subheader={formatDistance(new Date(post.createdAt), new Date())}
       />
