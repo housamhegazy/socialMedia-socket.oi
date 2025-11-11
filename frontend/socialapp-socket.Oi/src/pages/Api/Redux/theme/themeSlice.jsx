@@ -3,7 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   mode:localStorage.getItem("localTheme") || "light", // الوضع الافتراضي
 };
-
 const themeSlice = createSlice({
   name: "theme",
   initialState,

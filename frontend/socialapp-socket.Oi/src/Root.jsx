@@ -22,7 +22,6 @@ import {
 import LoadingPage from "./components/loadingPage";
 import { setMode } from "./pages/Api/Redux/theme/themeSlice"; // اضف هذا
 
-
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
 const ContainerMaxWidth = 1200;
@@ -57,7 +56,6 @@ const Root = () => {
     dispatch(setMode(newMode));
     localStorage.setItem("localTheme", newMode);
   };
-
   // import data from api only here and update it in authslice to all website
   const {
     data: apiuser,
@@ -81,96 +79,95 @@ const Root = () => {
 
   // loading whene userloading
   if (userLoading) {
-    return <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <LoadingPage />
-    </ThemeProvider>
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <LoadingPage />
+      </ThemeProvider>
+    );
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box className="root" sx={{ display: "flex", flexDirection: "column" }}>
-        <Box
-          sx={{
-            width: "100%",
-            maxWidth: `${ContainerMaxWidth}px`,
-            height: "64px",
-            margin: "0 auto",
-            position: "sticky",
-            top: "0",
-            zIndex: "1000",
-          }}
-        >
-          <AppBarComponent handleDrawerToggle={handleDrawerToggle} />
-        </Box>
-        {/* عشان خاصية ال ستيكي تشتغل لازم يكون ارتفاع الكونتينر اكبر من ارتفاع البوكس الداخلي */}
-        <Grid
-          container
-          spacing={0}
-          sx={{
-            width: "100%",
-            maxWidth: `${ContainerMaxWidth}px`,
-            margin: "0 auto",
-            minHeight: user ? "200vh" : `calc(100vh - 64px)`,
-            flexWrap: "nowrap",
-            alignItems: "stretch",
-          }}
-        >
-          {isAuthenticated && (
-            <Grid
-              size={{ xs: 0, sm: 2, md: 3 }}
-              sx={{
-                // border: "1px solid",
-                // borderColor: "divider",
-                flexShrink: 0,
-                position: "sticky",
-                top: "64px",
-                height: "100vh",
-                backgroundColor: theme.palette.background.default,
-              }}
-            >
-              <ResponsiveDrawer
-                handleDrawerClose={handleDrawerClose}
-                handleDrawerTransitionEnd={handleDrawerTransitionEnd}
-                mobileOpen={mobileOpen}
-                theme={theme}
-                handleTheme={handleTheme}
-              />
-            </Grid>
-          )}
+    <Box className="root" sx={{ display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: `${ContainerMaxWidth}px`,
+          height: "64px",
+          margin: "0 auto",
+          position: "sticky",
+          top: "0",
+          zIndex: "1000",
+        }}
+      >
+        <AppBarComponent handleDrawerToggle={handleDrawerToggle} />
+      </Box>
+      {/* عشان خاصية ال ستيكي تشتغل لازم يكون ارتفاع الكونتينر اكبر من ارتفاع البوكس الداخلي */}
+      <Grid
+        container
+        spacing={0}
+        sx={{
+          width: "100%",
+          maxWidth: `${ContainerMaxWidth}px`,
+          margin: "0 auto",
+          minHeight: user ? "200vh" : `calc(100vh - 64px)`,
+          flexWrap: "nowrap",
+          alignItems: "stretch",
+        }}
+      >
+        {isAuthenticated && (
           <Grid
-            size={isAuthenticated ? { xs: 12, sm: 10, md: 6 } : 12}
+            size={{ xs: 0, sm: 2, md: 3 }}
             sx={{
-              display: "flex",
-              flexDirection: "column",
+              // border: "1px solid",
+              // borderColor: "divider",
+              flexShrink: 0,
+              position: "sticky",
+              top: "64px",
+              height: "100vh",
               backgroundColor: theme.palette.background.default,
-              borderRight: "1px solid",
-              borderLeft: "1px solid",
-              borderColor: "divider",
-              flexGrow: 1,
-              minHeight: "calc(100vh - 64px)",
             }}
           >
-            <Outlet />
+            <ResponsiveDrawer
+              handleDrawerClose={handleDrawerClose}
+              handleDrawerTransitionEnd={handleDrawerTransitionEnd}
+              mobileOpen={mobileOpen}
+              theme={theme}
+              handleTheme={handleTheme}
+            />
           </Grid>
-          {isAuthenticated && (
-            <Grid
-              size={{ xs: 0, sm: 0, md: 3 }}
-              sx={{
-                position: "sticky",
-                top: "64px",
-                height: "100vh",
-                backgroundColor: theme.palette.background.default,
-              }}
-            >
-              <SideBar />
-            </Grid>
-          )}
+        )}
+        <Grid
+          size={isAuthenticated ? { xs: 12, sm: 10, md: 6 } : 12}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            backgroundColor: theme.palette.background.default,
+            borderRight: "1px solid",
+            borderLeft: "1px solid",
+            borderColor: "divider",
+            flexGrow: 1,
+            minHeight: "calc(100vh - 64px)",
+          }}
+        >
+          <Outlet />
         </Grid>
-        <Footer />
-      </Box>
-    </ThemeProvider>
+        {isAuthenticated && (
+          <Grid
+            size={{ xs: 0, sm: 0, md: 3 }}
+            sx={{
+              position: "sticky",
+              top: "64px",
+              height: "100vh",
+              backgroundColor: theme.palette.background.default,
+            }}
+          >
+            <SideBar />
+          </Grid>
+        )}
+      </Grid>
+      <Footer />
+    </Box>
   );
 };
 

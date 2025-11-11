@@ -13,27 +13,41 @@ import LoadingPage from "../../components/loadingPage";
 import CardComponent from "./cardComponent";
 import { useGetUserPostsQuery } from "../Api/Redux/posts/postsApi";
 import { useGetUserByUserNameQuery } from "../Api/Redux/user/userApi";
+import Err_404Page from "../../components/NotFound-404";
 
 const UserProfilePage = () => {
   const { username } = useParams(); // الحصول على اسم المستخدم من الـ URL
+  const [error, setError] = useState(null);
   const {
     data: user,
     isLoading: userLoading,
     isError: userError,
   } = useGetUserByUserNameQuery(username);
+  // posts
   const { data: posts = [], isLoading: postsLoading } = useGetUserPostsQuery(
     user?._id, // أو user.username حسب API
     { skip: !user } // تجاهل الـ query حتى يكون user موجود
   );
+
+  useEffect(() => {
+    if (userError) {
+      setError("User not found");
+    }
+  }, [userError]);
+
+  if (error) {
+    return <Err_404Page />;
+  }
   if (userLoading || postsLoading) return <LoadingPage />;
 
   if (userError || !user) {
     return <div>User not found</div>;
   }
 
-  if (!user) {
-    return <div>User not found</div>;
+  if (userError) {
+    return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -90,11 +104,16 @@ const UserProfilePage = () => {
         {/* قسم المنشورات */}
         <Grid sx={{ width: "100%" }}>
           <Paper elevation={3} sx={{ padding: 2, width: "100%" }}>
-          {posts.length === 0}{
-            <Box>
-        <Typography sx={{textAlign:"center"}} variant="body1" color="inherit">no posts for thisi user</Typography>
-      </Box>
-          }
+            {posts.length === 0 && <Box>
+                <Typography
+                  sx={{ textAlign: "center" }}
+                  variant="body1"
+                  color="inherit"
+                >
+                  no posts for thisi user
+                </Typography>
+              </Box>}
+            
             {posts?.map((post) => (
               <CardComponent post={post} key={post?._id} />
             ))}
