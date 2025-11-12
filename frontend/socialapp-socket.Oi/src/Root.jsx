@@ -97,7 +97,7 @@ const Root = () => {
           zIndex: "1000",
         }}
       >
-        <AppBarComponent handleDrawerToggle={handleDrawerToggle} />
+        <AppBarComponent handleDrawerToggle={handleDrawerToggle} theme={theme} handleTheme={handleTheme} />
       </Box>
       {/* عشان خاصية ال ستيكي تشتغل لازم يكون ارتفاع الكونتينر اكبر من ارتفاع البوكس الداخلي */}
       <Grid
@@ -130,7 +130,7 @@ const Root = () => {
               handleDrawerTransitionEnd={handleDrawerTransitionEnd}
               mobileOpen={mobileOpen}
               theme={theme}
-              handleTheme={handleTheme}
+              
             />
           </Grid>
         )}

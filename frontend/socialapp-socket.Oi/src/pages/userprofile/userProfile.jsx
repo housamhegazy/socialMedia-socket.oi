@@ -9,6 +9,7 @@ import {
   Box,
   IconButton,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
@@ -61,6 +62,7 @@ const UserProfilePage = () => {
   const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
   const [file, setFile] = useState(null); // save image to send to db
   const [preview, setPreview] = useState(null); // save image in preview in page
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   //=============================== import update avatar ======================================
   const [updateAvatar, { loading }] = useUpdateAvatarMutation();
 
@@ -142,6 +144,7 @@ const UserProfilePage = () => {
 
   const handleEditeAvatar = async () => {
     if (!file) return;
+    setUploadingAvatar(true);
     const formData = new FormData();
     formData.append("avatar", file); // ✨ لازم نفس الاسم اللي السيرفر مستنيّه
     try {
@@ -152,8 +155,7 @@ const UserProfilePage = () => {
         timer: 1500,
         showConfirmButton: false,
       });
-
-      handleRemoveImage()
+      handleRemoveImage();
     } catch (error) {
       console.log(error);
       Swal.fire({
@@ -161,6 +163,8 @@ const UserProfilePage = () => {
         title: "حدث خطأ!",
         text: error.message || "لم يتم رفع الصورة.",
       });
+    } finally {
+      setUploadingAvatar(false);
     }
   };
   //==========================================remove preview====================================
@@ -184,59 +188,99 @@ const UserProfilePage = () => {
             }}
           >
             {/* ================================= user avatar ============================================= */}
-            <Box sx={{ position: "relative", display: "inline-block" }}>
-              <Avatar
-                src={preview ? preview : userProfile.avatar}
-                alt={userProfile.name}
-                sx={{
-                  width: 150,
-                  height: 150,
-                  marginBottom: 2,
-                  border: "2px solid #ddd",
-                }}
-              />
-
-              {isMyProfile && (
-                <>
-                  {/* 🔥 زر القلم */}
-                  <IconButton
-                    component="label"
+            <Box
+              sx={{
+                position: "relative",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {/* الصورة أو اللودينج */}
+              <Box sx={{ position: "relative" }}>
+                {loadingPreview ? (
+                  <Box
                     sx={{
-                      position: "absolute",
-                      bottom: 10,
-                      right: 10,
-                      bgcolor: "background.paper",
-                      boxShadow: 2,
-                      "&:hover": { bgcolor: "primary.main", color: "#fff" },
-                      transition: "0.3s",
+                      width: 150,
+                      height: 150,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                      border: "2px solid #ddd",
+                      bgcolor: "rgba(0,0,0,0.05)",
                     }}
-                    size="small"
                   >
-                    <Edit fontSize="small" />
-                    <input
-                      onChange={(e) => {
-                        handleImage(e);
-                      }}
-                      type="file"
-                      style={{ display: "none" }}
-                      multiple
-                    />
-                  </IconButton>
-                  {preview && (
+                    <CircularProgress size={40} />
+                  </Box>
+                ) : (
+                  <Avatar
+                    src={preview || userProfile?.avatar}
+                    alt={userProfile?.name}
+                    sx={{
+                      width: 150,
+                      height: 150,
+                      mb: 2,
+                      border: "3px solid #eee",
+                      boxShadow: 3,
+                      transition: "0.3s",
+                      "&:hover": {
+                        transform: isMyProfile ? "scale(1.03)" : "none",
+                      },
+                    }}
+                  />
+                )}
+
+                {/* أيقونات التحرير والتأكيد */}
+                {isMyProfile && !loadingPreview && (
+                  <>
                     <IconButton
-                      onClick={handleEditeAvatar}
+                      component="label"
                       sx={{
                         position: "absolute",
-                        bottom: "-10px",
-                        right: "50px",
+                        bottom: 8,
+                        right: 8,
+                        bgcolor: "background.paper",
+                        boxShadow: 3,
+                        border: "1px solid #ccc",
+                        "&:hover": { bgcolor: "primary.main", color: "#fff" },
                       }}
+                      size="small"
+                      disabled={uploadingAvatar}
                     >
-                      {" "}
-                      <Done />{" "}
+                      <Edit fontSize="small" />
+                      <input
+                        onChange={handleImage}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        disabled={uploadingAvatar}
+                      />
                     </IconButton>
-                  )}
-                </>
-              )}
+
+                    {preview && (
+                      <IconButton
+                        onClick={handleEditeAvatar}
+                        sx={{
+                          position: "absolute",
+                          bottom: 8,
+                          left: 8,
+                          bgcolor: "success.main",
+                          color: "#fff",
+                          "&:hover": { bgcolor: "success.dark" },
+                        }}
+                        size="small"
+                      >
+                        {uploadingAvatar ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          <Done fontSize="small" />
+                        )}
+                      </IconButton>
+                    )}
+                  </>
+                )}
+              </Box>
             </Box>
 
             {/* ====================================== end user avatar =================================================== */}

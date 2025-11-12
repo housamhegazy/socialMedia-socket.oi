@@ -28,12 +28,12 @@ import { useDeletePostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
-import ProfileMenu from "./menuComponent";
 import { useState } from "react";
 const CardComponent = ({ post, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
+  
   const theme = useTheme();
   const navigate = useNavigate();
   //=================== menu functions ============================
@@ -104,8 +104,9 @@ const CardComponent = ({ post, isMyProfile }) => {
             }}
             sx={{ bgcolor: "#d93526", cursor: "pointer" }}
             aria-label="recipe"
+            src={isMyProfile ? user.avatar :post.owner?.avatar }
           >
-            <img src={post.owner && post.owner.avatar} alt="" />R
+              {!post?.owner?.avatar && post?.owner?.username?.[0]?.toUpperCase()}
           </Avatar>
         }
         //========================================= menu ================================================================================

@@ -37,7 +37,6 @@ function ResponsiveDrawer({
   handleDrawerTransitionEnd,
   mobileOpen,
   theme,
-  handleTheme,
 }) {
   //=================================================================================
   //=================================================================================
@@ -153,13 +152,6 @@ const HandleLogout = async ()=> {
       </Box>
       <Divider />
       {/* <Toolbar /> */}
-      <IconButton
-        onClick={handleTheme}
-        sx={{ mx: "auto", display: "block" }}
-        color="inherit"
-      >
-        {theme.palette.mode === "dark" ? <Sunny /> : <DarkMode />}
-      </IconButton>
       <List>
         <Divider />
         <>
