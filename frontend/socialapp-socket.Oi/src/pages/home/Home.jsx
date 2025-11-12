@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box/";
-import PostComposer from "./postcomposer";
+import PostComposer from "./createPost";
 import GetPosts from "./getPosts";
 import { useEffect, useState } from "react";
 // import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook

@@ -35,6 +35,7 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User"],
     }),
+    //signout
      signOut: builder.mutation({
       query: () => ({
         url: '/api/users/logout',
@@ -42,9 +43,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+    //search
+    searchUsers : builder.query({
+      query:(query)=> `/api/users/search?svalue=${query}`,
+      providesTags: ['User'],
+    })
   }),
 })
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const { useGetUserByNameQuery,useGetUserByUserNameQuery ,useSignupMutation,
-  useSigninMutation,useSignOutMutation } = userApi
+  useSigninMutation,useSignOutMutation,useSearchUsersQuery } = userApi

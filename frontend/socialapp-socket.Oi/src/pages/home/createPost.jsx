@@ -21,7 +21,6 @@ import GrokIcon from "../../components/grokIcon"; // أيقونة Grok المخ�
 import { useState } from "react";
 import {
   useCreatePostMutation,
-  useGetAllPostsQuery,
 } from "../../Api/posts/postsApi";
 const PostComposer = ({ user }) => {
   const theme = useTheme();

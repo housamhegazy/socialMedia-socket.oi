@@ -20,13 +20,11 @@ import { useGetUserByUserNameQuery } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
 import { useSelector } from "react-redux";
 import {
-  FollowTheSigns,
-  MoreVert,
   PersonAdd,
-  PersonOff,
 } from "@mui/icons-material";
 import ProfileMenu from "./menuComponent";
 import Swal from "sweetalert2";
+import PostComposer from "../home/createPost";
 
 const UserProfilePage = () => {
   // ==================== get user data from backend and compare it with current user ===========================================
@@ -51,7 +49,8 @@ const UserProfilePage = () => {
   );
 
   //============================ import delete all posts from posts api ===========================================
-  const [deleteAllPosts ,{ isLoading, isSuccess, isError }] = useDeleteAllPostsMutation();
+  const [deleteAllPosts, { isLoading, isSuccess, isError }] =
+    useDeleteAllPostsMutation();
   // ====================================== error state =================================================
   const [error, setError] = useState(null);
 
@@ -175,17 +174,23 @@ const UserProfilePage = () => {
           </Paper>
         </Grid>
 
-        {/* قسم المنشورات */}
+{/*===================================== قسم المنشورات ========================================================*/}
+        {/* create post */}
+        <PostComposer user={profile}/>
         <Grid sx={{ width: "100%" }}>
           <Paper elevation={3} sx={{ padding: 2, width: "100%" }}>
-            {isMyProfile && (
-              <Box style={{ display: "flex", justifyContent: "flex-end" }}>
-                <ProfileMenu
-                  onDelete={handleDelete}
-                  BtnName={isLoading ? "Deleting..." : "Delete All Posts"}
-                  isMyProfile={isMyProfile}
-                />
-              </Box>
+            {posts.length > 0 && (
+              <>
+                {isMyProfile && (
+                  <Box style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <ProfileMenu
+                      onDelete={handleDelete}
+                      BtnName={isLoading ? "Deleting..." : "Delete All Posts"}
+                      isMyProfile={isMyProfile}
+                    />
+                  </Box>
+                )}
+              </>
             )}
 
             {posts.length === 0 && (
@@ -195,11 +200,12 @@ const UserProfilePage = () => {
                   variant="body1"
                   color="inherit"
                 >
-                  no posts for thisi user
+                  {isMyProfile
+                    ? "you dont create any posts yet , what is in your minde ?"
+                    : `no posts for ${profile.name}`}
                 </Typography>
               </Box>
             )}
-
             {posts?.map((post) => (
               <CardComponent
                 post={post}

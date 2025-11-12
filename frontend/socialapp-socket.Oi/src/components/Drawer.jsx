@@ -29,7 +29,7 @@ import { Link, useLocation, useNavigate } from "react-router";
 import GrokIcon from "./grokIcon";
 import { Button } from "@mui/material";
 import { useSignOutMutation } from "../Api/user/userApi"; // Your RTK Query hook
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearAuthUser } from "../Api/user/authSlice";
 
 function ResponsiveDrawer({
@@ -46,6 +46,7 @@ function ResponsiveDrawer({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [signOut,{ isLoading, isSuccess, error }] = useSignOutMutation();
+  const { user: currentUser } = useSelector((state) => state.auth);
   
 
 const HandleLogout = async ()=> {
@@ -116,7 +117,7 @@ const HandleLogout = async ()=> {
     {
       title: "Profile",
       icon: <Person color={iconColor} />,
-      pathname: "/profile",
+      pathname: `/user/${currentUser?.username}`,
     },
     {
       title: "more",
@@ -246,7 +247,7 @@ const HandleLogout = async ()=> {
                   display: { xs: "block", sm: "none", md: "block" },
                   color: "red",
                 }}
-                primary="Logout"
+                primary={isLoading?"loading" : "Logout"}
               />
             </ListItemButton>
           </ListItem>

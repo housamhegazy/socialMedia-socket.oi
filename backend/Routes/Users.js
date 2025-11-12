@@ -133,20 +133,46 @@ router.post("/logout", (req, res) => {
   }
 });
 
+
+//==================================== search for users =============================================
+router.get("/search", AuthMiddleware, async (req, res) => {
+  try {
+    const searchValue = req.query.svalue.trim();
+    if (!searchValue) {
+      return res.status(200).json([]);
+    }
+    const users = await User.find({
+      $or: [
+        {
+          $or: [
+            { username: { $regex: searchValue, $options: "i" } },
+            { name: { $regex: searchValue, $options: "i" } },
+            { email: { $regex: searchValue, $options: "i" } },
+          ],
+        },
+      ],
+    })
+      .select("username name email avatar")
+      .limit(10);
+    res.status(200).json(users); // 200 OK
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "حدث خطأ أثناء البحث" });
+  }
+});
 // الدخول على صفحة اي مستخدم في تويتر عن طريق الاي دي
-router.get("/:username", AuthMiddleware,async (req, res) => {
+router.get("/:username", AuthMiddleware, async (req, res) => {
   // Retrieve user by ID
   try {
-    const user = await User.findOne({ username: req.params.username })
+    const user = await User.findOne({ username: req.params.username });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user);
-    console.log("user is " , user)
+    console.log("user is ", user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
 module.exports = router;

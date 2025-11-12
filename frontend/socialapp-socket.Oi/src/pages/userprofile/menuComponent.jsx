@@ -41,6 +41,7 @@ export default function ProfileMenu({ onDelete, isMyProfile,BtnName }) {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        disableScrollLock={true}
         PaperProps={{
           sx: {
             mt: 1,

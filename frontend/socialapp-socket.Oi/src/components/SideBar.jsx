@@ -11,25 +11,22 @@ import {
   Typography,
 } from "@mui/material";
 import TrendsCard from "./trendCard";
+import SearchUsers from "./search";
 
 const SideBar = () => {
   return (
     <Box
       sx={{
-        // width:{md:"200px",lg:"200px"},
         display: { xs: "none", md: "block" },
         position: "sticky",
         top: "64px",
         height: "calc(100vh - 64px)",
         overflowY: "auto",
-        // boxShadow: 1,
-        // flexShrink: 0,
-        // border: `1px solid ${theme.palette.divider}`,
       }}
       role="presentation"
     >
       {/* search box */}
-      <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",p:2,width:"100%"}}>
+      {/* <Box sx={{display:"flex",justifyContent:"center",alignItems:"center",p:2,width:"100%"}}>
         <TextField
           id="outlined-search"
           label="Search field"
@@ -37,7 +34,9 @@ const SideBar = () => {
           sx={{width:"100%"}}
           
         />
-      </Box>
+      </Box> */}
+
+      <SearchUsers/>
       
       <List sx={{width:`calc(100% - 18px)`}}>
         <ListItem sx={{border:"1px solid",borderColor:"divider",borderRadius:"10px",my:2,mx:"10px"}}>

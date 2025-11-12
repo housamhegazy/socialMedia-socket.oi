@@ -100,7 +100,7 @@ const CardComponent = ({ post, isMyProfile }) => {
         avatar={
           <Avatar
             onClick={() => {
-              navigate(`/${post?.owner?.username}`);
+              navigate(`/user/${post?.owner?.username}`);
             }}
             sx={{ bgcolor: "#d93526", cursor: "pointer" }}
             aria-label="recipe"
@@ -127,6 +127,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
+                disableScrollLock={true}
                 PaperProps={{
                   sx: {
                     mt: 1,
@@ -184,22 +185,7 @@ const CardComponent = ({ post, isMyProfile }) => {
         <IconButton aria-label="share">
           <Share />
         </IconButton>
-        {/* Delete button with loader */}
-        {post?.owner?._id === user?._id && (
-          <Box sx={{ position: "relative", ml: 1 }}>
-            <IconButton
-              aria-label="delete"
-              onClick={() => handleDelete(post._id)}
-              disabled={isLoading} // ⛔ تعطيل أثناء الحذف
-            >
-              {isLoading ? (
-                <CircularProgress size={22} color="error" />
-              ) : (
-                <Delete color="error" />
-              )}
-            </IconButton>
-          </Box>
-        )}
+        
       </CardActions>
       {isError && (
         <Typography

@@ -36,7 +36,7 @@ function App() {
           ),
         },
         {
-          path: "/:username",
+          path: "/user/:username",
           element: isAuthenticated ? (
             <UserProfilePage />
           ) : (

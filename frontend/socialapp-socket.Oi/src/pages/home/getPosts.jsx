@@ -16,7 +16,6 @@ const GetPosts = () => {
     return <LoadingPage />;
   }
 
-
   // ❌ حالة الخطأ
   if (isError) {
     return (
@@ -56,7 +55,7 @@ const GetPosts = () => {
       {posts &&
         posts.length > 0 &&
         posts.map((post) => {
-          return <CardComponent post={post} key={post?._id} />;
+          return <CardComponent post={post} key={post?._id} isMyProfile={undefined} />;
         })}
     </Box>
   );
