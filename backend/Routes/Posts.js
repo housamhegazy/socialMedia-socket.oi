@@ -78,7 +78,7 @@ router.get("/:userId", AuthMiddleware, async (req, res) => {
     res.status(500).json({ message: error.message }); // إرجاع رسالة الخطأ إذا فشل الاستعلام
   }
 });
-
+//===================================== edit post ===========================================
 router.put("/:postId", AuthMiddleware, async (req, res) => {
   const postId = req.params.postId;
   try {
@@ -125,7 +125,7 @@ router.delete("/:postId", AuthMiddleware, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
+//========================= delete all posts =============================================
 router.delete("/", AuthMiddleware, async (req, res) => {
   try {
     const posts = await PostModel.find({ owner: req.user.id });

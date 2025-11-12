@@ -105,7 +105,7 @@ const CardComponent = ({ post, isMyProfile }) => {
             sx={{ bgcolor: "#d93526", cursor: "pointer" }}
             aria-label="recipe"
           >
-            <img src={post.owner && post.owner.image} alt="" />R
+            <img src={post.owner && post.owner.avatar} alt="" />R
           </Avatar>
         }
         //========================================= menu ================================================================================

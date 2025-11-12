@@ -43,6 +43,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+     updateAvatar: builder.mutation({
+      query: (formData) => ({
+        url: '/api/users/edit',
+        method: 'PUT',
+        body:formData,
+      }),
+      invalidatesTags: ['User'],
+    }),
     //search
     searchUsers : builder.query({
       query:(query)=> `/api/users/search?svalue=${query}`,
@@ -53,4 +61,4 @@ export const userApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const { useGetUserByNameQuery,useGetUserByUserNameQuery ,useSignupMutation,
-  useSigninMutation,useSignOutMutation,useSearchUsersQuery } = userApi
+  useSigninMutation,useSignOutMutation,useSearchUsersQuery,useUpdateAvatarMutation } = userApi

@@ -8,6 +8,7 @@ import {
   Button,
   Box,
   IconButton,
+  useTheme,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
@@ -16,17 +17,19 @@ import {
   useDeleteAllPostsMutation,
   useGetUserPostsQuery,
 } from "../../Api/posts/postsApi";
-import { useGetUserByUserNameQuery } from "../../Api/user/userApi";
+import {
+  useGetUserByUserNameQuery,
+  useUpdateAvatarMutation,
+} from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
 import { useSelector } from "react-redux";
-import {
-  PersonAdd,
-} from "@mui/icons-material";
+import { Done, Edit, PersonAdd } from "@mui/icons-material";
 import ProfileMenu from "./menuComponent";
 import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
 
 const UserProfilePage = () => {
+  const theme = useTheme();
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //بيانات المستخدم الحالي اللي مسجل دخول
@@ -40,6 +43,7 @@ const UserProfilePage = () => {
   } = useGetUserByUserNameQuery(username, {
     skip: isMyProfile, // لو هو نفس المستخدم، ما تبعتش request
   });
+  // لو اليوزر هو نفسه المستخدم الحالي
   const userProfile = isMyProfile ? currentUser : profile;
 
   //============================ Get posts from backend ===============================================
@@ -47,12 +51,18 @@ const UserProfilePage = () => {
     userProfile?._id, // أو user.username حسب API
     { skip: !userProfile } // تجاهل الـ query حتى يكون user موجود
   );
-
   //============================ import delete all posts from posts api ===========================================
   const [deleteAllPosts, { isLoading, isSuccess, isError }] =
     useDeleteAllPostsMutation();
+
   // ====================================== error state =================================================
   const [error, setError] = useState(null);
+  //======================================== edit avatar states ======================================
+  const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
+  const [file, setFile] = useState(null); // save image to send to db
+  const [preview, setPreview] = useState(null); // save image in preview in page
+  //=============================== import update avatar ======================================
+  const [updateAvatar, { loading }] = useUpdateAvatarMutation();
 
   useEffect(() => {
     if (userError) {
@@ -72,6 +82,8 @@ const UserProfilePage = () => {
   if (userError) {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
+
+  //========================================== delete all posts =========================================
   const handleDelete = async () => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -104,7 +116,58 @@ const UserProfilePage = () => {
       }
     }
   };
+  //============================================== edite avatar ===========================================================
+  const handleImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    setFile(file);
+    setLoadingPreview(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      // 4. تعيين المسار المؤقت (Data URL) كقيمة للمعاينة
+      setPreview(reader.result);
+      setLoadingPreview(false);
+    };
+    reader.onerror = () => {
+      // 5. التعامل مع الخطأ (إذا فشلت القراءة)
+      console.error("FileReader failed to read the file.");
+      setLoadingPreview(false);
+      // يمكنك إضافة رسالة خطأ للمستخدم هنا
+    };
+    // 6. ⭐️ قراءة الملف كـ Data URL
+    reader.readAsDataURL(file);
+  };
 
+  const handleEditeAvatar = async () => {
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("avatar", file); // ✨ لازم نفس الاسم اللي السيرفر مستنيّه
+    try {
+      await updateAvatar(formData).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "تم تحديث الصورة بنجاح!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      handleRemoveImage()
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "حدث خطأ!",
+        text: error.message || "لم يتم رفع الصورة.",
+      });
+    }
+  };
+  //==========================================remove preview====================================
+  const handleRemoveImage = () => {
+    setFile(null);
+    setPreview(null);
+  };
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -120,11 +183,63 @@ const UserProfilePage = () => {
               alignItems: "center",
             }}
           >
-            <Avatar
-              src={userProfile.avatar}
-              alt={userProfile.name}
-              sx={{ width: 150, height: 150, marginBottom: 2 }}
-            />
+            {/* ================================= user avatar ============================================= */}
+            <Box sx={{ position: "relative", display: "inline-block" }}>
+              <Avatar
+                src={preview ? preview : userProfile.avatar}
+                alt={userProfile.name}
+                sx={{
+                  width: 150,
+                  height: 150,
+                  marginBottom: 2,
+                  border: "2px solid #ddd",
+                }}
+              />
+
+              {isMyProfile && (
+                <>
+                  {/* 🔥 زر القلم */}
+                  <IconButton
+                    component="label"
+                    sx={{
+                      position: "absolute",
+                      bottom: 10,
+                      right: 10,
+                      bgcolor: "background.paper",
+                      boxShadow: 2,
+                      "&:hover": { bgcolor: "primary.main", color: "#fff" },
+                      transition: "0.3s",
+                    }}
+                    size="small"
+                  >
+                    <Edit fontSize="small" />
+                    <input
+                      onChange={(e) => {
+                        handleImage(e);
+                      }}
+                      type="file"
+                      style={{ display: "none" }}
+                      multiple
+                    />
+                  </IconButton>
+                  {preview && (
+                    <IconButton
+                      onClick={handleEditeAvatar}
+                      sx={{
+                        position: "absolute",
+                        bottom: "-10px",
+                        right: "50px",
+                      }}
+                    >
+                      {" "}
+                      <Done />{" "}
+                    </IconButton>
+                  )}
+                </>
+              )}
+            </Box>
+
+            {/* ====================================== end user avatar =================================================== */}
             <Typography variant="h5">{userProfile.name}</Typography>
             <Typography
               variant="body1"
@@ -174,9 +289,9 @@ const UserProfilePage = () => {
           </Paper>
         </Grid>
 
-{/*===================================== قسم المنشورات ========================================================*/}
+        {/*===================================== قسم المنشورات ========================================================*/}
         {/* create post */}
-        <PostComposer user={profile}/>
+        {isMyProfile && <PostComposer user={currentUser} />}
         <Grid sx={{ width: "100%" }}>
           <Paper elevation={3} sx={{ padding: 2, width: "100%" }}>
             {posts.length > 0 && (

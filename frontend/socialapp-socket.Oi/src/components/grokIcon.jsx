@@ -9,8 +9,8 @@ const GrokIcon = ( ) => {
 
   return (
     <svg
-      width="35"
-      height="33"
+      width="30"
+      height="30"
       viewBox="0 0 35 33"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"

@@ -13,11 +13,20 @@ import { useSearchUsersQuery } from "../Api/user/userApi";
 const SearchUsers = () => {
 
   const [query, setQuery] = useState("");
+    const [debouncedQuery, setDebouncedQuery] = useState(""); // 🕒 متغير للتأخير
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef(null);
 
-  const { data: results = [], isLoading } = useSearchUsersQuery(query,{
-    skip: query.trim() === "",   // هنا بنستخدم skip لتجنب الفetch لما يكون البحث فاضي
+  // 🕒 تأخير إرسال الـ query لمدة 500ms بعد توقف الكتابة
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+  const { data: results = [], isLoading } = useSearchUsersQuery(debouncedQuery,{
+    skip: debouncedQuery.trim() === "",   // هنا بنستخدم skip لتجنب الفetch لما يكون البحث فاضي
 
   });
 
@@ -39,7 +48,7 @@ const SearchUsers = () => {
     >
       <TextField
         size="small"
-        placeholder="ابحث عن مستخدم..."
+        placeholder="search for users ..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}

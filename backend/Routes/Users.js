@@ -4,7 +4,11 @@ const User = require("../Models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
-
+const {
+  cloudinary,
+  bufferToDataUri,
+  upload,
+} = require("../Utils/cloudinary.js");
 // protected route to set auth cookie
 function setAuthCookie(res, token) {
   // إعداد الكوكيز مع الخيارات المناسبة
@@ -133,7 +137,6 @@ router.post("/logout", (req, res) => {
   }
 });
 
-
 //==================================== search for users =============================================
 router.get("/search", AuthMiddleware, async (req, res) => {
   try {
@@ -158,6 +161,46 @@ router.get("/search", AuthMiddleware, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "حدث خطأ أثناء البحث" });
+  }
+});
+//========================================== edit profile photo ==========================================
+router.put("/edit", AuthMiddleware, upload.single("avatar"), async (req, res) => {
+  try {
+    const imageFile = req.file;
+    const ownerId = req.user.id;
+
+    if (!imageFile) {
+      return res.status(400).json({ message: "لم يتم إرسال أي صورة." });
+    }
+
+    // تحويل الملف إلى base64
+    const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
+
+    // رفع الصورة على Cloudinary
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: "socialmediaApp/profileImage",
+    });
+
+    console.log(result.secure_url,ownerId);
+    // تحديث الصورة في قاعدة البيانات
+    const updatedUser = await User.findOneAndUpdate(
+      {_id:ownerId},
+      { avatar: result.secure_url },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "المستخدم غير موجود." });
+    }
+
+    // ✅ رجع الصورة الجديدة
+    return res.status(200).json({
+      message: "تم تحديث الصورة بنجاح",
+      avatar: updatedUser.avatar,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "حدث خطأ أثناء تحديث الصورة", error: error.message });
   }
 });
 // الدخول على صفحة اي مستخدم في تويتر عن طريق الاي دي
