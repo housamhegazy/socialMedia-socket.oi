@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
-import CardComponent from "./cardComponent";
+import CardComponent from "../home/cardComponent";
 import {
   useDeleteAllPostsMutation,
   useGetUserPostsQuery,
@@ -25,7 +25,7 @@ import {
 import Err_404Page from "../../components/NotFound-404";
 import { useSelector } from "react-redux";
 import { Done, Edit, PersonAdd } from "@mui/icons-material";
-import ProfileMenu from "./menuComponent";
+import ProfileMenu from "../home/menuComponent";
 import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
 

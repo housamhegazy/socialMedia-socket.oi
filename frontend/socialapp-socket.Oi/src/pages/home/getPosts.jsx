@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import LoadingPage from "../../components/loadingPage";
-import CardComponent from "../userprofile/cardComponent";
+import CardComponent from "./cardComponent";
 import { useGetAllPostsQuery } from "../../Api/posts/postsApi";
 
 // start

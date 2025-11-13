@@ -73,6 +73,7 @@ const PostComposer = ({ user }) => {
       setFile(null);
       setPreview(null);
       setStatus("success");
+      setPostText("")
       setMessage("Post uploaded successfully!");
       // refetch(); // إعادة تحميل البوستات
     } catch (error) {
