@@ -25,14 +25,16 @@ import {
 const PostComposer = ({ user }) => {
   const theme = useTheme();
   const [createPost, { isLoading, isError, error }] = useCreatePostMutation();
+  
   //store data of post states
   const [postText, setPostText] = useState(""); // post text
   const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
-  const [file, setFile] = useState(null); // save image to send to db
+  const [imgFile, setFile] = useState(null); // save image to send to db
   const [preview, setPreview] = useState(null); // save image in preview in page
   const [Message, setMessage] = useState(null); // error message
   const [status, setStatus] = useState(null); // 'success' | 'error' | null
 
+  // sort image in state 
   const handleImage = async (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -58,15 +60,15 @@ const PostComposer = ({ user }) => {
   //==============================send posts to database=========================================================
   const handlePost = async () => {
     setMessage(null);
-    if (!postText.trim() && !file) {
+    if (!postText.trim() && !imgFile) {
       setMessage("Please enter text or select an image to post.");
       return;
     }
     const formData = new FormData();
     formData.append("text", postText.trim()); // إضافة النص
 
-    if (file) {
-      formData.append("image", file);
+    if (imgFile) {
+      formData.append("image", imgFile);
     }
     try {
       await createPost(formData).unwrap(); // unwrap لتعامل أفضل مع الأخطاء
@@ -89,7 +91,7 @@ const PostComposer = ({ user }) => {
   };
 
   // تحديد ما إذا كان زر النشر نشطاً
-  const isPostButtonEnabled = postText.trim().length > 0 || !!file;
+  const isPostButtonEnabled = postText.trim().length > 0 || !!imgFile;
   return (
     <Box
       sx={{

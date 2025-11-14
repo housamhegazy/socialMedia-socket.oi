@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import LoadingPage from "../../components/loadingPage";
 import { useSelector } from "react-redux";
-import { useCreatePostMutation } from "../../Api/posts/postsApi";
+
 
 const Home = () => {
     const { user, isLoadingAuth } = useSelector((state) => state.auth);
     const navigate = useNavigate();
+    
+
   useEffect(() => {
     if (isLoadingAuth) return; // لسه بيجيب بيانات المستخدم، استنى
 
@@ -20,7 +22,6 @@ const Home = () => {
     }
   }, [navigate, user, isLoadingAuth]);
   //========================== save image to preview and in file to send it to backend  =================================
-
 
   if (isLoadingAuth) {
     return <LoadingPage />;

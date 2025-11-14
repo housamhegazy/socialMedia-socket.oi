@@ -3,10 +3,10 @@ const jwt = require("jsonwebtoken");
 const AuthMiddleware = (req, res, next) => {
     // 1. استبدال 'Bearer' الصحيحة وإزالة المسافات البيضاء
     // هذا إذا كنت ترسل التوكن في الهيدر
-    // const headertToken = req.header("authorization")?.replace("Bearer", "").trim(); // نضيف في الفرونت كود هيدر بهذا الشكل: { Authorization: `Bearer ${token}` }
+    const headerToken = req.header("authorization")?.replace("Bearer", "").trim(); // نضيف في الفرونت كود هيدر بهذا الشكل: { Authorization: `Bearer ${token}` }
     // هذا إذا كنت تستخدم الكوكيز لتخزين التوكن وهو اكثر أماناً في بعض الحالات
     const cookiesToken = req.cookies?.token ; // نضيف في الفرونت كود الكوكيز   withCredentials: true
-    const token = cookiesToken;
+    const token = cookiesToken || headerToken;
     // 2. إرجاع الاستجابة في حالة عدم وجود توكن
     if (!token) {
         return res.status(401).json({ error: "no token provided" });

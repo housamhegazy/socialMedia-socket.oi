@@ -24,18 +24,21 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import { useDeletePostMutation } from "../../Api/posts/postsApi";
+import { useDeletePostMutation, useEditPostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
 import { useState } from "react";
+import DialogComp from "./dialog";
 const CardComponent = ({ post, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
-  
+  //===================== edite dialog =================================
+  const [openDialog,setOpenDialog] = useState(false)
   const theme = useTheme();
   const navigate = useNavigate();
+  
   //=================== menu functions ============================
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -52,6 +55,12 @@ const CardComponent = ({ post, isMyProfile }) => {
     handleClose();
     handleDelete(postId);
   };
+  //================================= open dialoge ==========================
+  const openDialogFunc = ()=>{
+    setOpenDialog(true)
+    setAnchorEl(null);
+  }
+
   //=============================================================================
   const handleDelete = async (postId) => {
     const result = await Swal.fire({
@@ -87,6 +96,9 @@ const CardComponent = ({ post, isMyProfile }) => {
     }
   };
   return (
+    <Box>
+    {openDialog && <DialogComp {...{post,setOpenDialog}}/>}
+    
     <Card
       sx={{
         maxWidth: "100%",
@@ -139,7 +151,8 @@ const CardComponent = ({ post, isMyProfile }) => {
                 }}
               >
                 {isMyProfile || post.owner._id == user._id ? (
-                  <MenuItem
+                  <Box>
+                    <MenuItem
                     onClick={()=>{
                       handleDeleteMenu(post._id)
                     }}
@@ -150,6 +163,18 @@ const CardComponent = ({ post, isMyProfile }) => {
                     </ListItemIcon>
                     <Typography variant="body2">delete </Typography>
                   </MenuItem>
+                  <MenuItem
+                    onClick={()=>{
+                      openDialogFunc()
+                    }}
+                    sx={{ color: "inherit" }}
+                  >
+                    <ListItemIcon>
+                      <DeleteForever fontSize="small" color="inherit" />
+                    </ListItemIcon>
+                    <Typography variant="body2"> Edit </Typography>
+                  </MenuItem>
+                  </Box>
                 ) : (
                   <MenuItem sx={{ color: "text.main" }}>
                     <ListItemIcon>
@@ -166,13 +191,14 @@ const CardComponent = ({ post, isMyProfile }) => {
         title={post?.owner?.name}
         subheader={formatDistance(new Date(post.createdAt), new Date())}
       />
-      <CardMedia
+      {post.image && <CardMedia
         component="img"
         height="194"
-        image={post.image}
+        image={post?.image}
         alt="Paella dish"
         loading="lazy"
-      />
+      />}
+      
       <CardContent>
         <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {post.text}
@@ -197,6 +223,9 @@ const CardComponent = ({ post, isMyProfile }) => {
         </Typography>
       )}
     </Card>
+    </Box>
+    
+
   );
 };
 

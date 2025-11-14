@@ -68,7 +68,7 @@ router.get("/:userId", AuthMiddleware, async (req, res) => {
 
     if (!posts || posts.length === 0) {
       console.log("No posts found for this user");
-      return res.status(200).json([]); 
+      return res.status(200).json([]);
     }
 
     console.log("Posts fetched successfully");
@@ -79,31 +79,54 @@ router.get("/:userId", AuthMiddleware, async (req, res) => {
   }
 });
 //===================================== edit post ===========================================
-router.put("/:postId", AuthMiddleware, async (req, res) => {
-  const postId = req.params.postId;
-  try {
-    const post = await PostModel.findById(postId);
-    if (post.owner.toString() !== req.user.id) {
-      // التحقق من ان البوست ينتمي للمالك
-      return res.status(403).json({ error: "Not Autherized" });
+router.put(
+  "/:postId",
+  AuthMiddleware,
+  upload.single("image"),
+  async (req, res) => {
+    const postId = req.params.postId;
+    try {
+      const post = await PostModel.findById(postId);
+      if (!post) return res.status(404).json({ message: "Post not found" });
+      // التحقق من ملكية البوست
+      if (post.owner.toString() !== req.user.id) {
+        return res.status(403).json({ error: "Not Authorized" });
+      }
+      // لو المستخدم اختار يحذف الصورة
+      if (req.body.removeImage === "true" && post.image) {
+        // احذف الصورة القديمة من Cloudinary
+        const publicId = post.image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
+        post.image = "";
+      }
+      // لو في صورة جديدة
+      if (req.file) {
+        // حذف الصورة القديمة
+        if (post.image) {
+          const publicId = post.image.split("/").pop().split(".")[0];
+          await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
+        }
+        // رفع الصورة الجديدة
+        const dataUri = bufferToDataUri(req.file.mimetype, req.file.buffer);
+        const result = await cloudinary.uploader.upload(dataUri, {
+          folder: "socialmediaApp/posts",
+        });
+
+        post.image = result.secure_url;
+      }
+      // تحديث النص
+      if (req.body.text) {
+        post.text = req.body.text;
+      }
+
+      await post.save();
+      res.json(post);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: error.message });
     }
-    //update image in cloudinary if there is new image
-    if (req.body.image && req.body.image !== post.image) {
-      //upload new image to cloudinary
-      const result = await cloudinary.uploader.upload(req.body.image, {
-        folder: "socialmediaApp/posts",
-      });
-      post.image = result.secure_url;
-    }
-    // تعديل النص ولو المستخدم اتراجع عن التعديل رجعلي النص الاصلي
-    post.text = req.body.text || post.text;
-    // post.image = req.body.image || post.image
-    await post.save();
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
   }
-});
+);
 
 router.delete("/:postId", AuthMiddleware, async (req, res) => {
   const postId = req.params.postId;

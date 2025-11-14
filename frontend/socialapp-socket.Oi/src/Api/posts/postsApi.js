@@ -19,7 +19,6 @@ export const postsApi = createApi({
       query: (userId) => `/api/posts/${userId}`,
       providesTags: ["Post"],
     }),
-    
 
     // 🟡 إنشاء بوست جديد
     createPost: builder.mutation({
@@ -46,6 +45,15 @@ export const postsApi = createApi({
       }),
       invalidatesTags: ["Post"],
     }),
+    editPost: builder.mutation({
+      query: ({ postId, formData }) => ({
+        url: `/api/posts/${postId}`,
+        method: "PUT",
+        body: formData,
+        headers: {},
+      }),
+      invalidatesTags: ["Post"],
+    }),
   }),
 });
 
@@ -55,4 +63,5 @@ export const {
   useCreatePostMutation,
   useDeletePostMutation,
   useDeleteAllPostsMutation,
+  useEditPostMutation,
 } = postsApi;
