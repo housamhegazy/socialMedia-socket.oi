@@ -10,6 +10,9 @@ import {
   IconButton,
   useTheme,
   CircularProgress,
+  ListItemIcon,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
@@ -24,8 +27,14 @@ import {
 } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
 import { useSelector } from "react-redux";
-import { Done, Edit, PersonAdd } from "@mui/icons-material";
-import ProfileMenu from "../home/menuComponent";
+import {
+  DeleteForever,
+  Done,
+  Edit,
+  MoreVert,
+  PersonAdd,
+} from "@mui/icons-material";
+// import ProfileMenu from "../home/menuComponent";
 import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
 
@@ -58,6 +67,9 @@ const UserProfilePage = () => {
 
   // ====================================== error state =================================================
   const [error, setError] = useState(null);
+  //============================ main menu state =====================================
+    const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
   //======================================== edit avatar states ======================================
   const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
   const [file, setFile] = useState(null); // save image to send to db
@@ -172,6 +184,22 @@ const UserProfilePage = () => {
     setFile(null);
     setPreview(null);
   };
+  //======================================== delete all posts menu btn ===============================
+
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleDeleteFunc = () => {
+    handleClose();
+    if (handleDelete) handleDelete();
+  };
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -342,11 +370,52 @@ const UserProfilePage = () => {
               <>
                 {isMyProfile && (
                   <Box style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <ProfileMenu
-                      onDelete={handleDelete}
-                      BtnName={isLoading ? "Deleting..." : "Delete All Posts"}
-                      isMyProfile={isMyProfile}
-                    />
+                    <>
+                      <IconButton
+                        aria-label="settings"
+                        onClick={handleClick}
+                        sx={{
+                          color: "text.secondary",
+                          "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                        }}
+                      >
+                        <MoreVert />
+                      </IconButton>
+
+                      <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        disableScrollLock={true}
+                        PaperProps={{
+                          sx: {
+                            mt: 1,
+                            minWidth: 180,
+                            borderRadius: 2,
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                          },
+                        }}
+                      >
+                        {isMyProfile ? (
+                          <MenuItem
+                            onClick={handleDeleteFunc}
+                            sx={{ color: "error.main" }}
+                          >
+                            <ListItemIcon>
+                              <DeleteForever fontSize="small" color="error" />
+                            </ListItemIcon>
+                            <Typography variant="body2">delete all</Typography>
+                          </MenuItem>
+                        ) : (
+                          <MenuItem sx={{ color: "text.main" }}>
+                            <ListItemIcon>
+                              <PersonAdd fontSize="small" color="inherit" />
+                            </ListItemIcon>
+                            <Typography variant="body2">follow</Typography>
+                          </MenuItem>
+                        )}
+                      </Menu>
+                    </>
                   </Box>
                 )}
               </>

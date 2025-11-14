@@ -155,7 +155,7 @@ console.log(removeImage);
           value={postText}
         />
         {/* معاينة الصورة */}
-        <Box
+        {preview && <Box
           sx={{
             position: "relative",
             borderRadius: "12px",
@@ -183,7 +183,8 @@ console.log(removeImage);
           >
             X
           </IconButton>
-        </Box>
+        </Box>}
+        
 
         {/* أيقونة Grok / AI */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
