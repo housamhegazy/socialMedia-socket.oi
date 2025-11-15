@@ -5,6 +5,7 @@ import {
   Delete,
   DeleteForever,
   PersonAdd,
+  Comment,
 } from "@mui/icons-material";
 import {
   Card,
@@ -16,7 +17,6 @@ import {
   Typography,
   CardActions,
   useTheme,
-  CircularProgress,
   Box,
   ListItemIcon,
   Menu,
@@ -50,7 +50,8 @@ const CardComponent = ({ post, isMyProfile }) => {
   //=================== menu functions ============================
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-
+//======================= open comment box =============================
+const [openCommentBox, setOpenCommentBox] = useState(false)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -241,14 +242,13 @@ const CardComponent = ({ post, isMyProfile }) => {
                     : "inherit"
                 }
               />
-              
             </IconButton>
-            
+
             {/* Likes Summary (Instagram-like style) and open dialog */}
             <Box sx={{ px: 1, mt: 0.5 }}>
               {post.likes.length > 0 && (
                 <Typography
-                 onClick={() => setOpenLikesDialog(true)}
+                  onClick={() => setOpenLikesDialog(true)}
                   sx={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -267,52 +267,51 @@ const CardComponent = ({ post, isMyProfile }) => {
             </Box>
             {/*================================================= likes dialog =================================== */}
             <Dialog
-  open={openLikesDialog}
-  onClose={() => setOpenLikesDialog(false)}
-  fullWidth
-  maxWidth="sm"
->
-  <Box sx={{ p: 2 }}>
-    <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-      Likes
-    </Typography>
+              open={openLikesDialog}
+              onClose={() => setOpenLikesDialog(false)}
+              fullWidth
+              maxWidth="sm"
+            >
+              <Box sx={{ p: 2 }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                  Likes
+                </Typography>
 
-    {post.likes.length === 0 ? (
-      <Typography sx={{ textAlign: "center", py: 3 }}>
-        No likes yet
-      </Typography>
-    ) : (
-      post.likes.map((like) => (
-        <Box
-          key={like._id || like}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            p: 1,
-            borderRadius: "10px",
-            cursor: "pointer",
-            "&:hover": { background: "rgba(0,0,0,0.04)" },
-          }}
-          onClick={() => navigate(`/user/${like.username}`)}
-        >
-          <Avatar
-            src={like.avatar}
-            alt={like.name}
-            sx={{ mr: 2 }}
-          >
-            {!like.avatar && like.name?.charAt(0)?.toUpperCase()}
-          </Avatar>
+                {post.likes.length === 0 ? (
+                  <Typography sx={{ textAlign: "center", py: 3 }}>
+                    No likes yet
+                  </Typography>
+                ) : (
+                  post.likes.map((like) => (
+                    <Box
+                      key={like._id || like}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        p: 1,
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        "&:hover": { background: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/user/${like.username}`)}
+                    >
+                      <Avatar src={like.avatar} alt={like.name} sx={{ mr: 2 }}>
+                        {!like.avatar && like.name?.charAt(0)?.toUpperCase()}
+                      </Avatar>
 
-          <Typography sx={{ fontWeight: "500" }}>
-            {like.name || "User"}
-          </Typography>
-        </Box>
-      ))
-    )}
-  </Box>
-</Dialog>
-{/* ============================================ end dialog ====================================== */}
+                      <Typography sx={{ fontWeight: "500" }}>
+                        {like.name || "User"}
+                      </Typography>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </Dialog>
+            {/* ============================================ end dialog ====================================== */}
           </Box>
+          <IconButton onClick={()=>{setOpenCommentBox(true)}}>
+            <Comment />
+          </IconButton>
           <IconButton aria-label="share">
             <Share />
           </IconButton>
@@ -325,7 +324,7 @@ const CardComponent = ({ post, isMyProfile }) => {
             {error?.data?.message || "Failed to delete post."}
           </Typography>
         )}
-        <AddComment post={post} user={user} />
+        <AddComment post={post} user={user} openCommentBox={openCommentBox} setOpenCommentBox={setOpenCommentBox} />
       </Card>
     </Box>
   );

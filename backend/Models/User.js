@@ -32,6 +32,7 @@ const UserSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      public_id: String,
       default:
         process.env.CLOUDINARY_DEFAULT_AVATAR_URL ||
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",

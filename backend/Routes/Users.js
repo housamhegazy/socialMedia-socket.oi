@@ -175,13 +175,12 @@ router.put("/edit", AuthMiddleware, upload.single("avatar"), async (req, res) =>
 
     // تحويل الملف إلى base64
     const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
-
     // رفع الصورة على Cloudinary
     const result = await cloudinary.uploader.upload(dataUri, {
       folder: "socialmediaApp/profileImage",
+      public_id: ownerId, //  هذا هو اسم الصوره ويضمن عند رفع صوره يقوم بحذف القديمه ومن الممكن تغييره الى دالة الوقت لرفع كل صوره باسم مختلف والاحتفاظ بكل الصور
+      // upload_preset: "posts-unsigned", يتم استخدامه لما ارفع صور من الفرونت اند فقط 
     });
-
-    console.log(result.secure_url,ownerId);
     // تحديث الصورة في قاعدة البيانات
     const updatedUser = await User.findOneAndUpdate(
       {_id:ownerId},

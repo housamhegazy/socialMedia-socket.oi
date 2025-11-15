@@ -15,7 +15,7 @@ import {
 } from "../../Api/comments/commentsApi";
 import { useState } from "react";
 
-const AddComment = ({ post, user }) => {
+const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
   const theme = useTheme();
   //===================create post ===========================
   const [createComment, { isLoading, isError, Error }] =
@@ -34,7 +34,6 @@ const AddComment = ({ post, user }) => {
   //====================Reply state ===================================
   const [replyText, setreplyText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
-  console.log(comments);
   //================================ send comment ==============================
   const handleSendComment = async () => {
     const postId = post?._id;
@@ -58,40 +57,13 @@ const AddComment = ({ post, user }) => {
   };
   return (
     <Box>
-      {/* زر فتح صندوق كتابة الكومنتات  */}
-      {!viewCommentBox && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            onClick={() => setViewCommentBox(true)}
-            sx={{
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "15px",
-              color: "text.secondary",
-              borderRadius: "20px",
-              px: 2.5,
-              py: 0.5,
-
-              // تأثير Hover
-              transition: "0.25s ease",
-              "&:hover": {
-                color: "rgba(212, 221, 230, 0.82)",
-                backgroundColor: "rgba(25,118,210,0.08)", // لون خفيف زي الفيسبوك
-                boxShadow: "0px 0px 6px rgba(0,0,0,0.1)",
-              },
-            }}
-          >
-            Write Comment
-          </Button>
-        </Box>
-      )}
-
       <Box sx={{ ml: 2 }}>
         {comments?.length === 1
           ? comments?.length + " comment"
           : comments.length + " comments"}{" "}
       </Box>
-      {viewCommentBox && (
+      {/*==================================================== comment box ====================================================== */}
+      {openCommentBox && (
         <Box sx={{ display: "flex", gap: 2, width: "100%", mt: 2, px: 1 }}>
           {/* Avatar */}
           <Avatar
@@ -110,7 +82,6 @@ const AddComment = ({ post, user }) => {
                 gap: 1,
               }}
             >
-              {/* يظهر فقط عند الرد */}
               <Box
                 sx={{
                   display: "inline-flex",
@@ -130,7 +101,7 @@ const AddComment = ({ post, user }) => {
 
                 <IconButton
                   onClick={() => {
-                    setViewCommentBox(false);
+                    setOpenCommentBox(false);
                   }}
                   size="small"
                   sx={{ p: 0.5 }}
@@ -148,7 +119,6 @@ const AddComment = ({ post, user }) => {
                 mb: 1,
               }}
             >
-              {/* مربع كتابة الكومنت */}
               <TextField
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Write a comment..."
@@ -165,8 +135,6 @@ const AddComment = ({ post, user }) => {
                   },
                 }}
               />
-
-              {/* زر إرسال جنب الكومنت */}
               <Button
                 onClick={handleSendComment}
                 variant="contained"
@@ -187,7 +155,7 @@ const AddComment = ({ post, user }) => {
         </Box>
       )}
       <Box>
-        {/* ================================================================ عرض الكومنتات ================================================== */}
+        {/* ================================================================  comments ================================================== */}
         <Box sx={{ mt: 3 }}>
           {/* لو في تحميل */}
           {loadingComments && (
@@ -335,7 +303,7 @@ const AddComment = ({ post, user }) => {
                     </Box>
                   </Box>
                 )}
-                {/*==================================================== end replay box ====================================================== */}
+                {/*==================================================== Replys ====================================================== */}
                 {/* Replies (لو عايز تعرضهم بعدين) */}
                 {c.replies?.length > 0 && (
                   <Box sx={{ mt: 1.5, ml: 4 }}>
@@ -348,15 +316,17 @@ const AddComment = ({ post, user }) => {
                           borderRadius: "10px",
                           backgroundColor: theme.palette.action.hover,
                           display: "flex",
-                          flexDirection:"column",
+                          flexDirection: "column",
                           // alignItems: "center",
                         }}
                       >
-                        <Box sx={{display:"flex",alignItems:"center",mb:1}}>
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", mb: 1 }}
+                        >
                           <Avatar
                             src={r.owner?.avatar}
                             alt={r.owner?.name}
-                            sx={{ width: 25, height: 25,mr:1 }}
+                            sx={{ width: 25, height: 25, mr: 1 }}
                           />
                           <Typography
                             sx={{ fontWeight: "bold", fontSize: "13px" }}
@@ -374,6 +344,7 @@ const AddComment = ({ post, user }) => {
               </Box>
             </Box>
           ))}
+          {/*==================================================== end replay box ====================================================== */}
           {/* لاظهار باقي الكومنتات */}
           {visibleCount < comments.length && (
             <Button
