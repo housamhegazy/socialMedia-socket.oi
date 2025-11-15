@@ -71,11 +71,8 @@ const AddComment = ({ post, user }) => {
         </Box>
       )}
 
-      <Box sx={{ ml: 2 }}>
-        {" "}
-        {comments?.length === 0
-          ? "no comments yet"
-          : comments?.length === 1
+      <Box sx={{ ml: 2 }}>{
+         comments?.length === 1
           ? comments?.length + " comment"
           : comments.length + " comments"}{" "}
       </Box>
