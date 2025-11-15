@@ -168,4 +168,34 @@ router.delete("/", AuthMiddleware, async (req, res) => {
   }
 });
 
+// ================= LIKE / UNLIKE POST =================
+router.put("/like/:postId", AuthMiddleware, async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    const userId = req.user.id;
+
+    const post = await PostModel.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const liked = post.likes.includes(userId);
+
+    if (liked) {
+      // ❌ لو عامل لايك → نشيل اللايك
+      post.likes = post.likes.filter((id) => id.toString() !== userId);
+    } else {
+      // ❤️ لو مش عامل لايك → نضيف لايك
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    res.status(200).json({
+      message: liked ? "Unliked" : "Liked",
+      likes: post.likes,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 module.exports = router;

@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import { useDeletePostMutation } from "../../Api/posts/postsApi";
+import { useDeletePostMutation, useLikePostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
@@ -35,6 +35,9 @@ const CardComponent = ({ post, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
+  //=================== add likes =========================================
+  const [likePost] = useLikePostMutation();
+  console.log(post);
   //===================== edite dialog =================================
   const [openDialog,setOpenDialog] = useState(false)
   const theme = useTheme();
@@ -206,8 +209,8 @@ const CardComponent = ({ post, isMyProfile }) => {
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
-        <IconButton aria-label="likes">
-          <Favorite />
+        <IconButton  onClick={() => likePost(post._id)} aria-label="likes">
+          <Favorite sx={{color:post.likes.includes(user._id) ? "error" : "inherit" }} />
         </IconButton>
         {Array.isArray(post?.likes) ? post.likes.length : 0}
         <IconButton aria-label="share">

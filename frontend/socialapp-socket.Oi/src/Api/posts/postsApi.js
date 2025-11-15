@@ -54,6 +54,14 @@ export const postsApi = createApi({
       }),
       invalidatesTags: ["Post"],
     }),
+
+    likePost: builder.mutation({
+      query: (postId) => ({
+        url: `/api/posts/like/${postId}`,
+        method: "PUT",
+      }),
+      invalidatesTags: ["Post"],
+    }),
   }),
 });
 
@@ -64,4 +72,5 @@ export const {
   useDeletePostMutation,
   useDeleteAllPostsMutation,
   useEditPostMutation,
+  useLikePostMutation
 } = postsApi;
