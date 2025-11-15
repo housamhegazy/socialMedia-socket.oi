@@ -14,7 +14,10 @@ const PostSchema = new mongoose.Schema(
       type: String,
     },
     likes: [
-      
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", // ربط هذا الحقل بنموذج المستخدم
+      },
     ],
   },
   {

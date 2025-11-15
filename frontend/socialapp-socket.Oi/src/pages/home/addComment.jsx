@@ -18,6 +18,7 @@ const AddComment = ({ post, user }) => {
   const theme = useTheme();
   const [visibleCount, setVisibleCount] = useState(3); // view 3comments
   const [viewCommentBox, setViewCommentBox] = useState(false);
+  
   //===================create post ===========================
   const [createComment, { isLoading, isError, Error }] =
     useCreateCommentMutation();
@@ -199,7 +200,7 @@ const AddComment = ({ post, user }) => {
               sx={{
                 display: "flex",
                 gap: 2,
-                mb: 2,
+                mb: 1,
                 p: 1.8,
                 borderRadius: "12px",
                 border: `1px solid ${theme.palette.divider}`,
@@ -233,7 +234,7 @@ const AddComment = ({ post, user }) => {
                   sx={{
                     fontSize: "13px",
                     mt: 0.8,
-                    color: theme.palette.primary.main,
+                    color: "inherit",
                     cursor: "pointer",
                     fontWeight: 500,
                     "&:hover": { textDecoration: "underline" },

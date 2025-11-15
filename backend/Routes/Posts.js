@@ -47,7 +47,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
   try {
     const posts = await PostModel.find()
       .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
-      .populate("likes") //الهدف: استبدال كل ID داخل مصفوفة الإعجابات بالبيانات الكاملة للمستخدمين الذين قاموا بالإعجاب.
+      .populate("likes", "name avatar username")  // جلب بيانات المستخدمين الذين قاموا بالإعجاب
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
@@ -63,7 +63,7 @@ router.get("/:userId", AuthMiddleware, async (req, res) => {
     // استعلام جلب المنشورات الخاصة بالمستخدم باستخدام الـ userId
     const posts = await PostModel.find({ owner: userId }) // استخدام find للبحث عن منشورات هذا المستخدم
       .populate("owner", "username name email avatar") // جلب بيانات صاحب المنشور
-      .populate("likes") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
+      .populate("likes", "name avatar username")  // جلب بيانات المستخدمين الذين قاموا بالإعجاب
       .sort({ createdAt: -1 }); // ترتيب المنشورات حسب تاريخ الإنشاء بشكل تنازلي
 
     if (!posts || posts.length === 0) {
