@@ -39,8 +39,8 @@ router.get("/getComments/:postId", AuthMiddleware, async (req, res) => {
   console.log("postid",postId);
   try {
     const comments = await CommentModel.find({ post: postId })
-      .populate("owner", "name email avatar") // استبدال اي دي مالك البوست باسمه وصورته وايميله
-      .populate("replies.owner", "name avatar")
+      .populate("owner", "name email avatar username") // استبدال اي دي مالك البوست باسمه وصورته وايميله
+      .populate("replies.owner", "name avatar username")
       .sort({ createdAt: -1 });
       console.log(comments);
     res.status(200).json(comments);

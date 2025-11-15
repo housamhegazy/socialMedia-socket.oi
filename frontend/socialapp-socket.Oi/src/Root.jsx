@@ -1,9 +1,7 @@
 import {
   Box,
   createTheme,
-  CssBaseline,
   Grid,
-  ThemeProvider,
 } from "@mui/material";
 import AppBarComponent from "./components/AppBar";
 import { Outlet } from "react-router";
@@ -21,6 +19,7 @@ import {
 } from "./Api/user/authSlice";
 import LoadingPage from "./components/loadingPage";
 import { setMode } from "./Api/theme/themeSlice"; // اضف هذا
+import ScrollToTop from "./components/scrollTop";
 
 // const drawerWidth = 200;
 // const sidebarWidth = 280;
@@ -86,6 +85,7 @@ const Root = () => {
 
   return (
     <Box className="root" sx={{ display: "flex", flexDirection: "column" }}>
+    <ScrollToTop />
       <Box
         sx={{
           width: "100%",

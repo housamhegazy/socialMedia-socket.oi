@@ -104,6 +104,28 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
       }
     }
   };
+  //============================================handle share =================================
+  const handleShare = (post) => {
+  if (navigator.share) {
+    navigator.share({
+      title: post?.owner?.name || "Post",
+      text: post?.text || "",
+      url: window.location.origin + "/post/" + post._id,
+    })
+    .then(() => console.log("Shared successfully"))
+    .catch((error) => console.log("Error sharing:", error));
+  } else {
+    // Fallback للمتصفحات اللي مبتدعمش Web Share API
+    navigator.clipboard.writeText(window.location.origin + "/post/" + post._id);
+    Swal.fire({
+      icon: "success",
+      title: "Link copied!",
+      text: "Post link copied to clipboard.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  }
+};
   return (
     <Box>
       {openDialog && <DialogComp {...{ post, setOpenDialog }} />}
@@ -312,7 +334,7 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
           <IconButton onClick={()=>{setOpenCommentBox(true)}}>
             <Comment />
           </IconButton>
-          <IconButton aria-label="share">
+          <IconButton onClick={() => handleShare(post)} aria-label="share">
             <Share />
           </IconButton>
         </CardActions>

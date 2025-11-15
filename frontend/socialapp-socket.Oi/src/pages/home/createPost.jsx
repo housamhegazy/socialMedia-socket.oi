@@ -22,8 +22,10 @@ import { useState } from "react";
 import {
   useCreatePostMutation,
 } from "../../Api/posts/postsApi";
+import { useNavigate } from "react-router";
 const PostComposer = ({ user }) => {
   const theme = useTheme();
+  const navigate = useNavigate()
   const [createPost, { isLoading, isError, error }] = useCreatePostMutation();
   
   //store data of post states
@@ -106,7 +108,8 @@ const PostComposer = ({ user }) => {
         <Avatar
           alt="User"
           src={user?.avatar}
-          sx={{ width: 48, height: 48, mt: 1 }}
+          sx={{ width: 48, height: 48, mt: 1 ,cursor:"pointer"}}
+            onClick={() => navigate(`/user/${user?.username}`)}
         />
 
         <Box sx={{ flexGrow: 1 }}>

@@ -15,6 +15,7 @@ import { useMemo } from "react";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import getDesignTokens from "./Api/theme/getDesignTokens";
 // import { lightTheme, darkTheme } from "./pages/Api/Redux/theme/getDesignTokens"; // حسب إعدادك
+import ScrollToTop from "./components/scrollTop";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
