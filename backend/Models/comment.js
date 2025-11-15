@@ -35,7 +35,8 @@ const CommentSchema = new mongoose.Schema(
     text: {
       //comment text
       type: String,
-      createdAt: { type: Date, default: Date.now },
+      required: true,
+      trim: true,
     },
     replies: {
       type: [ReplySchema], // مصفوفة من الردود

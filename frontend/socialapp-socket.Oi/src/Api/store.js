@@ -5,6 +5,7 @@ import authReducer from "./user/authSlice"; // <--- استيراد authReducer
 import { userApi } from './user/userApi'
 import { postsApi } from './posts/postsApi';
 import themeReducer from "./theme/themeSlice";
+import { commentApi } from './comments/commentsApi';
 
 
 export const store = configureStore({
@@ -12,13 +13,14 @@ export const store = configureStore({
     // Add the generated reducer as a specific top-level slice
     [userApi.reducerPath]: userApi.reducer,
     [postsApi.reducerPath]: postsApi.reducer, // ربط الـ API بالستور
+    [commentApi.reducerPath]:commentApi.reducer,
     auth: authReducer, //خاصه بحالة المستخدم
     theme: themeReducer,// theme
   },
   // Adding the api middleware enables caching, invalidation, polling,
   // and other useful features of `rtk-query`.
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(userApi.middleware).concat(postsApi.middleware)
+    getDefaultMiddleware().concat(userApi.middleware).concat(postsApi.middleware).concat(commentApi.middleware)
 })
 
 // optional, but required for refetchOnFocus/refetchOnReconnect behaviors

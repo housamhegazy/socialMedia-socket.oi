@@ -5,10 +5,18 @@ const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
 const PostModel = require("../Models/Post.js");
 require("dotenv").config();
 
+// add comment 
 router.post("/:postId", AuthMiddleware, async (req, res) => {
   try {
-    const post = await CommentModel.findById(req.params.postId);
+    const post = await PostModel.findById(req.params.postId);
+     if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
     const { text } = req.body;
+    
+    if (!text || text.trim() === "") {
+      return res.status(400).json({ message: "Text is required" });
+    }
     const comment = new CommentModel({
       text,
       owner: req.user.id,
@@ -26,12 +34,15 @@ router.post("/:postId", AuthMiddleware, async (req, res) => {
 });
 
 // لجلب كل التعليقات على البوست سواء كانت من المستخدم ام من مستخدمين اخرين
-router.get("/:postId", AuthMiddleware, async (req, res) => {
+router.get("/getComments/:postId", AuthMiddleware, async (req, res) => {
+  const postId = req.params.postId
+  console.log("postid",postId);
   try {
-    const comments = await CommentModel.find({ post: req.params.postId })
+    const comments = await CommentModel.find({ post: postId })
       .populate("owner", "name email avatar") // استبدال اي دي مالك البوست باسمه وصورته وايميله
-      .populate("replies.user", "name avatar")
+      .populate("replies.owner", "name avatar")
       .sort({ createdAt: -1 });
+      console.log(comments);
     res.status(200).json(comments);
   } catch (error) {
     res.status(500).json({ message: error.message });

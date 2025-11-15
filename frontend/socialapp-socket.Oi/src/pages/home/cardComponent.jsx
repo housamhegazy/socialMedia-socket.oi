@@ -24,12 +24,13 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
-import { useDeletePostMutation, useEditPostMutation } from "../../Api/posts/postsApi";
+import { useDeletePostMutation } from "../../Api/posts/postsApi";
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
 import { useState } from "react";
 import DialogComp from "./dialog";
+import AddComment from "./addComment";
 const CardComponent = ({ post, isMyProfile }) => {
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
@@ -222,6 +223,7 @@ const CardComponent = ({ post, isMyProfile }) => {
           {error?.data?.message || "Failed to delete post."}
         </Typography>
       )}
+      <AddComment post = {post}  user={user}/>
     </Card>
     </Box>
     
