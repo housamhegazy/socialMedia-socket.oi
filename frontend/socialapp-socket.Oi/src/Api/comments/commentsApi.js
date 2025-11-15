@@ -15,7 +15,7 @@ export const commentApi = createApi({
       providesTags: ["Comment"],
     }),
 
-    // 🟡 إنشاء بوست جديد
+    // 🟡 إنشاء كومنت جديد
     createComment: builder.mutation({
       query: ({ postId, text }) => ({
         url: `/api/comments/${postId}`,
@@ -27,7 +27,19 @@ export const commentApi = createApi({
       }),
       invalidatesTags: ["Comment"], //دي بتخلي getAllPosts يعيد الجلب تلقائيًا
     }),
+    //create reply
+    createReply: builder.mutation({
+      query: ({ commentId, replyText }) => ({
+        url: `/api/comments/replay/${commentId}`,
+        method: "POST",
+        body: { replyText },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }),
+      invalidatesTags: ["Comment"], // يعيد الجلب تلقائيًا
+    }),
   }),
 });
 
-export const { useGetPostCommentsQuery, useCreateCommentMutation } = commentApi;
+export const { useGetPostCommentsQuery, useCreateCommentMutation,useCreateReplyMutation} = commentApi;

@@ -10,18 +10,18 @@ import {
 } from "@mui/material";
 import {
   useCreateCommentMutation,
+  useCreateReplyMutation,
   useGetPostCommentsQuery,
 } from "../../Api/comments/commentsApi";
 import { useState } from "react";
 
 const AddComment = ({ post, user }) => {
   const theme = useTheme();
-  const [visibleCount, setVisibleCount] = useState(3); // view 3comments
-  const [viewCommentBox, setViewCommentBox] = useState(false);
-  
   //===================create post ===========================
   const [createComment, { isLoading, isError, Error }] =
     useCreateCommentMutation();
+  //================= create reply ==========================
+  const [createReply] = useCreateReplyMutation();
   //==================== comments ===================================
   const { data: comments = [], isLoading: loadingComments } =
     useGetPostCommentsQuery(post?._id, {
@@ -29,7 +29,12 @@ const AddComment = ({ post, user }) => {
     });
   //================== comment state ==================================
   const [text, setText] = useState("");
-
+  const [visibleCount, setVisibleCount] = useState(3); // view 3comments
+  const [viewCommentBox, setViewCommentBox] = useState(false);
+  //====================Reply state ===================================
+  const [replyText, setreplyText] = useState("");
+  const [activeReplyId, setActiveReplyId] = useState(null);
+  console.log(comments);
   //================================ send comment ==============================
   const handleSendComment = async () => {
     const postId = post?._id;
@@ -37,6 +42,16 @@ const AddComment = ({ post, user }) => {
       const response = await createComment({ postId, text }).unwrap();
       setText("");
       console.log("comment added successfully", response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //================================== send reply ====================================
+  const handleSendreply = async (commentId) => {
+    try {
+      await createReply({ commentId, replyText }).unwrap();
+      setreplyText("");
     } catch (error) {
       console.log(error);
     }
@@ -71,8 +86,8 @@ const AddComment = ({ post, user }) => {
         </Box>
       )}
 
-      <Box sx={{ ml: 2 }}>{
-         comments?.length === 1
+      <Box sx={{ ml: 2 }}>
+        {comments?.length === 1
           ? comments?.length + " comment"
           : comments.length + " comments"}{" "}
       </Box>
@@ -172,7 +187,7 @@ const AddComment = ({ post, user }) => {
         </Box>
       )}
       <Box>
-        {/* =================== عرض الكومنتات =================== */}
+        {/* ================================================================ عرض الكومنتات ================================================== */}
         <Box sx={{ mt: 3 }}>
           {/* لو في تحميل */}
           {loadingComments && (
@@ -197,11 +212,11 @@ const AddComment = ({ post, user }) => {
               sx={{
                 display: "flex",
                 gap: 2,
-                mb: 1,
+                // mb: 1,
                 p: 1.8,
                 borderRadius: "12px",
-                border: `1px solid ${theme.palette.divider}`,
-                backgroundColor: theme.palette.background.default,
+                // border: `1px solid ${theme.palette.divider}`,
+                // backgroundColor: theme.palette.background.default,
                 transition: "0.2s",
                 "&:hover": {
                   backgroundColor: theme.palette.action.hover,
@@ -225,6 +240,7 @@ const AddComment = ({ post, user }) => {
                 <Typography sx={{ fontSize: "14px", mt: 0.3 }}>
                   {c.text}
                 </Typography>
+                {/* ============================================ reply box ============================================= */}
 
                 {/* Reply button */}
                 <Typography
@@ -236,11 +252,90 @@ const AddComment = ({ post, user }) => {
                     fontWeight: 500,
                     "&:hover": { textDecoration: "underline" },
                   }}
-                  onClick={() => console.log("reply to comment:", c._id)}
+                  onClick={() => {
+                    setActiveReplyId(c._id); // افتح بس الرد الخاص بالكومنت ده
+                  }}
                 >
                   Reply
                 </Typography>
+                {activeReplyId === c._id && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      width: "100%",
+                      mt: 2,
+                      px: 1,
+                    }}
+                  >
+                    <Box sx={{ flex: 1 }}>
+                      {/* شريط الرد */}
+                      <Box
+                        sx={{
+                          mb: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1,
+                        }}
+                      ></Box>
 
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1, // مسافة بسيطة بين الكومنت والزر
+                          mb: 1,
+                        }}
+                      >
+                        {/* مربع كتابة الرد */}
+                        <TextField
+                          onChange={(e) => setreplyText(e.target.value)}
+                          placeholder={`Reply to ${c?.owner?.name}`}
+                          multiline
+                          minRows={1}
+                          maxRows={4}
+                          value={replyText}
+                          fullWidth
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: "20px",
+                              padding: "6px 14px",
+                              fontSize: "14px",
+                            },
+                          }}
+                        />
+                        <IconButton
+                          onClick={() => {
+                            setActiveReplyId(null);
+                          }}
+                          size="small"
+                          sx={{ p: 0.1 }}
+                        >
+                          ✕
+                        </IconButton>
+                        {/* زر إرسال جنب الرد */}
+                        <Button
+                          onClick={() => {
+                            handleSendreply(c._id);
+                          }}
+                          variant="contained"
+                          sx={{
+                            borderRadius: "10px",
+                            px: 2.5,
+                            py: "8px",
+                            textTransform: "none",
+                            fontWeight: "bold",
+                            height: "100%", // يملى الارتفاع لو عايز
+                            alignSelf: "flex-end", // نزلو تحت لو multiline عالي
+                          }}
+                        >
+                          Send
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+                {/*==================================================== end replay box ====================================================== */}
                 {/* Replies (لو عايز تعرضهم بعدين) */}
                 {c.replies?.length > 0 && (
                   <Box sx={{ mt: 1.5, ml: 4 }}>
@@ -252,13 +347,23 @@ const AddComment = ({ post, user }) => {
                           mb: 1,
                           borderRadius: "10px",
                           backgroundColor: theme.palette.action.hover,
+                          display: "flex",
+                          flexDirection:"column",
+                          // alignItems: "center",
                         }}
                       >
-                        <Typography
-                          sx={{ fontWeight: "bold", fontSize: "13px" }}
-                        >
-                          {r.owner?.name}
-                        </Typography>
+                        <Box sx={{display:"flex",alignItems:"center",mb:1}}>
+                          <Avatar
+                            src={r.owner?.avatar}
+                            alt={r.owner?.name}
+                            sx={{ width: 25, height: 25,mr:1 }}
+                          />
+                          <Typography
+                            sx={{ fontWeight: "bold", fontSize: "13px" }}
+                          >
+                            {r.owner?.name}
+                          </Typography>
+                        </Box>
                         <Typography sx={{ fontSize: "13px" }}>
                           {r.text}
                         </Typography>

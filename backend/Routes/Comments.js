@@ -51,9 +51,9 @@ router.get("/getComments/:postId", AuthMiddleware, async (req, res) => {
 //add replies to comment
 router.post("/replay/:commentId", AuthMiddleware, async (req, res) => {
   try {
-    const { text } = req.body;
+    const { replyText } = req.body;
     //من الأفضل التأكد من أن المستخدم قد أرسل نصًا فعليًا في الرد.
-    if (!text || text.trim() === "") {
+    if (!replyText || replyText.trim() === "") {
       return res.status(400).json({ message: "Reply text is required." });
     }
 
@@ -61,7 +61,7 @@ router.post("/replay/:commentId", AuthMiddleware, async (req, res) => {
       req.params.commentId,
       {
         $push: {
-          replies: { owner: req.user.id, text },
+          replies: { owner: req.user.id, text:replyText },
         },
       },
       { new: true } // لجعل الدالة ترجع المستند بعد التحديث
