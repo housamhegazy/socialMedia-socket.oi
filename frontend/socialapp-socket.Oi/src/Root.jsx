@@ -65,6 +65,7 @@ const Root = () => {
   const { user, isAuthenticated, isLoadingAuth } = useSelector(
     (state) => state.auth
   );
+
   useEffect(() => {
     dispatch(setLoadingAuth(true));
     if (userLoading) return; // لسه بيجيب من السيرفر

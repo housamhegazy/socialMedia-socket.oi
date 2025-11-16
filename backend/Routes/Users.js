@@ -129,7 +129,6 @@ router.post("/logout", (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ⚠️ تعديل مهم
       path: "/", // ✅ يضمن حذف الكوكي من كل المسارات
     });
-    console.log("signedout");
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("❌ Logout error:", error.message);
@@ -212,7 +211,6 @@ router.get("/:username", AuthMiddleware, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user);
-    console.log("user is ", user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -18,7 +18,7 @@ import { useNavigate } from "react-router";
 
 const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
   const theme = useTheme();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   //===================create post ===========================
   const [createComment, { isLoading, isError, Error }] =
     useCreateCommentMutation();
@@ -32,7 +32,6 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
   //================== comment state ==================================
   const [text, setText] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // view 3comments
-  const [viewCommentBox, setViewCommentBox] = useState(false);
   //====================Reply state ===================================
   const [replyText, setreplyText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
@@ -198,7 +197,7 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
               <Avatar
                 src={c.owner?.avatar}
                 alt={c.owner?.name}
-                sx={{ width: 36, height: 36 ,cursor:"pointer"}}
+                sx={{ width: 36, height: 36, cursor: "pointer" }}
                 onClick={() => navigate(`/user/${c.owner?.username}`)}
               />
 
@@ -330,8 +329,15 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
                           <Avatar
                             src={r.owner?.avatar}
                             alt={r.owner?.name}
-                            sx={{ width: 25, height: 25, mr: 1 ,cursor:"pointer"}}
-                            onClick={() => navigate(`/user/${r.owner?.username}`)}
+                            sx={{
+                              width: 25,
+                              height: 25,
+                              mr: 1,
+                              cursor: "pointer",
+                            }}
+                            onClick={() =>
+                              navigate(`/user/${r.owner?.username}`)
+                            }
                           />
                           <Typography
                             sx={{ fontWeight: "bold", fontSize: "13px" }}

@@ -7,10 +7,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import IconButton from "@mui/material/IconButton";
+import Badge from "@mui/material/Badge";
+
 import {
   Bookmark,
   BusinessCenter,
-  DarkMode,
   ElectricBolt,
   Explore,
   GroupAdd,
@@ -20,7 +21,6 @@ import {
   Notifications,
   Person,
   PostAdd,
-  Sunny,
   WorkspacePremium,
   X,
 } from "@mui/icons-material";
@@ -31,7 +31,10 @@ import { Button } from "@mui/material";
 import { useSignOutMutation } from "../Api/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import { clearAuthUser } from "../Api/user/authSlice";
-
+// import { useSocket } from "../Api/notifications/context/SocketContext";
+import {
+  useGetUnreadCountQuery,
+} from "../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
 function ResponsiveDrawer({
   handleDrawerClose,
   handleDrawerTransitionEnd,
@@ -44,23 +47,38 @@ function ResponsiveDrawer({
   const iconColor = theme.palette.mode === "dark" ? "inherit" : "primary";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [signOut,{ isLoading, isSuccess, error }] = useSignOutMutation();
-  const { user: currentUser } = useSelector((state) => state.auth);
-  
+  const [signOut, { isLoading, isSuccess, error }] = useSignOutMutation();
+  const { user: currentUser, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+  //=========================socket notification ===========================
+  const {
+    data: unreadCountData,
+    isLoading: loadinggg,
+    isError: is,
+  } = useGetUnreadCountQuery(undefined, {
+    // 🚨 الشرط الأهم: لا تجلب البيانات إلا إذا كان المستخدم مسجلاً
+    skip: !isAuthenticated,
+    // أو يمكنك استخدام polling Interval لتحديث العداد بشكل دوري (اختياري)
+    // pollingInterval: 60000, // مثلاً: تحديث كل 60 ثانية
+  });
 
-const HandleLogout = async ()=> {
+  // 3. استخراج القيمة (تأكد من إرجاع السيرفر لـ { count: 5 } مثلاً)
+  const count = unreadCountData?.count || 0;
+
+  //===============================Logout ==============================================
+  const HandleLogout = async () => {
     try {
       await signOut().unwrap(); // ✅ ينفّذ الـ POST /api/users/logout
       window.location.replace("/signin"); // ✅ بدل navigate
       setTimeout(() => {
         dispatch(clearAuthUser());
       }, 300); // ✅ يمسح بيانات المستخدم من الستور
-      
     } catch (err) {
       console.error("Logout failed:", err);
     }
-  }
-  
+  };
+
   //list items data
   const myList = [
     {
@@ -75,7 +93,15 @@ const HandleLogout = async ()=> {
     },
     {
       title: "Notifications",
-      icon: <Notifications color={iconColor} />,
+      icon: (
+        <Badge
+          badgeContent={count > 0 && count > 9 ? "9+" : count}
+          color="success"
+        >
+          <Notifications color="action" />
+        </Badge>
+      ),
+
       pathname: "/notifications",
     },
     {
@@ -219,14 +245,12 @@ const HandleLogout = async ()=> {
               Add Post
             </Button>
           </ListItem>
-          <ListItem
-            
-            sx={{ mt: 5, px: 0 }}
-          >
+          <IconButton></IconButton>
+          <ListItem sx={{ mt: 5, px: 0 }}>
             <ListItemButton
-            onClick={() => {
-              HandleLogout();
-            }}
+              onClick={() => {
+                HandleLogout();
+              }}
               sx={{ justifyContent: { sm: "center", lg: "flex-start" } }}
             >
               <ListItemIcon
@@ -239,7 +263,7 @@ const HandleLogout = async ()=> {
                   display: { xs: "block", sm: "none", md: "block" },
                   color: "red",
                 }}
-                primary={isLoading?"loading" : "Logout"}
+                primary={isLoading ? "loading" : "Logout"}
               />
             </ListItemButton>
           </ListItem>
@@ -286,10 +310,9 @@ const HandleLogout = async ()=> {
             position: "sticky",
             top: "64px",
             height: `calc(100vh - 64px)`,
-            backgroundColor:theme.palette.background.default
+            backgroundColor: theme.palette.background.default,
             // borderRight: "1px solid",
             // borderColor: "divider",
-            
           },
         }}
         open

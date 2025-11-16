@@ -1,12 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const PostModel = require("../Models/Post.js");
+const NotificationSchema = require("../Models/notifications.js");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
+
 const {
   cloudinary,
   bufferToDataUri,
   upload,
 } = require("../Utils/cloudinary.js");
+
+
 require("dotenv").config();
 
 router.post("/", AuthMiddleware, upload.single("image"), async (req, res) => {
@@ -47,7 +51,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
   try {
     const posts = await PostModel.find()
       .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
-      .populate("likes", "name avatar username")  // جلب بيانات المستخدمين الذين قاموا بالإعجاب
+      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
@@ -58,12 +62,11 @@ router.get("/", AuthMiddleware, async (req, res) => {
 //get posts for one user
 router.get("/:userId", AuthMiddleware, async (req, res) => {
   const userId = req.params.userId;
-  console.log(userId);
   try {
     // استعلام جلب المنشورات الخاصة بالمستخدم باستخدام الـ userId
     const posts = await PostModel.find({ owner: userId }) // استخدام find للبحث عن منشورات هذا المستخدم
       .populate("owner", "username name email avatar") // جلب بيانات صاحب المنشور
-      .populate("likes", "name avatar username")  // جلب بيانات المستخدمين الذين قاموا بالإعجاب
+      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
       .sort({ createdAt: -1 }); // ترتيب المنشورات حسب تاريخ الإنشاء بشكل تنازلي
 
     if (!posts || posts.length === 0) {
@@ -185,6 +188,35 @@ router.put("/like/:postId", AuthMiddleware, async (req, res) => {
     } else {
       // ❤️ لو مش عامل لايك → نضيف لايك
       post.likes.push(userId);
+
+      //==============================web socket ============================
+      //Get post to find liker owner
+      // create notification if commenter not post owner
+      if (post.owner.toString() !== req.user.id) {
+        const notification = new NotificationSchema({
+          recipient: post.owner,
+          sender: req.user.id,
+          type: "like",
+          post: req.params.postId,
+        });
+
+        await notification.save();
+        const populatedNotification = await notification.populate(
+          "sender",
+          "name avatar"
+        );
+        //send realtime notification
+        const io = req.app.get("io");
+        const userSockets = req.app.get("userSockets");
+        const recipientSocketId = userSockets.get(post.owner.toString());
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit(
+            "receiveNotification",
+            populatedNotification
+          );
+        }
+      }
+      //======================= end socket ==============================================
     }
 
     await post.save();

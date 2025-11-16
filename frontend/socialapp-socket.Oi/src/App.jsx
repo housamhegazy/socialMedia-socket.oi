@@ -14,8 +14,7 @@ import { useSelector } from "react-redux";
 import { useMemo } from "react";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import getDesignTokens from "./Api/theme/getDesignTokens";
-// import { lightTheme, darkTheme } from "./pages/Api/Redux/theme/getDesignTokens"; // حسب إعدادك
-import ScrollToTop from "./components/scrollTop";
+import Notifications from "./pages/notifications/notifications";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -32,6 +31,14 @@ function App() {
           index: true,
           element: isAuthenticated ? (
             <Home />
+          ) : (
+            <Navigate to="/signin" replace />
+          ),
+        },
+        {
+          path: "/Notifications",
+          element: isAuthenticated ? (
+            <Notifications />
           ) : (
             <Navigate to="/signin" replace />
           ),
