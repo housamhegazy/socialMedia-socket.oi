@@ -1,4 +1,4 @@
-import { ImageOutlined } from "@mui/icons-material";
+import { Delete, ImageOutlined } from "@mui/icons-material";
 import {
   Box,
   Avatar,
@@ -11,11 +11,14 @@ import {
 import {
   useCreateCommentMutation,
   useCreateReplyMutation,
+  useDeleteCommentMutation,
+  useDeleteReplyMutation,
   useGetPostCommentsQuery,
 } from "../../Api/comments/commentsApi";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { formatDistance } from "date-fns";
+import Swal from "sweetalert2";
 
 const AddComment = ({
   post,
@@ -43,6 +46,10 @@ const AddComment = ({
   //====================Reply state ===================================
   const [replyText, setreplyText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
+  //=========================== DELETE COMMENT ===============================
+  const [deleteComment, { isLoading: deleteLoad }] = useDeleteCommentMutation();
+  //=========================== delete reply =====================================
+  const [deleteReply,{isLoading:deleteLoadd}] = useDeleteReplyMutation()
   //================================ send comment ==============================
   const handleSendComment = async () => {
     const postId = post?._id;
@@ -76,15 +83,14 @@ const AddComment = ({
       if (targetIndex !== -1 && targetIndex >= visibleCount) {
         // قم بزيادة visibleCount لتشمل التعليق المستهدف (targetIndex + 1)
         // يمكنك زيادة العدد لـ (الفهرس + 1) أو (الفهرس + 3) لضمان ظهور بعض التعليقات التي تليه
-        const newVisibleCount = targetIndex + 1; // 4. قم بتحديث الحالة لضمان ظهور التعليق المستهدف
+        const buffer = 2;
+        const newVisibleCount = Math.min(
+          targetIndex + 1 + buffer,
+          comments.length // لا تتجاوز العدد الكلي
+        ); // 4. قم بتحديث الحالة لضمان ظهور التعليق المستهدف
         setVisibleCount(newVisibleCount);
       }
-
-      // 5. فتح مربع التعليق (OpenCommentBox) إذا كان مغلقًا لضمان رؤية التعليق بسهولة
-      if (!openCommentBox) {
-        setOpenCommentBox(true);
-      }
-    } // نضيف جميع الاعتماديات التي قد تتغير هنا
+    }
   }, [
     commentIdToHighlight,
     comments,
@@ -93,7 +99,74 @@ const AddComment = ({
     setOpenCommentBox,
   ]);
 
-  // ...
+  // ============================== delete comment func ===================================================
+  const deleteCommentHandle = async (commentId) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (result.isConfirmed) {
+      try {
+        await deleteComment(commentId).unwrap();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your comment has been deleted.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.log(error);
+        Swal.fire({
+          title: "Error!",
+          text:
+            error?.data?.message ||
+            "Something went wrong while deleting the post.",
+          icon: "error",
+        });
+      }
+    }
+  };
+
+  //==================================== delete reply ======================================
+  const deleteReplyHandle = async ({commentId , replyId}) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (result.isConfirmed) {
+      try {
+        await deleteReply({commentId,replyId}).unwrap();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your reply has been deleted.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.log(error);
+        Swal.fire({
+          title: "Error!",
+          text:
+            error?.data?.message ||
+            "Something went wrong while deleting the post.",
+          icon: "error",
+        });
+      }
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ ml: 2 }}>
@@ -217,7 +290,14 @@ const AddComment = ({
           {comments?.slice(0, visibleCount).map((c) => (
             <Box
               key={c._id}
-              ref={(el) => (commentRefs.current[c._id] = el)}
+              ref={(el) => {
+                if (el) {
+                  //عشان تشتغل فقط لو في صفحة البوست وماتشتغلش في الهوم
+                  if (commentRefs) {
+                    commentRefs.current[c._id] = el;
+                  }
+                }
+              }}
               sx={{
                 display: "flex",
                 gap: 2,
@@ -267,21 +347,32 @@ const AddComment = ({
                 {/* ============================================ reply box ============================================= */}
 
                 {/* Reply button */}
-                <Typography
-                  sx={{
-                    fontSize: "13px",
-                    mt: 0.8,
-                    color: "inherit",
-                    cursor: "pointer",
-                    fontWeight: 500,
-                    "&:hover": { textDecoration: "underline" },
-                  }}
-                  onClick={() => {
-                    setActiveReplyId(c._id); // افتح بس الرد الخاص بالكومنت ده
-                  }}
-                >
-                  Reply
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography
+                    sx={{
+                      fontSize: "13px",
+                      mt: 0.8,
+                      color: "inherit",
+                      cursor: "pointer",
+                      fontWeight: 500,
+                      "&:hover": { textDecoration: "underline" },
+                    }}
+                    onClick={() => {
+                      setActiveReplyId(c._id); // افتح بس الرد الخاص بالكومنت ده
+                    }}
+                  >
+                    Reply
+                  </Typography>
+                  {c.owner._id == user._id && (
+                    <IconButton
+                      onClick={() => {
+                        deleteCommentHandle(c._id);
+                      }}
+                    >
+                      <Delete color="error" sx={{ fontSize: "20px" }} />
+                    </IconButton>
+                  )}
+                </Box>
                 {activeReplyId === c._id && (
                   <Box
                     sx={{
@@ -411,7 +502,7 @@ const AddComment = ({
                               }}
                             >
                               {formatDistance(
-                                new Date(c?.createdAt),
+                                new Date(r?.createdAt),
                                 new Date()
                               )}
                             </span>
@@ -420,6 +511,19 @@ const AddComment = ({
                         <Typography sx={{ fontSize: "13px" }}>
                           {r.text}
                         </Typography>
+                        <Box sx={{display:"flex" , justifyContent:"end"}}>
+                          {r.owner._id == user._id && (
+                          <IconButton
+                            onClick={() => {
+                              const commentId = c._id
+                              const replyId = r._id
+                              deleteReplyHandle({commentId,replyId});
+                            }}
+                          >
+                            <Delete color="error" sx={{ fontSize: "20px" }} />
+                          </IconButton>
+                        )}
+                        </Box>
                       </Box>
                     ))}
                   </Box>

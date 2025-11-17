@@ -92,7 +92,7 @@ const Notifications = () => {
     );
   }
   return (
-    <Box sx={{ maxWidth: 800, margin: "20px auto", p: 2 }}>
+    <Box sx={{ width:"100%", margin: "20px auto", p: 2 }}>
       {/* ➡️ العنوان والإجراءات العلوية */}
       <Box
         sx={{
@@ -110,6 +110,7 @@ const Notifications = () => {
           onClick={handleMarkAllAsRead}
           variant="outlined"
           size="small"
+          color="inherit"
           disabled={!notifications.some((n) => !n.isRead) || isMarking} // تعطيل الزر إذا لم يكن هناك غير مقروء
         >
           mark all as resd

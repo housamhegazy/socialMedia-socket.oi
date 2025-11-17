@@ -20,7 +20,7 @@ export const postsApi = createApi({
     }),
     // 🟢 جلب بوستات مستخدم معين
     getUserPosts: builder.query({
-      query: (userId) => `/api/posts/${userId}`,
+      query: (userId) => `/api/posts/user/${userId}`,
       providesTags: ["Post"],
     }),
 

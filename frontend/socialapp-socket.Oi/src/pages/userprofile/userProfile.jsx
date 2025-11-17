@@ -43,7 +43,7 @@ const UserProfilePage = () => {
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //بيانات المستخدم الحالي اللي مسجل دخول
-  const { user: currentUser } = useSelector((state) => state.auth);
+  const { user: currentUser,isLoadingAuth } = useSelector((state) => state.auth);
   const isMyProfile = username === currentUser?.username; //  التحقق من ان اسم المستخدم ده هو نفسه المستخدم المسجل دخول
   // بيانات المستخدم اللي حابب افتح صفحته
   const {
@@ -87,7 +87,7 @@ const UserProfilePage = () => {
   if (error) {
     return <Err_404Page />;
   }
-  if (userLoading || postsLoading) return <LoadingPage />;
+  if (userLoading || postsLoading || isLoadingAuth) return <LoadingPage />;
 
   if (userError || !userProfile) {
     return <div>User not found</div>;
@@ -366,7 +366,7 @@ const UserProfilePage = () => {
         {isMyProfile && <PostComposer user={currentUser} />}
         <Grid sx={{ width: "100%" }}>
           <Paper elevation={3} sx={{ padding: 2, width: "100%" }}>
-            {posts.length > 0 && (
+            {posts?.length > 0 && (
               <>
                 {isMyProfile && (
                   <Box style={{ display: "flex", justifyContent: "flex-end" }}>

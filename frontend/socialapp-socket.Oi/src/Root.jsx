@@ -86,7 +86,7 @@ const Root = () => {
 
   return (
     <Box className="root" sx={{ display: "flex", flexDirection: "column" }}>
-    <ScrollToTop />
+    {/* <ScrollToTop /> */}
       <Box
         sx={{
           width: "100%",

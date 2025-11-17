@@ -73,7 +73,7 @@ router.get("/:postId", AuthMiddleware, async (req, res) => {
 });
 
 //get posts for one user
-router.get("/:userId", AuthMiddleware, async (req, res) => {
+router.get("/user/:userId", AuthMiddleware, async (req, res) => {
   const userId = req.params.userId;
   try {
     // استعلام جلب المنشورات الخاصة بالمستخدم باستخدام الـ userId

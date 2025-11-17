@@ -27,6 +27,14 @@ export const commentApi = createApi({
       }),
       invalidatesTags: ["Comment"], //دي بتخلي getAllPosts يعيد الجلب تلقائيًا
     }),
+    deleteComment: builder.mutation({
+      query: ( commentId ) => ({
+        url: `/api/comments/${commentId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Comment"], //دي بتخلي getAllPosts يعيد الجلب تلقائيًا
+    }),
+    
     //create reply
     createReply: builder.mutation({
       query: ({ commentId, replyText }) => ({
@@ -39,7 +47,16 @@ export const commentApi = createApi({
       }),
       invalidatesTags: ["Comment"], // يعيد الجلب تلقائيًا
     }),
+
+    deleteReply: builder.mutation({
+      query: ( {commentId,replyId} ) => ({
+        url: `/api/comments/replay/${commentId}/${replyId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Comment"], //دي بتخلي getAllPosts يعيد الجلب تلقائيًا
+    }),
+    
   }),
 });
 
-export const { useGetPostCommentsQuery, useCreateCommentMutation,useCreateReplyMutation} = commentApi;
+export const { useGetPostCommentsQuery, useCreateCommentMutation,useDeleteCommentMutation,useCreateReplyMutation,useDeleteReplyMutation} = commentApi;
