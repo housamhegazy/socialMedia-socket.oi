@@ -58,6 +58,19 @@ router.get("/", AuthMiddleware, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+//get one post 
+router.get("/:postId", AuthMiddleware, async (req, res) => {
+  const postId = req.params.postId
+  try {
+    const post = await PostModel.findById(postId)
+      .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
+      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
+      .sort({ createdAt: -1 });
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 //get posts for one user
 router.get("/:userId", AuthMiddleware, async (req, res) => {

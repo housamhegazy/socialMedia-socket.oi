@@ -14,6 +14,10 @@ export const postsApi = createApi({
       query: () => "/api/posts",
       providesTags: ["Post"],
     }),
+    getOnePost: builder.query({
+      query: (postId) => `/api/posts/${postId}`,
+      providesTags: ["Post"],
+    }),
     // 🟢 جلب بوستات مستخدم معين
     getUserPosts: builder.query({
       query: (userId) => `/api/posts/${userId}`,
@@ -67,6 +71,7 @@ export const postsApi = createApi({
 
 export const {
   useGetAllPostsQuery,
+  useGetOnePostQuery,
   useGetUserPostsQuery,
   useCreatePostMutation,
   useDeletePostMutation,
