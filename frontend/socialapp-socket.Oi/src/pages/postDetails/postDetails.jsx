@@ -169,10 +169,11 @@ const PostDetails = () => {
     </Box>;
   }
   return (
-    <Card
+    <Box>
+      <Card
       sx={{
-        id: post?._id,
-        maxWidth: "100%",
+        // id: post?._id,
+        Width: "100%",
         margin: "10px auto",
         my: 5,
         borderRadius: "20px",
@@ -260,7 +261,7 @@ const PostDetails = () => {
         }
         //======================================= end menu ==========================================================
         title={post?.owner?.name}
-        // subheader={formatDistance(new Date(post?.createdAt), new Date())}
+        subheader={formatDistance(new Date(post?.createdAt), new Date())}
       />
       {post?.image && (
         <CardMedia
@@ -394,6 +395,7 @@ const PostDetails = () => {
         setOpenCommentBox={setOpenCommentBox}
       />
     </Card>
+    </Box>
   );
 };
 

@@ -15,6 +15,7 @@ import {
 } from "../../Api/comments/commentsApi";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { formatDistance } from "date-fns";
 
 const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
   const theme = useTheme();
@@ -203,9 +204,20 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
 
               <Box sx={{ flex: 1 }}>
                 {/* Name */}
-                <Typography sx={{ fontWeight: "bold", fontSize: "14px" }}>
-                  {c.owner?.name}
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography sx={{ fontWeight: "bold", fontSize: "14px" }}>
+                    {c.owner?.name}
+                  </Typography>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      marginLeft: "5px",
+                      opacity: 0.5,
+                    }}
+                  >
+                    {formatDistance(new Date(c?.createdAt), new Date())}
+                  </span>
+                </Box>
 
                 {/* Text */}
                 <Typography sx={{ fontSize: "14px", mt: 0.3 }}>
@@ -339,11 +351,30 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
                               navigate(`/user/${r.owner?.username}`)
                             }
                           />
-                          <Typography
-                            sx={{ fontWeight: "bold", fontSize: "13px" }}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
                           >
-                            {r.owner?.name}
-                          </Typography>
+                            <Typography
+                              sx={{ fontWeight: "bold", fontSize: "13px" }}
+                            >
+                              {r.owner?.name}
+                            </Typography>
+                            <span
+                              style={{
+                                fontSize: "10px",
+                                marginLeft: "5px",
+                                opacity: 0.5,
+                              }}
+                            >
+                              {formatDistance(
+                                new Date(c?.createdAt),
+                                new Date()
+                              )}
+                            </span>
+                          </Box>
                         </Box>
                         <Typography sx={{ fontSize: "13px" }}>
                           {r.text}
