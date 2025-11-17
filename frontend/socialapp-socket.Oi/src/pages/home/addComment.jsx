@@ -13,11 +13,18 @@ import {
   useCreateReplyMutation,
   useGetPostCommentsQuery,
 } from "../../Api/comments/commentsApi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { formatDistance } from "date-fns";
 
-const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
+const AddComment = ({
+  post,
+  user,
+  openCommentBox,
+  setOpenCommentBox,
+  commentRefs,
+  commentIdToHighlight,
+}) => {
   const theme = useTheme();
   const navigate = useNavigate();
   //===================create post ===========================
@@ -57,6 +64,36 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
       console.log(error);
     }
   };
+
+  // 💡 إضافة useEffect لمعالجة التوجيه من الإشعار
+  useEffect(() => {
+    // 1. التحقق مما إذا كان هناك مُعرِّف تعليق للتسليط عليه
+    if (commentIdToHighlight) {
+      // 2. البحث عن فهرس (Index) التعليق المستهدف في القائمة الكاملة
+      const targetIndex = comments.findIndex(
+        (c) => c._id === commentIdToHighlight
+      ); // 3. إذا وُجد التعليق وكان فهرسه أكبر من أو يساوي عدد التعليقات المعروضة حالياً
+      if (targetIndex !== -1 && targetIndex >= visibleCount) {
+        // قم بزيادة visibleCount لتشمل التعليق المستهدف (targetIndex + 1)
+        // يمكنك زيادة العدد لـ (الفهرس + 1) أو (الفهرس + 3) لضمان ظهور بعض التعليقات التي تليه
+        const newVisibleCount = targetIndex + 1; // 4. قم بتحديث الحالة لضمان ظهور التعليق المستهدف
+        setVisibleCount(newVisibleCount);
+      }
+
+      // 5. فتح مربع التعليق (OpenCommentBox) إذا كان مغلقًا لضمان رؤية التعليق بسهولة
+      if (!openCommentBox) {
+        setOpenCommentBox(true);
+      }
+    } // نضيف جميع الاعتماديات التي قد تتغير هنا
+  }, [
+    commentIdToHighlight,
+    comments,
+    visibleCount,
+    openCommentBox,
+    setOpenCommentBox,
+  ]);
+
+  // ...
   return (
     <Box>
       <Box sx={{ ml: 2 }}>
@@ -180,15 +217,19 @@ const AddComment = ({ post, user, openCommentBox, setOpenCommentBox }) => {
           {comments?.slice(0, visibleCount).map((c) => (
             <Box
               key={c._id}
+              ref={(el) => (commentRefs.current[c._id] = el)}
               sx={{
                 display: "flex",
                 gap: 2,
                 // mb: 1,
                 p: 1.8,
                 borderRadius: "12px",
-                // border: `1px solid ${theme.palette.divider}`,
-                // backgroundColor: theme.palette.background.default,
-                transition: "0.2s",
+                transition: "background-color 0.3s",
+                // تسليط الضوء المؤقت
+                backgroundColor:
+                  commentIdToHighlight === c._id
+                    ? "rgba(255, 165, 0, 0.2)"
+                    : "transparent",
                 "&:hover": {
                   backgroundColor: theme.palette.action.hover,
                 },

@@ -41,11 +41,11 @@ import AddComment from "../home/addComment";
 const PostDetails = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { postId } = useParams();
   //========================get one post
-  const { data: post ,isLoading:isFetching} = useGetOnePostQuery(postId);
-  console.log(searchParams,postId , post);
+  const { data: post, isLoading: isFetching } = useGetOnePostQuery(postId);
+
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
@@ -63,12 +63,19 @@ const PostDetails = () => {
         behavior: "smooth",
         block: "center",
       });
-      // 🚨 يجب إزالة الـ Query Parameter بعد التمرير لتنظيف الـ URL
-      // مثلاً: setSearchParams({}, { replace: true });
-    }
-  }, [commentIdToHighlight /* إضافة حالة تحميل التعليقات هنا */]);
-  //=================================== card functions =========================================================
+      // 💡 إزالة الـ Query Parameter بعد التمرير
+      // نستخدم setTimeout لإتاحة الوقت للتمرير
+      const timer = setTimeout(() => {
+        setSearchParams({}, { replace: true });
+      }, 1500);
 
+      return () => clearTimeout(timer); // تنظيف المؤقت عند إزالة المكون
+    }
+  }, [
+    commentIdToHighlight,
+    setSearchParams /* 💡 يجب إضافة setSearchParams هنا */,
+  ]);
+  //=================================== card functions =========================================================
 
   //=================== menu functions ============================
   const [anchorEl, setAnchorEl] = useState(null);
@@ -134,7 +141,7 @@ const PostDetails = () => {
         .share({
           title: post?.owner?.name || "Post",
           text: post?.text || "",
-          url: window.location.origin + "/post/" + post._id,
+          url: window.location.origin + "/posts/" + post._id,
         })
         .then(() => console.log("Shared successfully"))
         .catch((error) => console.log("Error sharing:", error));
@@ -153,248 +160,258 @@ const PostDetails = () => {
     }
   };
 
-
   // 3. عرض حالة التحميل (ضروري)
   if (isLoading || isFetching) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
         <Typography>Loading Post...</Typography>
         {/* يمكنك إضافة مكون تحميل هنا مثل CircularProgress */}
-    </Box>;
+      </Box>
+    );
   }
-  
+
   // 4. عرض حالة الخطأ
   if (isError || !post) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
-        <Typography color="error">Post not found or an error occurred.</Typography>
-    </Box>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <Typography color="error">
+          Post not found or an error occurred.
+        </Typography>
+      </Box>
+    );
   }
   return (
     <Box>
       <Card
-      sx={{
-        // id: post?._id,
-        Width: "100%",
-        margin: "10px auto",
-        my: 5,
-        borderRadius: "20px",
-        backgroundColor: theme.palette.background.default,
-      }}
-    >
-      <CardHeader
-        avatar={
-          <Avatar
-            onClick={() => {
-              navigate(`/user/${post?.owner?.username}`);
-            }}
-            sx={{ bgcolor: "#d93526", cursor: "pointer" }}
-            aria-label="recipe"
-            src={post?.owner?.avatar}
-          >
-            {!post?.owner?.avatar && post?.owner?.username?.[0]?.toUpperCase()}
-          </Avatar>
-        }
-        //========================================= menu ================================================================================
-        action={
-          <Box style={{ display: "flex", justifyContent: "flex-end" }}>
-            <>
-              <IconButton
-                aria-label="settings"
-                onClick={handleClick}
-                sx={{
-                  color: "text.secondary",
-                  "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-                }}
-              >
-                <MoreVert />
-              </IconButton>
-
-              <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                disableScrollLock={true}
-                PaperProps={{
-                  sx: {
-                    mt: 1,
-                    minWidth: 180,
-                    borderRadius: 2,
-                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                  },
-                }}
-              >
-                {post?.owner._id == user._id ? (
-                  <Box>
-                    <MenuItem
-                      onClick={() => {
-                        handleDeleteMenu(post?._id);
-                      }}
-                      sx={{ color: "error.main" }}
-                    >
-                      <ListItemIcon>
-                        <DeleteForever fontSize="small" color="error" />
-                      </ListItemIcon>
-                      <Typography variant="body2">delete </Typography>
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        openDialogFunc();
-                      }}
-                      sx={{ color: "inherit" }}
-                    >
-                      <ListItemIcon>
-                        <DeleteForever fontSize="small" color="inherit" />
-                      </ListItemIcon>
-                      <Typography variant="body2"> Edit </Typography>
-                    </MenuItem>
-                  </Box>
-                ) : (
-                  <MenuItem sx={{ color: "text.main" }}>
-                    <ListItemIcon>
-                      <PersonAdd fontSize="small" color="inherit" />
-                    </ListItemIcon>
-                    <Typography variant="body2">follow</Typography>
-                  </MenuItem>
-                )}
-              </Menu>
-            </>
-          </Box>
-        }
-        //======================================= end menu ==========================================================
-        title={post?.owner?.name}
-        subheader={formatDistance(new Date(post?.createdAt), new Date())}
-      />
-      {post?.image && (
-        <CardMedia
-          component="img"
-          height="194"
-          image={post?.image}
-          alt="Paella dish"
-          loading="lazy"
-        />
-      )}
-
-      <CardContent>
-        <Typography variant="body2" sx={{ color: "text.secondary" }}>
-          {post?.text}
-        </Typography>
-      </CardContent>
-      <CardActions
-        disableSpacing
-        sx={{ display: "flex", justifyContent: "space-between" }}
+        sx={{
+          // id: post?._id,
+          Width: "100%",
+          margin: "10px auto",
+          my: 5,
+          borderRadius: "20px",
+          backgroundColor: theme.palette.background.default,
+        }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
+        <CardHeader
+          avatar={
+            <Avatar
+              onClick={() => {
+                navigate(`/user/${post?.owner?.username}`);
+              }}
+              sx={{ bgcolor: "#d93526", cursor: "pointer" }}
+              aria-label="recipe"
+              src={post?.owner?.avatar}
+            >
+              {!post?.owner?.avatar &&
+                post?.owner?.username?.[0]?.toUpperCase()}
+            </Avatar>
+          }
+          //========================================= menu ================================================================================
+          action={
+            <Box style={{ display: "flex", justifyContent: "flex-end" }}>
+              <>
+                <IconButton
+                  aria-label="settings"
+                  onClick={handleClick}
+                  sx={{
+                    color: "text.secondary",
+                    "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
+                  }}
+                >
+                  <MoreVert />
+                </IconButton>
+
+                <Menu
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  disableScrollLock={true}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      minWidth: 180,
+                      borderRadius: 2,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    },
+                  }}
+                >
+                  {post?.owner._id == user._id ? (
+                    <Box>
+                      <MenuItem
+                        onClick={() => {
+                          handleDeleteMenu(post?._id);
+                        }}
+                        sx={{ color: "error.main" }}
+                      >
+                        <ListItemIcon>
+                          <DeleteForever fontSize="small" color="error" />
+                        </ListItemIcon>
+                        <Typography variant="body2">delete </Typography>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          openDialogFunc();
+                        }}
+                        sx={{ color: "inherit" }}
+                      >
+                        <ListItemIcon>
+                          <DeleteForever fontSize="small" color="inherit" />
+                        </ListItemIcon>
+                        <Typography variant="body2"> Edit </Typography>
+                      </MenuItem>
+                    </Box>
+                  ) : (
+                    <MenuItem sx={{ color: "text.main" }}>
+                      <ListItemIcon>
+                        <PersonAdd fontSize="small" color="inherit" />
+                      </ListItemIcon>
+                      <Typography variant="body2">follow</Typography>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </>
+            </Box>
+          }
+          //======================================= end menu ==========================================================
+          title={post?.owner?.name}
+          subheader={formatDistance(new Date(post?.createdAt), new Date())}
+        />
+        {post?.image && (
+          <CardMedia
+            component="img"
+            height="194"
+            image={post?.image}
+            alt="Paella dish"
+            loading="lazy"
+          />
+        )}
+
+        <CardContent>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {post?.text}
+          </Typography>
+        </CardContent>
+        <CardActions
+          disableSpacing
+          sx={{ display: "flex", justifyContent: "space-between" }}
         >
-          <IconButton
-            onClick={async () => {
-              likePost(post._id).unwrap();
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
-            aria-label="likes"
           >
-            <Favorite
-              color={
-                post.likes.some((like) => String(like._id) === String(user._id))
-                  ? "error"
-                  : "inherit"
-              }
-            />
-          </IconButton>
+            <IconButton
+              onClick={async () => {
+                likePost(post._id).unwrap();
+              }}
+              aria-label="likes"
+            >
+              <Favorite
+                color={
+                  post.likes.some(
+                    (like) => String(like._id) === String(user._id)
+                  )
+                    ? "error"
+                    : "inherit"
+                }
+              />
+            </IconButton>
 
-          {/* Likes Summary (Instagram-like style) and open dialog */}
-          <Box sx={{ px: 1, mt: 0.5 }}>
-            {post.likes.length > 0 && (
-              <Typography
-                onClick={() => setOpenLikesDialog(true)}
-                sx={{
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  cursor: "pointer",
-                  "&:hover": { opacity: 0.7 },
-                }}
-              >
-                Liked by{" "}
-                <span style={{ color: "#555" }}>
-                  {post.likes.length === 1
-                    ? "1 person"
-                    : `${post.likes.length} people`}
-                </span>
-              </Typography>
-            )}
-          </Box>
-          {/*================================================= likes dialog =================================== */}
-          <Dialog
-            open={openLikesDialog}
-            onClose={() => setOpenLikesDialog(false)}
-            fullWidth
-            maxWidth="sm"
-          >
-            <Box sx={{ p: 2 }}>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Likes
-              </Typography>
-
-              {post.likes.length === 0 ? (
-                <Typography sx={{ textAlign: "center", py: 3 }}>
-                  No likes yet
+            {/* Likes Summary (Instagram-like style) and open dialog */}
+            <Box sx={{ px: 1, mt: 0.5 }}>
+              {post.likes.length > 0 && (
+                <Typography
+                  onClick={() => setOpenLikesDialog(true)}
+                  sx={{
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    "&:hover": { opacity: 0.7 },
+                  }}
+                >
+                  Liked by{" "}
+                  <span style={{ color: "#555" }}>
+                    {post.likes.length === 1
+                      ? "1 person"
+                      : `${post.likes.length} people`}
+                  </span>
                 </Typography>
-              ) : (
-                post.likes.map((like) => (
-                  <Box
-                    key={like._id || like}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      p: 1,
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      "&:hover": { background: "rgba(0,0,0,0.04)" },
-                    }}
-                    onClick={() => navigate(`/user/${like.username}`)}
-                  >
-                    <Avatar src={like.avatar} alt={like.name} sx={{ mr: 2 }}>
-                      {!like.avatar && like.name?.charAt(0)?.toUpperCase()}
-                    </Avatar>
-
-                    <Typography sx={{ fontWeight: "500" }}>
-                      {like.name || "User"}
-                    </Typography>
-                  </Box>
-                ))
               )}
             </Box>
-          </Dialog>
-          {/* ============================================ end dialog ====================================== */}
-        </Box>
-        <IconButton
-          onClick={() => {
-            setOpenCommentBox(true);
-          }}
-        >
-          <Comment />
-        </IconButton>
-        <IconButton onClick={() => handleShare(post)} aria-label="share">
-          <Share />
-        </IconButton>
-      </CardActions>
-      {isError && (
-        <Typography
-          variant="body2"
-          sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
-        >
-          {error?.data?.message || "Failed to delete post."}
-        </Typography>
-      )}
-      <AddComment
-        post={post}
-        user={user}
-        openCommentBox={openCommentBox}
-        setOpenCommentBox={setOpenCommentBox}
-      />
-    </Card>
+            {/*================================================= likes dialog =================================== */}
+            <Dialog
+              open={openLikesDialog}
+              onClose={() => setOpenLikesDialog(false)}
+              fullWidth
+              maxWidth="sm"
+            >
+              <Box sx={{ p: 2 }}>
+                <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                  Likes
+                </Typography>
+
+                {post.likes.length === 0 ? (
+                  <Typography sx={{ textAlign: "center", py: 3 }}>
+                    No likes yet
+                  </Typography>
+                ) : (
+                  post.likes.map((like) => (
+                    <Box
+                      key={like._id || like}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        p: 1,
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        "&:hover": { background: "rgba(0,0,0,0.04)" },
+                      }}
+                      onClick={() => navigate(`/user/${like.username}`)}
+                    >
+                      <Avatar src={like.avatar} alt={like.name} sx={{ mr: 2 }}>
+                        {!like.avatar && like.name?.charAt(0)?.toUpperCase()}
+                      </Avatar>
+
+                      <Typography sx={{ fontWeight: "500" }}>
+                        {like.name || "User"}
+                      </Typography>
+                    </Box>
+                  ))
+                )}
+              </Box>
+            </Dialog>
+            {/* ============================================ end dialog ====================================== */}
+          </Box>
+          <IconButton
+            onClick={() => {
+              setOpenCommentBox(true);
+            }}
+          >
+            <Comment />
+          </IconButton>
+          <IconButton onClick={() => handleShare(post)} aria-label="share">
+            <Share />
+          </IconButton>
+        </CardActions>
+        {isError && (
+          <Typography
+            variant="body2"
+            sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
+          >
+            {error?.data?.message || "Failed to delete post."}
+          </Typography>
+        )}
+        <AddComment
+          post={post}
+          user={user}
+          openCommentBox={openCommentBox}
+          setOpenCommentBox={setOpenCommentBox}
+          commentIdToHighlight={commentIdToHighlight}
+          commentRefs={commentRefs}
+        />
+      </Card>
     </Box>
   );
 };

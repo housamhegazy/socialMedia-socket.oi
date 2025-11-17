@@ -78,7 +78,7 @@ const Root = () => {
   }, [apiuser, userLoading, isError, dispatch]);
 
   // loading whene userloading 
-  if (isLoadingAuth) {
+  if (isLoadingAuth) { 
     return (
         <LoadingPage />
     );

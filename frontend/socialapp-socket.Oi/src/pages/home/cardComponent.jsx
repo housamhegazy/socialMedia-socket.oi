@@ -110,7 +110,7 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
     navigator.share({
       title: post?.owner?.name || "Post",
       text: post?.text || "",
-      url: window.location.origin + "/post/" + post._id,
+      url: window.location.origin + "/posts/" + post._id,
     })
     .then(() => console.log("Shared successfully"))
     .catch((error) => console.log("Error sharing:", error));
