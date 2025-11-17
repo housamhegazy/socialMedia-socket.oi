@@ -15,6 +15,7 @@ import { useMemo } from "react";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import getDesignTokens from "./Api/theme/getDesignTokens";
 import Notifications from "./pages/notifications/notifications";
+import PostDetails from "./pages/postDetails/postDetails";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -39,6 +40,14 @@ function App() {
           path: "/Notifications",
           element: isAuthenticated ? (
             <Notifications />
+          ) : (
+            <Navigate to="/signin" replace />
+          ),
+        },
+        {
+          path: "/posts/:postId",
+          element: isAuthenticated ? (
+            <PostDetails />
           ) : (
             <Navigate to="/signin" replace />
           ),

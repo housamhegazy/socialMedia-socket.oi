@@ -130,13 +130,15 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
     <Box>
       {openDialog && <DialogComp {...{ post, setOpenDialog }} />}
 
-      <Card
+      <Card  
         sx={{
+          id:post._id,
           maxWidth: "100%",
           margin: "10px auto",
           my: 5,
           borderRadius: "20px",
           backgroundColor: theme.palette.background.default,
+          
         }}
       >
         <CardHeader
