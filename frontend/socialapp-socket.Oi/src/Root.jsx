@@ -108,7 +108,7 @@ const Root = () => {
           width: "100%",
           maxWidth: `${ContainerMaxWidth}px`,
           margin: "0 auto",
-          minHeight: user ? "200vh" : `calc(100vh - 64px)`,
+          minHeight:`calc(100vh - 64px)`,
           flexWrap: "nowrap",
           alignItems: "stretch",
         }}
@@ -164,7 +164,7 @@ const Root = () => {
           </Grid>
         )}
       </Grid>
-      <Footer />
+      {/* <Footer /> */}
     </Box>
   );
 };

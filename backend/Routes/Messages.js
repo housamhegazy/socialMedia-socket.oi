@@ -8,7 +8,8 @@ const { AuthMiddleware } = require("../middleware/authMiddleware.js");
 router.get('/:chatId', AuthMiddleware, async (req, res) => {
     try {
         const messages = await Message.find({ chatId: req.params.chatId })
-            .sort({ createdAt: 1 }); // ترتيب تصاعدي (من الأقدم للأحدث)
+        .populate('sender', 'username avatar') 
+            .sort({ createdAt: 1 });
 
         res.status(200).json(messages);
     } catch (err) {

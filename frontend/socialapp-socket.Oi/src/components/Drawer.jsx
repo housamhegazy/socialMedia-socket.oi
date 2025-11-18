@@ -23,6 +23,7 @@ import {
   PostAdd,
   WorkspacePremium,
   X,
+  Mail,
 } from "@mui/icons-material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -32,9 +33,8 @@ import { useSignOutMutation } from "../Api/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import { clearAuthUser } from "../Api/user/authSlice";
 // import { useSocket } from "../Api/notifications/context/SocketContext";
-import {
-  useGetUnreadCountQuery,
-} from "../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
+import { useGetUnreadCountQuery } from "../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
+import { useGetUserChatsQuery } from "../Api/notifications/chatApi";
 function ResponsiveDrawer({
   handleDrawerClose,
   handleDrawerTransitionEnd,
@@ -78,7 +78,12 @@ function ResponsiveDrawer({
       console.error("Logout failed:", err);
     }
   };
-
+  //================================ chats ==================================================
+  const {
+    data: chats,
+    isLoading: loadingchat,
+    isError,
+  } = useGetUserChatsQuery();
   //list items data
   const myList = [
     {
@@ -96,9 +101,9 @@ function ResponsiveDrawer({
       icon: (
         <Badge
           badgeContent={count > 0 && count > 9 ? "9+" : count}
-          color="success"
+          color="error"
         >
-          <Notifications color="action" />
+          <Notifications color={iconColor} />
         </Badge>
       ),
 
@@ -106,7 +111,11 @@ function ResponsiveDrawer({
     },
     {
       title: "Messages",
-      icon: <Message color={iconColor} />,
+      icon: (
+        <Badge badgeContent={chats?.length} color="error">
+          <Mail color={iconColor} />
+        </Badge>
+      ),
       pathname: "/chatlist",
     },
     {

@@ -6,6 +6,7 @@ const ChatSchema = new mongoose.Schema(
             type: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User',
+                required:true
             }],
             required: true,
             // نضمن وجود طرفين فقط في المحادثة الثنائية

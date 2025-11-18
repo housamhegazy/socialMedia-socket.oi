@@ -17,10 +17,10 @@ const MessageSchema = new mongoose.Schema(
             required: true,
         },
         // إذا أردت إضافة خاصية "تم القراءة"
-        // readBy: [{ 
-        //     type: mongoose.Schema.Types.ObjectId,
-        //     ref: 'User',
-        // }], 
+        readBy: [{ 
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        }], 
     },
     { timestamps: true }
 );

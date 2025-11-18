@@ -4,7 +4,7 @@ import React from 'react';
 import { useGetUserChatsQuery, useCreateChatMutation } from '../../Api/notifications/chatApi';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Box, List, ListItem, ListItemText, Typography, Divider } from '@mui/material';
+import { Box, List, ListItem, ListItemButton, ListItemText, Typography, Divider } from '@mui/material';
 
 const ChatList = () => {
     // جلب قائمة المحادثات من RTK Query
@@ -34,7 +34,7 @@ const ChatList = () => {
                         return (
                             <div key={chat._id}>
                                 {/* ربط الـ Chat ID بمسار الصفحة المفصلة */}
-                                <ListItem sx={{color:'text.primary'}} button component={Link} to={`/chatdetails/${chat._id}`}>
+                                <ListItemButton sx={{color:'text.primary'}} component={Link} to={`/chatdetails/${chat._id}`}>
                                     <ListItemText 
                                         primary={recipient ? recipient.username : 'مستخدم محذوف'}
                                         secondary={
@@ -49,7 +49,7 @@ const ChatList = () => {
                                         }
                                     />
                                     {/* يمكنك إضافة وقت آخر رسالة هنا */}
-                                </ListItem>
+                                </ListItemButton>
                                 <Divider variant="inset" component="li" />
                             </div>
                         );
