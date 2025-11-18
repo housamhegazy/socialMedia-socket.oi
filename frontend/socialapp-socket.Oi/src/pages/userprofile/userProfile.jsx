@@ -14,7 +14,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
 import CardComponent from "../home/cardComponent";
 import {
@@ -37,13 +37,17 @@ import {
 // import ProfileMenu from "../home/menuComponent";
 import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
+import { useCreateChatMutation } from "../../Api/notifications/chatApi";
 
 const UserProfilePage = () => {
   const theme = useTheme();
+  const navigate = useNavigate()
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //بيانات المستخدم الحالي اللي مسجل دخول
-  const { user: currentUser,isLoadingAuth } = useSelector((state) => state.auth);
+  const { user: currentUser, isLoadingAuth } = useSelector(
+    (state) => state.auth
+  );
   const isMyProfile = username === currentUser?.username; //  التحقق من ان اسم المستخدم ده هو نفسه المستخدم المسجل دخول
   // بيانات المستخدم اللي حابب افتح صفحته
   const {
@@ -64,11 +68,12 @@ const UserProfilePage = () => {
   //============================ import delete all posts from posts api ===========================================
   const [deleteAllPosts, { isLoading, isSuccess, isError }] =
     useDeleteAllPostsMutation();
-
+//================================ create chat ====================================================================
+const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم استدعاؤه بالفعل
   // ====================================== error state =================================================
   const [error, setError] = useState(null);
   //============================ main menu state =====================================
-    const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   //======================================== edit avatar states ======================================
   const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
@@ -186,7 +191,6 @@ const UserProfilePage = () => {
   };
   //======================================== delete all posts menu btn ===============================
 
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -199,7 +203,16 @@ const UserProfilePage = () => {
     handleClose();
     if (handleDelete) handleDelete();
   };
+//=========================================== handleSendmessage =========================================
 
+const handleSendmessage = async ()=>{
+  try {
+    const newChat =   await createChat({receiverId:userProfile._id}).unwrap()
+    navigate(`/chatdetails/${newChat._id}`);
+  } catch (error) {
+    console.log(error);
+  }
+}
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -344,19 +357,37 @@ const UserProfilePage = () => {
                 Edit Profile
               </Button>
             ) : (
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon=<PersonAdd />
-                sx={{
-                  borderRadius: "2rem",
-                  textTransform: "none",
-                  fontWeight: 600,
-                  px: 3,
+              <Box sx={{display:"flex",justifyContent:"space-around",width:"100%"}}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon=<PersonAdd />
+                  sx={{
+                    borderRadius: "2rem",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 3,
+                  }}
+                >
+                  "Add Friend"
+                </Button>
+                <Button
+                onClick={()=>{
+                  handleSendmessage()
                 }}
-              >
-                "Add Friend"
-              </Button>
+                  variant="contained"
+                  color="primary"
+                  // startIcon=<Message />
+                  sx={{
+                    borderRadius: "2rem",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    px: 3,
+                  }}
+                >
+                  Send message
+                </Button>
+              </Box>
             )}
           </Paper>
         </Grid>

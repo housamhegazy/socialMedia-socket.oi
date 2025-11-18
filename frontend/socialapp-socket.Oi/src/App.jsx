@@ -16,6 +16,8 @@ import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import getDesignTokens from "./Api/theme/getDesignTokens";
 import Notifications from "./pages/notifications/notifications";
 import PostDetails from "./pages/postDetails/postDetails";
+import ChatList from "./pages/chat/chatList";
+import ChatDetail from "./pages/chat/chatDetails";
 
 function App() {
   const { isAuthenticated } = useSelector((state) => state.auth);
@@ -40,6 +42,22 @@ function App() {
           path: "/Notifications",
           element: isAuthenticated ? (
             <Notifications />
+          ) : (
+            <Navigate to="/signin" replace />
+          ),
+        },
+        {
+          path: "/chatlist",
+          element: isAuthenticated ? (
+            <ChatList />
+          ) : (
+            <Navigate to="/signin" replace />
+          ),
+        },
+        {
+          path: "/chatdetails/:chatId",
+          element: isAuthenticated ? (
+            <ChatDetail />
           ) : (
             <Navigate to="/signin" replace />
           ),

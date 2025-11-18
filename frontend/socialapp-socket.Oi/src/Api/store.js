@@ -7,6 +7,7 @@ import { postsApi } from "./posts/postsApi";
 import themeReducer from "./theme/themeSlice";
 import { commentApi } from "./comments/commentsApi";
 import { notificationApi } from "./notifications/notificationsApi";
+import { chatApi } from "./notifications/chatApi";
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     [postsApi.reducerPath]: postsApi.reducer, // ربط الـ API بالستور
     [commentApi.reducerPath]: commentApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
+    [chatApi.reducerPath]:chatApi.reducer,
     auth: authReducer, //خاصه بحالة المستخدم
     theme: themeReducer, // theme
   },
@@ -25,7 +27,8 @@ export const store = configureStore({
       .concat(userApi.middleware)
       .concat(postsApi.middleware)
       .concat(commentApi.middleware)
-      .concat(notificationApi.middleware),
+      .concat(notificationApi.middleware)
+      .concat(chatApi.middleware),
 });
 
 // optional, but required for refetchOnFocus/refetchOnReconnect behaviors

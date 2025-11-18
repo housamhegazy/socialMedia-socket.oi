@@ -107,7 +107,7 @@ function ResponsiveDrawer({
     {
       title: "Messages",
       icon: <Message color={iconColor} />,
-      pathname: "/messages",
+      pathname: "/chatlist",
     },
     {
       title: "Grok",
