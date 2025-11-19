@@ -68,7 +68,7 @@ router.post("/request", AuthMiddleware, async (req, res) => {
     }
 });
 
-//===================================== hgpw,g ugn phgm 'gf hgw]hri fu] hghvshg ==============================================
+//===================================== جلب حالة طلب الصداقه ==============================================
 router.get(`/status/:otherUserId`,AuthMiddleware,
   async (req, res) => {
     // ID المستخدم الذي يتم عرض صفحته (Receiver/Other User)

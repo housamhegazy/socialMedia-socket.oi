@@ -41,7 +41,6 @@ import { useCreateChatMutation } from "../../Api/chatApi/chatApi";
 import {
   useAcceptRequestMutation,
   useGetFriendshipStatusQuery,
-  useGetPendingRequestsQuery,
   useRemoveFriendMutation,
   useSendRequistMutation,
 } from "../../Api/friendRequistApi/friendRequistApi";
@@ -92,7 +91,7 @@ const UserProfilePage = () => {
   //================================== send frien requist =======================================
   const [sendFriendRequist, { isLoading: loadingRequist }] =
     useSendRequistMutation();
-  //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل ====================================
+  //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل بنحدد منها شكل الزرارا بتاع ارسال طلب الصداقه ====================================
   const { data: friendshipStatus, isLoading: statusLoading } =
     useGetFriendshipStatusQuery(userProfile?._id, {
       skip: !userProfile || isMyProfile,
@@ -113,7 +112,10 @@ const UserProfilePage = () => {
   //============================================== remove friend ===========================================================
   const [removeFriend, { isLoading: removeLoading }] =
     useRemoveFriendMutation();
-  //========================================================================================================================
+  //============================================= accept friend requist ==============================================
+  const [acceptRequest, { isLoading: isAccepting }] =
+    useAcceptRequestMutation();
+    //======================================================================================================
   useEffect(() => {
     if (userError) {
       setError("User not found");
@@ -132,7 +134,9 @@ const UserProfilePage = () => {
   if (userError) {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
-
+  //=========================================================================================================================================
+//=================================================== functions ==============================================================================
+//============================================================================================================================================
   //========================================== delete all posts =========================================
   const handleDelete = async () => {
     const result = await Swal.fire({
@@ -302,41 +306,64 @@ const UserProfilePage = () => {
       }
     }
   };
-//===================================== accept requist ===========================================
-  
+
+  //=================================== accept requist ==============================================
+  const handleAcceptRequest = async (requistId,senderUsername)=>{
+    try {
+      await acceptRequest(requistId).unwrap()
+      Swal.fire({
+                icon: "success",
+                title: `أنت الآن صديق لـ ${senderUsername}!`,
+                timer: 2000,
+                showConfirmButton: false,
+            });
+    } catch (error) {
+      console.log(error);
+       Swal.fire({
+                icon: "error",
+                title: "فشل القبول!",
+                text: error.data?.message || "حدث خطأ أثناء قبول الطلب.",
+            });
+    }
+  }
   // =================================== دالة عرض الزر بناءً على الحالة ===================================
   const getFriendButtonState = () => {
     const status = friendshipStatus?.status;
     const direction = friendshipStatus?.direction;
-
+    const requestId = friendshipStatus?.requestId;
+    
     // 1. إذا كان طلب معلّق (مرسل من المستخدم الحالي) أو تم إرساله للتو
     if ((status === "Pending" && direction === "Sent") || requestSent) {
       return {
-        text: "waiting to accept",
-        disabled: true,
+        text: "remove requist",
+        disabled: false,
         icon: <Done />,
         color: "default",
+        handler:"null"
       };
     }
 
     // 2. إذا كان صديقاً بالفعل
     if (status === "Friends") {
       return {
-        text: "friend",
+        text: "remove friend",
         disabled: false,
         icon: <Done />,
         color: "success",
+        handler: ()=>handleUnfriend()
       };
     }
 
     // 3. إذا كان طلب معلّق (وارد للمستخدم الحالي)
-    if (status === "Pending" && direction === "Received") {
+    if (status === "Pending" && direction === "Received" && requestId) {
       // هذا سيتطلب زراً آخر لـ 'قبول/رفض'
       return {
         text: "accept requist",
         disabled: false,
         icon: <Done />,
         color: "info",
+        handler: () => handleAcceptRequest(requestId, userProfile.username), // 💡 تمرير الـ ID والـ Handler
+
       };
     }
 
@@ -346,9 +373,12 @@ const UserProfilePage = () => {
       disabled: loadingRequist,
       icon: <PersonAdd />,
       color: "primary",
+      handler: () => handleSendFriendRequist(),
+
     };
   };
   const buttonState = getFriendButtonState(); // جلب حالة الزر
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -503,13 +533,7 @@ const UserProfilePage = () => {
                 }}
               >
                 <Button
-                  onClick={() => {
-                    if (buttonState.text === "friend") {
-                      handleUnfriend();
-                    } else {
-                      handleSendFriendRequist();
-                    }
-                  }}
+                  onClick={buttonState.handler}
                   variant="contained"
                   color={buttonState.color}
                   startIcon={
