@@ -3,6 +3,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
 require("dotenv").config();
+//====================== خاص ب  passport  ==========================================
+const session = require("express-session"); // <--- إضافة هذا
+const passport = require("passport"); // إضافة passport
+require("./Utils/passport.js"); // استيراد إعداد passport
+//====================================================================================
 const cors = require("cors"); // للسماح لـ frontend بالاتصال بـ backend
 // 💡 استيراد نماذج الدردشة والرسائل (جديد)
 const Chat = require('./Models/Chat'); 
@@ -31,6 +36,7 @@ app.set("io", io);
 app.set("userSockets", userSockets); // ← Add this
 //======================================== end socket import ============================
 
+//========================================== cors =======================================
 app.use(
   cors({
     origin: "http://localhost:5173", // استبدل هذا بعنوان الـ frontend الخاص بك
@@ -40,7 +46,21 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+//========================================== passport session =================================
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_secret_key', // يجب أن يكون مفتاحًا سريًا قوياً ومخزوناً في .env
+    resave: false, // لا تحفظ الجلسة مرة أخرى إذا لم يتم تعديلها
+    saveUninitialized: false, // لا تنشئ جلسة للمستخدمين الذين لم يسجلوا الدخول
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production', // استخدم 'true' في الإنتاج
+        maxAge: 1000 * 60 * 60 * 24 // 24 ساعة
+    }
+}));
+
 //============================================get routes======================================================
+// إعداد Passport لتسجيل الدخول بجوجل 
+app.use(passport.initialize());
+app.use(passport.session());
 
 const registerRoute = require("./Routes/Users.js");
 const postsRoute = require("./Routes/Posts.js");
@@ -49,6 +69,7 @@ const notificationRoute = require("./Routes/Notification.js");
 const chatRoute = require("./Routes/Chat.js");
 const messagesRoute = require("./Routes/Messages.js");
 const friendRequistRoute = require("./Routes/friendRoutes.js")
+const socialLogInRoute = require("./Routes/socialAuth.js")
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -60,6 +81,7 @@ app.use("/notifications", notificationRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/messages", messagesRoute);
 app.use("/api/friendrequist",friendRequistRoute)
+app.use("",socialLogInRoute)
 
 
 //=================================================auto refresh================================================

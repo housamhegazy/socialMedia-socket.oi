@@ -22,7 +22,13 @@ import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
 import { useSelector } from "react-redux";
 import LoadingPage from "../../components/loadingPage";
-import { useGetUserByNameQuery, useSigninMutation } from "../../Api/user/userApi";
+import {
+  useGetUserByNameQuery,
+  useSigninMutation,
+} from "../../Api/user/userApi";
+import FacebooklogIn from "../../components/socialLoginBtns/fb";
+import XLoginButton from "../../components/socialLoginBtns/twitter";
+import GoogleLogin from "../../components/socialLoginBtns/google"
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
   const theme = useTheme();
@@ -269,6 +275,24 @@ const LoginForm = () => {
                 </Typography>
               </Grid>
             </Grid>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              mt: 5,
+              backgroundColor: "#ffffff4d",
+              borderRadius: "20px",
+              px: 5,
+            }}
+          >
+            <GoogleLogin />{" "}
+            {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
+            <FacebooklogIn />{" "}
+            {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
+            <XLoginButton />
           </Box>
         </Box>
       </Container>
