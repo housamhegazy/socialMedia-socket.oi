@@ -10,7 +10,7 @@ const Message = require('./Models/Message');
 // const path = require("path");
 // const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
-
+const callSocketHandler = require('./socketServer'); // 💡 استدعاء ملف الـ Handler الجديد
 //======================================start websocket and socket io ========================================
 //npm install socket.io-client
 //    npm install ws
@@ -48,6 +48,7 @@ const commentsRoute = require("./Routes/Comments.js");
 const notificationRoute = require("./Routes/Notification.js");
 const chatRoute = require("./Routes/Chat.js");
 const messagesRoute = require("./Routes/Messages.js");
+const friendRequistRoute = require("./Routes/friendRoutes.js")
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -58,6 +59,7 @@ app.use("/api/comments", commentsRoute);
 app.use("/notifications", notificationRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/messages", messagesRoute);
+app.use("/api/friendrequist",friendRequistRoute)
 
 
 //=================================================auto refresh================================================
@@ -74,11 +76,16 @@ app.use("/api/messages", messagesRoute);
 //   }, 100);
 // });
 //end livereload
-//======================================socket io connection handling to notifications ================================================
+//======================================socket io connection handling to notifications and send messages and call ================================================
 
 io.on("connection", (socket) => {
+
   // منطق الاتصال عند تسجيل الدخول وجلب الاشعارات
   console.log("user connected", socket.id);
+
+  //======================================= call ======================================
+  callSocketHandler(io, socket);
+  //======================================== ==========================================
   //user joints with ther id
   socket.on("join", (userId) => {
     userSockets.set(userId, socket.id);
@@ -91,7 +98,7 @@ io.on("connection", (socket) => {
     console.log(`Socket ${socket.id} joined chat room: ${chatId}`);
   }); 
 
-  // 3. المنطق الجديد: إرسال الرسائل
+  // ============================================3. المنطق الجديد: إرسال الرسائل============================================
   socket.on("send_message", async (data) => {
     const { chatId, senderId, text } = data;
     try {
@@ -115,6 +122,8 @@ io.on("connection", (socket) => {
       console.error("Error saving or broadcasting message:", error);
       socket.emit("message_error", "Failed to send message.");
     }
+
+    
   });
 
   // عند قطع الاتصال

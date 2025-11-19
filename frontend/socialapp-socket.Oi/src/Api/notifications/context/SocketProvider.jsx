@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 // 💡 استيراد تعريف الـ Context والـ RTK Query
 import SocketContext from "./SocketContext";
 import { notificationApi } from "../notificationsApi";
-import { chatApi } from "../chatApi"; // 💡 جديد: استيراد API الدردشة
+import { chatApi } from "../../chatApi/chatApi"; // 💡 جديد: استيراد API الدردشة
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);

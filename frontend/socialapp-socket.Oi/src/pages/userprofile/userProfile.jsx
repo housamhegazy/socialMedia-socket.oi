@@ -37,11 +37,16 @@ import {
 // import ProfileMenu from "../home/menuComponent";
 import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
-import { useCreateChatMutation } from "../../Api/notifications/chatApi";
+import { useCreateChatMutation } from "../../Api/chatApi/chatApi";
+import {
+  useGetFriendshipStatusQuery,
+  useGetPendingRequestsQuery,
+  useSendRequistMutation,
+} from "../../Api/friendRequistApi/friendRequistApi";
 
 const UserProfilePage = () => {
   const theme = useTheme();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //بيانات المستخدم الحالي اللي مسجل دخول
@@ -68,8 +73,8 @@ const UserProfilePage = () => {
   //============================ import delete all posts from posts api ===========================================
   const [deleteAllPosts, { isLoading, isSuccess, isError }] =
     useDeleteAllPostsMutation();
-//================================ create chat ====================================================================
-const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم استدعاؤه بالفعل
+  //================================ create chat ====================================================================
+  const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم استدعاؤه بالفعل
   // ====================================== error state =================================================
   const [error, setError] = useState(null);
   //============================ main menu state =====================================
@@ -82,7 +87,28 @@ const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   //=============================== import update avatar ======================================
   const [updateAvatar, { loading }] = useUpdateAvatarMutation();
+  //================================== send frien requist =======================================
+  const [sendFriendRequist, { isLoading: loadingRequist }] =useSendRequistMutation();
+  //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل ====================================
+  const { data: friendshipStatus, isLoading: statusLoading } =
+    useGetFriendshipStatusQuery(userProfile?._id, {
+      skip: !userProfile || isMyProfile,
+    }); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
 
+  // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)
+  const [requestSent, setRequestSent] = useState(false);
+  // ======================= تحديد الحالة الأولية ==============
+  useEffect(() => {
+    if (
+      friendshipStatus &&
+      friendshipStatus.status === "Pending" &&
+      friendshipStatus.direction === "Sent"
+    ) {
+      setRequestSent(true); // إذا كان هناك طلب مرسل بالفعل، اضبط الحالة المحلية
+    }
+  }, [friendshipStatus]);
+  console.log(friendshipStatus);
+  //========================================================================================================================
   useEffect(() => {
     if (userError) {
       setError("User not found");
@@ -203,16 +229,87 @@ const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم
     handleClose();
     if (handleDelete) handleDelete();
   };
-//=========================================== handleSendmessage =========================================
+  //=========================================== handleSendmessage =========================================
 
-const handleSendmessage = async ()=>{
-  try {
-    const newChat =   await createChat({receiverId:userProfile._id}).unwrap()
-    navigate(`/chatdetails/${newChat._id}`);
-  } catch (error) {
-    console.log(error);
-  }
-}
+  const handleSendmessage = async () => {
+    try {
+      const newChat = await createChat({
+        receiverId: userProfile._id,
+      }).unwrap();
+      navigate(`/chatdetails/${newChat._id}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //======================================== send friend requist ====================================
+  const handleSendFriendRequist = async () => {
+    try {
+      await sendFriendRequist({ receiverId: userProfile._id }).unwrap();
+      setRequestSent(true);
+      Swal.fire({
+        icon: "success",
+        title: "تم إرسال طلب الصداقة!",
+        text: `@${userProfile.username} سيتم إشعاره بالطلب.`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "فشل الإرسال!",
+        text: error.data?.message || "حدث خطأ أثناء إرسال الطلب.",
+      });
+      setRequestSent(false); // إعادة الحالة إذا فشل الإرسال
+    }
+  };
+
+  // =================================== دالة عرض الزر بناءً على الحالة ===================================
+  const getFriendButtonState = () => {
+    const status = friendshipStatus?.status;
+    const direction = friendshipStatus?.direction;
+
+    // 1. إذا كان طلب معلّق (مرسل من المستخدم الحالي) أو تم إرساله للتو
+    if ((status === "Pending" && direction === "Sent") || requestSent) {
+      return {
+        text: "waiting to accept",
+        disabled: true,
+        icon: <Done />,
+        color: "default",
+      };
+    }
+
+    // 2. إذا كان صديقاً بالفعل
+    if (status === "Friends") {
+      return {
+        text: "friend",
+        disabled: true,
+        icon: <Done />,
+        color: "success",
+      };
+    }
+
+    // 3. إذا كان طلب معلّق (وارد للمستخدم الحالي)
+    if (status === "Pending" && direction === "Received") {
+      // هذا سيتطلب زراً آخر لـ 'قبول/رفض'
+      return {
+        text: "accept requist",
+        disabled: false,
+        icon: <Done />,
+        color: "info",
+      };
+    }
+
+    // 4. الحالة الافتراضية (لا يوجد علاقة)
+    return {
+      text: " Add friend",
+      disabled: loadingRequist,
+      icon: <PersonAdd />,
+      color: "primary",
+    };
+  };
+  const buttonState = getFriendButtonState(); // جلب حالة الزر
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -347,7 +444,7 @@ const handleSendmessage = async ()=>{
             >
               Email: {userProfile.email}
             </Typography>
-            {isMyProfile ? (
+             {isMyProfile && (
               <Button
                 variant="contained"
                 color="primary"
@@ -356,12 +453,28 @@ const handleSendmessage = async ()=>{
               >
                 Edit Profile
               </Button>
-            ) : (
-              <Box sx={{display:"flex",justifyContent:"space-around",width:"100%"}}>
+             )}
+
+             {!isMyProfile &&(
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
                 <Button
+                  onClick={() => handleSendFriendRequist()}
                   variant="contained"
-                  color="primary"
-                  startIcon=<PersonAdd />
+                  color={buttonState.color}
+                  startIcon={
+                    loadingRequist ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      buttonState.icon
+                    )
+                  }
+                  disabled={buttonState.disabled || loadingRequist}
                   sx={{
                     borderRadius: "2rem",
                     textTransform: "none",
@@ -369,12 +482,12 @@ const handleSendmessage = async ()=>{
                     px: 3,
                   }}
                 >
-                  "Add Friend"
+                  {buttonState.text}
                 </Button>
                 <Button
-                onClick={()=>{
-                  handleSendmessage()
-                }}
+                  onClick={() => {
+                    handleSendmessage();
+                  }}
                   variant="contained"
                   color="primary"
                   // startIcon=<Message />
@@ -388,7 +501,7 @@ const handleSendmessage = async ()=>{
                   Send message
                 </Button>
               </Box>
-            )}
+)}
           </Paper>
         </Grid>
 

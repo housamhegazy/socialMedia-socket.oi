@@ -1,7 +1,7 @@
 // src/components/Chat/ChatList.jsx
 
 import React from 'react';
-import { useGetUserChatsQuery, useCreateChatMutation } from '../../Api/notifications/chatApi';
+import { useGetUserChatsQuery } from '../../Api/chatApi/chatApi';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Box, List, ListItem, ListItemButton, ListItemText, Typography, Divider } from '@mui/material';
@@ -9,6 +9,7 @@ import { Box, List, ListItem, ListItemButton, ListItemText, Typography, Divider 
 const ChatList = () => {
     // جلب قائمة المحادثات من RTK Query
     const { data: chats, isLoading, isError } = useGetUserChatsQuery();
+    // @ts-ignore
     const { user: currentUser } = useSelector((state) => state.auth);
 
     if (isLoading) return <Typography>Loading Chats...</Typography>;

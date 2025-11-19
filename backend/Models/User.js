@@ -37,6 +37,10 @@ const UserSchema = new mongoose.Schema(
         process.env.CLOUDINARY_DEFAULT_AVATAR_URL ||
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     },
+    friends: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    }],
     lastLogin: {
       // <--- NEW FIELD: lastLogin
       type: Date,

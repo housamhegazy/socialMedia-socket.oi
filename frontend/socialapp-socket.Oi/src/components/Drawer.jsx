@@ -34,7 +34,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearAuthUser } from "../Api/user/authSlice";
 // import { useSocket } from "../Api/notifications/context/SocketContext";
 import { useGetUnreadCountQuery } from "../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
-import { useGetUserChatsQuery } from "../Api/notifications/chatApi";
+import { useGetUserChatsQuery } from "../Api/chatApi/chatApi";
 function ResponsiveDrawer({
   handleDrawerClose,
   handleDrawerTransitionEnd,

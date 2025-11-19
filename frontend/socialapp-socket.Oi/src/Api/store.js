@@ -7,7 +7,8 @@ import { postsApi } from "./posts/postsApi";
 import themeReducer from "./theme/themeSlice";
 import { commentApi } from "./comments/commentsApi";
 import { notificationApi } from "./notifications/notificationsApi";
-import { chatApi } from "./notifications/chatApi";
+import { chatApi } from "./chatApi/chatApi";
+import { friendRequistApi } from "./friendRequistApi/friendRequistApi";
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     [commentApi.reducerPath]: commentApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [chatApi.reducerPath]:chatApi.reducer,
+    [friendRequistApi.reducerPath]:friendRequistApi.reducer,
     auth: authReducer, //خاصه بحالة المستخدم
     theme: themeReducer, // theme
   },
@@ -28,7 +30,8 @@ export const store = configureStore({
       .concat(postsApi.middleware)
       .concat(commentApi.middleware)
       .concat(notificationApi.middleware)
-      .concat(chatApi.middleware),
+      .concat(chatApi.middleware)
+      .concat(friendRequistApi.middleware)
 });
 
 // optional, but required for refetchOnFocus/refetchOnReconnect behaviors

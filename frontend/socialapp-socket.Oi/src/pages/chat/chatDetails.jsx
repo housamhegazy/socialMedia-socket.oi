@@ -1,14 +1,16 @@
 // src/components/Chat/ChatDetail.jsx
 
 import React, { useEffect, useState, useRef } from "react";
-import { useGetMessagesQuery } from "../../Api/notifications/chatApi";
+import { useGetChatDetailsQuery, useGetMessagesQuery } from "../../Api/chatApi/chatApi";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocket } from "../../Api/notifications/context/SocketContext"; // 💡 استخدام الـ Hook المشترك
 import { Typography, Box } from "@mui/material";
+import CallComponent from "./CallComponent";
 
 const ChatDetail = () => {
   const { chatId } = useParams(); // جلب الـ ID من URL
+  // @ts-ignore
   const { user: currentUser } = useSelector((state) => state.auth);
   const socket = useSocket(); // الحصول على مثيل السوكيت
   const [messages, setMessages] = useState([]);
@@ -73,6 +75,17 @@ const ChatDetail = () => {
     socket.emit("send_message", messageData);
   };
 
+  const { data: chatDetails } = useGetChatDetailsQuery(chatId);
+  // دالة لتحديد ID المستخدم الآخر
+const getRecipientId = (chat, currentUserId) => {
+    if (!chat || !chat.members) return null;
+    const recipient = chat.members.find(member => member._id !== currentUserId);
+    return recipient ? recipient._id : null;
+};
+
+const recipientId = getRecipientId(chatDetails, currentUser._id);
+
+
   if (isLoading || isFetching)
     return <Typography>Loading messages...</Typography>;
   if (!currentUser)
@@ -88,6 +101,11 @@ const ChatDetail = () => {
       }}
     >
       <Box sx={{ overflowY: "auto", p: 2 }}>
+        {recipientId && (
+            <CallComponent 
+                targetUserId={recipientId} 
+            />
+        )}
         {messages.map((msg) => (
           <Box
             key={msg._id || Math.random()} // نستخدم الـ ID من DB، أو Math.random() إذا لم يكن متاحًا بعد (لا يفضل)
@@ -121,8 +139,11 @@ const ChatDetail = () => {
           placeholder="اكتب رسالتك..."
           style={{ width: "100%", padding: "10px" }}
           onKeyDown={(e) => {
+            // @ts-ignore
             if (e.key === "Enter" && e.target.value.trim()) {
+              // @ts-ignore
               sendMessage(e.target.value.trim());
+              // @ts-ignore
               e.target.value = ""; // مسح حقل الإدخال
             }
           }}

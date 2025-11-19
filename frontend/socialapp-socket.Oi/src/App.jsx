@@ -20,7 +20,9 @@ import ChatList from "./pages/chat/chatList";
 import ChatDetail from "./pages/chat/chatDetails";
 
 function App() {
+  // @ts-ignore
   const { isAuthenticated } = useSelector((state) => state.auth);
+  // @ts-ignore
   const mode = useSelector((state) => state.theme.mode);
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 

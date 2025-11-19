@@ -10,11 +10,19 @@ export const chatApi = createApi({
   endpoints: (builder) => ({
     // 🟢 جلب قائمة جميع المحادثات للمستخدم الحالي
     // GET /api/chats
+    // لجلب قائمة الدردشه 
     getUserChats: builder.query({
       query: () => `/api/chat`,
       providesTags: ["ChatList"], // هذا الـ Tag يتم تحديثه عند إرسال رسالة جديدة
     }), // 🟡 إنشاء محادثة جديدة أو جلب محادثة موجودة بين طرفين // POST /api/chats
-
+// 💡 نقطة الوصول الجديدة: جلب تفاصيل محادثة واحدة بالـ ID
+    getChatDetails: builder.query({
+      query: (chatId) => `/api/chat/${chatId}`, // 👈 المسار المطلوب في الباك إند
+      // نستخدم الـ Tag لتحديث البيانات إذا تغيرت تفاصيل المحادثة (مثلاً إرسال آخر رسالة)
+      providesTags: (result, error, chatId) => [
+        { type: "ChatList", id: chatId },
+      ],
+    }),
     createChat: builder.mutation({
       query: ({ receiverId }) => ({
         url: `/api/chat`,
@@ -37,6 +45,7 @@ export const chatApi = createApi({
 
 export const {
   useGetUserChatsQuery,
+  useGetChatDetailsQuery,
   useCreateChatMutation,
   useGetMessagesQuery,
 } = chatApi;

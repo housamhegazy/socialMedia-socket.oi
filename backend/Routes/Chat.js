@@ -21,7 +21,30 @@ router.get("/", AuthMiddleware, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+//===================== جلب تفاصيل محادثه واحده ========================================
+router.get('/:chatId', AuthMiddleware, async (req, res) => {
+    try {
+        const { chatId } = req.params;
 
+        // البحث عن المحادثة باستخدام ID وتأكيد أن المستخدم الحالي عضو فيها
+        const chat = await Chat.findOne({
+            _id: chatId,
+            members: req.user.id // تأكد أن المستخدم الحالي (req.user.id) عضو في هذه المحادثة
+        })
+        .populate('members', 'username avatar') // 👈 جلب تفاصيل الأعضاء
+        .populate('lastMessage'); // يمكنك جلب تفاصيل آخر رسالة أيضًا إذا أردت
+
+        if (!chat) {
+            return res.status(404).json({ message: 'المحادثة غير موجودة أو لا تملك صلاحية الوصول إليها.' });
+        }
+
+        res.status(200).json(chat);
+
+    } catch (err) {
+        console.error("Error fetching chat details:", err);
+        res.status(500).json({ message: 'فشل في جلب تفاصيل المحادثة.', error: err.message });
+    }
+});
 // 2. إنشاء محادثة جديدة (أو جلب محادثة موجودة)
 // POST /api/chats
 router.post("/", AuthMiddleware, async (req, res) => {
