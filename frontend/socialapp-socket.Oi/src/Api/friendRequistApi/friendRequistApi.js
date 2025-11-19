@@ -50,6 +50,22 @@ export const friendRequistApi = createApi({
       // تزويد البيانات بوسم "Friends"
       providesTags: ["Friends"],
     }),
+
+    // 6. حذف صديق (Mutation)
+    removeFriend: builder.mutation({
+      query: (friendId) => ({
+        // نستخدم طريقة DELETE للـ REST best practices
+        url: `/api/friendrequist/remove/${friendId}`,
+        method: "DELETE",
+      }),
+      // 💡 تحديث الوسوم:
+      // 1. Friends: لتحديث قائمة الأصدقاء
+      // 2. FriendRequist مع id: لتحديث حالة الزر على صفحة الملف الشخصي
+      invalidatesTags: (result, error, friendId) => [
+        "Friends",
+        { type: "FriendRequist", id: friendId },
+      ],
+    }),
   }),
 });
 
@@ -59,4 +75,5 @@ export const {
   useGetPendingRequestsQuery,
   useAcceptRequestMutation,
   useGetFriendsListQuery,
+  useRemoveFriendMutation
 } = friendRequistApi;

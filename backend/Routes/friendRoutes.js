@@ -241,6 +241,46 @@ router.get("/friends", AuthMiddleware, async (req, res) => {
     }
 });
 
+//========================================== unfriend ========================================================
+router.delete("/remove/:friendId",AuthMiddleware,async (req, res) => {
+    // ID الصديق المراد حذفه
+    const friendIdToRemove = req.params.friendId;
+    // ID المستخدم الحالي
+    const currentUserId = req.user.id; 
 
+    try {
+        // 1. إزالة الصديق من قائمة أصدقاء المستخدم الحالي
+        const userUpdateResult = await User.findByIdAndUpdate(
+            currentUserId,
+            { $pull: { friends: friendIdToRemove } }, // $pull لإزالة العنصر من المصفوفة
+            { new: true }
+        );
+
+        // 2. إزالة المستخدم الحالي من قائمة أصدقاء الطرف الآخر (للحفاظ على التناظر)
+        const friendUpdateResult = await User.findByIdAndUpdate(
+            friendIdToRemove,
+            { $pull: { friends: currentUserId } },
+            { new: true }
+        );
+        
+        // 3. (اختياري) حذف أي طلبات صداقة سابقة معلقة بينهما (إذا وجدت)
+        await FriendRequest.deleteMany({
+            $or: [
+                { sender: currentUserId, receiver: friendIdToRemove },
+                { sender: friendIdToRemove, receiver: currentUserId },
+            ]
+        });
+
+        if (!userUpdateResult || !friendUpdateResult) {
+            return res.status(404).json({ message: "User or friend not found." });
+        }
+
+        res.json({ message: "Friend removed successfully.", friendId: friendIdToRemove });
+
+    } catch (error) {
+        console.error("Error removing friend:", error);
+        res.status(500).json({ message: "Server error while removing friend." });
+    }
+})
 
 module.exports = router;

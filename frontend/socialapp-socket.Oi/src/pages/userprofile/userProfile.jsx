@@ -39,8 +39,10 @@ import Swal from "sweetalert2";
 import PostComposer from "../home/createPost";
 import { useCreateChatMutation } from "../../Api/chatApi/chatApi";
 import {
+  useAcceptRequestMutation,
   useGetFriendshipStatusQuery,
   useGetPendingRequestsQuery,
+  useRemoveFriendMutation,
   useSendRequistMutation,
 } from "../../Api/friendRequistApi/friendRequistApi";
 
@@ -88,14 +90,15 @@ const UserProfilePage = () => {
   //=============================== import update avatar ======================================
   const [updateAvatar, { loading }] = useUpdateAvatarMutation();
   //================================== send frien requist =======================================
-  const [sendFriendRequist, { isLoading: loadingRequist }] =useSendRequistMutation();
+  const [sendFriendRequist, { isLoading: loadingRequist }] =
+    useSendRequistMutation();
   //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل ====================================
   const { data: friendshipStatus, isLoading: statusLoading } =
     useGetFriendshipStatusQuery(userProfile?._id, {
       skip: !userProfile || isMyProfile,
     }); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
 
-  // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)
+  // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)========================================
   const [requestSent, setRequestSent] = useState(false);
   // ======================= تحديد الحالة الأولية ==============
   useEffect(() => {
@@ -107,7 +110,9 @@ const UserProfilePage = () => {
       setRequestSent(true); // إذا كان هناك طلب مرسل بالفعل، اضبط الحالة المحلية
     }
   }, [friendshipStatus]);
-  console.log(friendshipStatus);
+  //============================================== remove friend ===========================================================
+  const [removeFriend, { isLoading: removeLoading }] =
+    useRemoveFriendMutation();
   //========================================================================================================================
   useEffect(() => {
     if (userError) {
@@ -264,7 +269,41 @@ const UserProfilePage = () => {
       setRequestSent(false); // إعادة الحالة إذا فشل الإرسال
     }
   };
-
+  //====================================== remove friend =========================================
+  const handleUnfriend = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (result.isConfirmed) {
+      try {
+        await removeFriend(userProfile._id).unwrap();
+        Swal.fire({
+          title: "Deleted!",
+          text: `Your friend ${userProfile.username} has been removed.`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } catch (error) {
+        console.error("فشل في حذف الصديق:", error);
+        Swal.fire({
+          title: "Error!",
+          text:
+            error?.data?.message ||
+            "Something went wrong while deleting the post.",
+          icon: "error",
+        });
+      }
+    }
+  };
+//===================================== accept requist ===========================================
+  
   // =================================== دالة عرض الزر بناءً على الحالة ===================================
   const getFriendButtonState = () => {
     const status = friendshipStatus?.status;
@@ -284,7 +323,7 @@ const UserProfilePage = () => {
     if (status === "Friends") {
       return {
         text: "friend",
-        disabled: true,
+        disabled: false,
         icon: <Done />,
         color: "success",
       };
@@ -444,7 +483,7 @@ const UserProfilePage = () => {
             >
               Email: {userProfile.email}
             </Typography>
-             {isMyProfile && (
+            {isMyProfile && (
               <Button
                 variant="contained"
                 color="primary"
@@ -453,9 +492,9 @@ const UserProfilePage = () => {
               >
                 Edit Profile
               </Button>
-             )}
+            )}
 
-             {!isMyProfile &&(
+            {!isMyProfile && (
               <Box
                 sx={{
                   display: "flex",
@@ -464,7 +503,13 @@ const UserProfilePage = () => {
                 }}
               >
                 <Button
-                  onClick={() => handleSendFriendRequist()}
+                  onClick={() => {
+                    if (buttonState.text === "friend") {
+                      handleUnfriend();
+                    } else {
+                      handleSendFriendRequist();
+                    }
+                  }}
                   variant="contained"
                   color={buttonState.color}
                   startIcon={
@@ -501,7 +546,7 @@ const UserProfilePage = () => {
                   Send message
                 </Button>
               </Box>
-)}
+            )}
           </Paper>
         </Grid>
 

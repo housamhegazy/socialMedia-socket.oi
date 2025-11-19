@@ -31,7 +31,6 @@ const FriendRequestsDropdown = () => {
         isLoading, 
         isError 
     } = useGetPendingRequestsQuery();
-console.log(pendingRequests);
     // 2. Mutation لقبول الطلب
     const [acceptRequest, { isLoading: isAccepting }] = useAcceptRequestMutation();
 
