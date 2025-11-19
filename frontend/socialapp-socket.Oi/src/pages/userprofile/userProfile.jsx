@@ -40,6 +40,7 @@ import PostComposer from "../home/createPost";
 import { useCreateChatMutation } from "../../Api/chatApi/chatApi";
 import {
   useAcceptRequestMutation,
+  useCancelFriendRequistMutation,
   useGetFriendshipStatusQuery,
   useRemoveFriendMutation,
   useSendRequistMutation,
@@ -115,7 +116,8 @@ const UserProfilePage = () => {
   //============================================= accept friend requist ==============================================
   const [acceptRequest, { isLoading: isAccepting }] =
     useAcceptRequestMutation();
-    //======================================================================================================
+  //====================================CANCEL FRIEND REQUIST ===========================================================================
+  const [cancelRequest, { isLoading: loadingCancel }] = useCancelFriendRequistMutation();
   useEffect(() => {
     if (userError) {
       setError("User not found");
@@ -135,8 +137,8 @@ const UserProfilePage = () => {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
   //=========================================================================================================================================
-//=================================================== functions ==============================================================================
-//============================================================================================================================================
+  //=================================================== functions ==============================================================================
+  //============================================================================================================================================
   //========================================== delete all posts =========================================
   const handleDelete = async () => {
     const result = await Swal.fire({
@@ -193,7 +195,7 @@ const UserProfilePage = () => {
     // 6. ⭐️ قراءة الملف كـ Data URL
     reader.readAsDataURL(file);
   };
-
+  //========================================================== edit avatar==========================================
   const handleEditeAvatar = async () => {
     if (!file) return;
     setUploadingAvatar(true);
@@ -308,30 +310,50 @@ const UserProfilePage = () => {
   };
 
   //=================================== accept requist ==============================================
-  const handleAcceptRequest = async (requistId,senderUsername)=>{
+  const handleAcceptRequest = async (requistId, senderUsername) => {
     try {
-      await acceptRequest(requistId).unwrap()
+      await acceptRequest(requistId).unwrap();
       Swal.fire({
-                icon: "success",
-                title: `أنت الآن صديق لـ ${senderUsername}!`,
-                timer: 2000,
-                showConfirmButton: false,
-            });
+        icon: "success",
+        title: `أنت الآن صديق لـ ${senderUsername}!`,
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.log(error);
-       Swal.fire({
-                icon: "error",
-                title: "فشل القبول!",
-                text: error.data?.message || "حدث خطأ أثناء قبول الطلب.",
-            });
+      Swal.fire({
+        icon: "error",
+        title: "فشل القبول!",
+        text: error.data?.message || "حدث خطأ أثناء قبول الطلب.",
+      });
     }
+  };
+  //==================================== CANCEL requist ==============================================
+const cancelFriendRequist = async ()=>{
+  try {
+    await cancelRequest(userProfile._id).unwrap();
+    setRequestSent(false)
+    Swal.fire({
+        icon: "success",
+        title: "requist cancelled",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+  } catch (error) {
+    console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "فشل القبول!",
+        text: error.data?.message || "حدث خطأ أثناء قبول الطلب.",
+      });
   }
+}
   // =================================== دالة عرض الزر بناءً على الحالة ===================================
   const getFriendButtonState = () => {
     const status = friendshipStatus?.status;
     const direction = friendshipStatus?.direction;
     const requestId = friendshipStatus?.requestId;
-    
+
     // 1. إذا كان طلب معلّق (مرسل من المستخدم الحالي) أو تم إرساله للتو
     if ((status === "Pending" && direction === "Sent") || requestSent) {
       return {
@@ -339,7 +361,7 @@ const UserProfilePage = () => {
         disabled: false,
         icon: <Done />,
         color: "default",
-        handler:"null"
+        handler: ()=>cancelFriendRequist(),
       };
     }
 
@@ -350,7 +372,7 @@ const UserProfilePage = () => {
         disabled: false,
         icon: <Done />,
         color: "success",
-        handler: ()=>handleUnfriend()
+        handler: () => handleUnfriend(),
       };
     }
 
@@ -363,7 +385,6 @@ const UserProfilePage = () => {
         icon: <Done />,
         color: "info",
         handler: () => handleAcceptRequest(requestId, userProfile.username), // 💡 تمرير الـ ID والـ Handler
-
       };
     }
 
@@ -374,7 +395,6 @@ const UserProfilePage = () => {
       icon: <PersonAdd />,
       color: "primary",
       handler: () => handleSendFriendRequist(),
-
     };
   };
   const buttonState = getFriendButtonState(); // جلب حالة الزر

@@ -42,6 +42,18 @@ export const friendRequistApi = createApi({
       // تحديث قائمة الطلبات وقائمة الأصدقاء
       invalidatesTags: ["FriendRequist", "Friends"],
     }),
+    // cancel friend requist
+    cancelFriendRequist: builder.mutation({
+      // requestId هو مُعرِّف وثيقة الطلب في MongoDB
+      query: (receiverId) => ({
+        url: `/api/friendrequist/cancel/${receiverId}`,
+        method: "DELETE",
+      }),
+      // تحديث قائمة الطلبات وقائمة الأصدقاء
+      invalidatesTags: (result, error, receiverId) => [
+        { type: "FriendRequist", id: receiverId },
+      ],
+    }),
 
     // 4. جلب قائمة الأصدقاء (Query)
     getFriendsList: builder.query({
@@ -74,6 +86,7 @@ export const {
   useGetFriendshipStatusQuery,
   useGetPendingRequestsQuery,
   useAcceptRequestMutation,
+  useCancelFriendRequistMutation,
   useGetFriendsListQuery,
-  useRemoveFriendMutation
+  useRemoveFriendMutation,
 } = friendRequistApi;
