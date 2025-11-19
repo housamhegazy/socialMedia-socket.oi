@@ -1,33 +1,30 @@
 // models/User.js
 const mongoose = require("mongoose");
 
-// في حالة الدخول بحساب فيس او جوجل فهو لا يحتوي على اسم مستخدم
+// في حالة الدخول بحساب فيس او جوجل فهو لا يحتوي على اسم مستخدم 
 // 💡 1. الدالة المساعدة لتوليد اسم مستخدم فريد
 function generateUsername(fullName, email) {
-  let base = "";
-  if (email) {
-    // نأخذ الجزء الأول من الإيميل
-    base = email
-      .split("@")[0]
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
-  } else if (fullName) {
-    // أو نستخدم الاسم الكامل مع إزالة المسافات
-    base = fullName.toLowerCase().replace(/\s/g, "");
-  }
+    let base = '';
+    if (email) {
+        // نأخذ الجزء الأول من الإيميل
+        base = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+    } else if (fullName) {
+        // أو نستخدم الاسم الكامل مع إزالة المسافات
+        base = fullName.toLowerCase().replace(/\s/g, '');
+    }
+    
+    // في حال فشل كل شيء، نستخدم "user"
+    if (base.length < 3) {
+        base = 'user';
+    }
 
-  // في حال فشل كل شيء، نستخدم "user"
-  if (base.length < 3) {
-    base = "user";
-  }
-
-  // إضافة لاحقة عشوائية
-  const uniqueSuffix = Math.random().toString(36).substring(2, 6);
-  return `${base}${uniqueSuffix}`;
+    // إضافة لاحقة عشوائية
+    const uniqueSuffix = Math.random().toString(36).substring(2, 6);
+    return `${base}${uniqueSuffix}`;
 }
 const UserSchema = new mongoose.Schema(
   {
-    googleId: {
+     googleId: {
       type: String,
       required: false, // غير مطلوب للمستخدمين العاديين
       unique: true, // يجب أن يكون فريدًا
@@ -39,19 +36,13 @@ const UserSchema = new mongoose.Schema(
       unique: true, // يجب أن يكون فريدًا
       sparse: true, // يسمح بوجود العديد من المستخدمين الذين لا يملكون هذا الحقل
     },
-
+    
     xId: {
       type: String,
       unique: true,
       sparse: true,
     },
-    providers: [
-      {
-        type: String,
-        enum: ["local", "google", "facebook", "twitter"],
-        default: ["local"],
-      },
-    ], // مصفوفة للمزودين,
+    providers: [{ type: String, enum: ['local', 'google', 'facebook', 'twitter'], default: ['local'] }], // مصفوفة للمزودين,
     username: {
       type: String,
       // required: [true, "username is required."],
@@ -80,23 +71,16 @@ const UserSchema = new mongoose.Schema(
       select: false, // لا يتم إرجاع كلمة المرور في الاستعلامات افتراضيًا لأسباب أمنية
     },
     avatar: {
-      url: {
-        type: String,
-        default:
+      type: String,
+      public_id: String,
+      default:
         process.env.CLOUDINARY_DEFAULT_AVATAR_URL ||
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-      },
-      public_id: {
-        type: String,
-        default: "default_profile_image", // يمكن تعيين قيمة افتراضية لمعرف الصورة الافتراضية
-      },
     },
-    friends: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    friends: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    }],
     lastLogin: {
       // <--- NEW FIELD: lastLogin
       type: Date,
@@ -108,41 +92,37 @@ const UserSchema = new mongoose.Schema(
   }
 );
 // 💡 2. إضافة Middleware 'pre-save' للتعامل مع توليد اسم المستخدم
-UserSchema.pre("save", async function (next) {
-  // ⚠️ يجب استخدام دالة عادية (function) هنا وليس Arrow Function للحفاظ على this
-  const user = this;
+UserSchema.pre('save', async function (next) {
+    // ⚠️ يجب استخدام دالة عادية (function) هنا وليس Arrow Function للحفاظ على this
+    const user = this;
 
-  // الشرط: إذا كان المستخدم يسجل دخوله لأول مرة عبر منصة اجتماعية
-  // ولم يقم بتعيين اسم مستخدم (أي أن حقل username فارغ)
-  if (user.isNew && !user.username) {
-    let generatedUsername = "";
-    let isUnique = false;
-    let attempts = 0;
+    // الشرط: إذا كان المستخدم يسجل دخوله لأول مرة عبر منصة اجتماعية 
+    // ولم يقم بتعيين اسم مستخدم (أي أن حقل username فارغ)
+    if (user.isNew && !user.username) {
+        let generatedUsername = '';
+        let isUnique = false;
+        let attempts = 0;
 
-    // نبقى في حلقة حتى نجد اسم مستخدم فريد (لمنع التعارض مع قاعدة البيانات)
-    while (!isUnique && attempts < 5) {
-      generatedUsername = generateUsername(user.name, user.email);
+        // نبقى في حلقة حتى نجد اسم مستخدم فريد (لمنع التعارض مع قاعدة البيانات)
+        while (!isUnique && attempts < 5) {
+            generatedUsername = generateUsername(user.name, user.email);
+            
+            // تحقق من وجود اسم المستخدم في قاعدة البيانات
+            const existingUser = await mongoose.models.User.findOne({ username: generatedUsername });
 
-      // تحقق من وجود اسم المستخدم في قاعدة البيانات
-      const existingUser = await mongoose.models.User.findOne({
-        username: generatedUsername,
-      });
+            if (!existingUser) {
+                isUnique = true;
+                user.username = generatedUsername;
+            }
+            attempts++;
+        }
 
-      if (!existingUser) {
-        isUnique = true;
-        user.username = generatedUsername;
-      }
-      attempts++;
+        if (!isUnique) {
+             // يمكن التعامل مع فشل التوليد هنا، مثلاً رمي خطأ
+             console.error("Failed to generate unique username after multiple attempts.");
+        }
     }
-
-    if (!isUnique) {
-      // يمكن التعامل مع فشل التوليد هنا، مثلاً رمي خطأ
-      console.error(
-        "Failed to generate unique username after multiple attempts."
-      );
-    }
-  }
-  next();
+    next();
 });
 
 module.exports = mongoose.model("User", UserSchema);
