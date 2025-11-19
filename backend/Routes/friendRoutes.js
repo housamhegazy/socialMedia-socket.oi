@@ -250,7 +250,7 @@ router.get("/friends", AuthMiddleware, async (req, res) => {
   try {
     const user = await User.findById(userId)
       .select("friends")
-      .populate("friends", "username profilePicture"); // جلب بيانات الأصدقاء
+      .populate("friends", "username name avatar"); // جلب بيانات الأصدقاء
 
     if (!user) {
       return res.status(404).json({ message: "المستخدم غير موجود." });

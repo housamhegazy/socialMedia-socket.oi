@@ -18,6 +18,7 @@ import Notifications from "./pages/notifications/notifications";
 import PostDetails from "./pages/postDetails/postDetails";
 import ChatList from "./pages/chat/chatList";
 import ChatDetail from "./pages/chat/chatDetails";
+import FriendsList from "./pages/friends/friends";
 
 function App() {
   // @ts-ignore
@@ -36,6 +37,14 @@ function App() {
           index: true,
           element: isAuthenticated ? (
             <Home />
+          ) : (
+            <Navigate to="/signin" replace />
+          ),
+        },
+        {
+          path: "/user/friends",
+          element: isAuthenticated ? (
+            <FriendsList />
           ) : (
             <Navigate to="/signin" replace />
           ),

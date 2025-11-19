@@ -64,7 +64,9 @@ const AppBarComponent = ({ handleDrawerToggle, theme, handleTheme }) => {
 
         {isAuthenticated && (
           <>
-          <FriendRequestsDropdown/>
+            <Box sx={{mr:3}}>
+              <FriendRequestsDropdown />
+            </Box>
             <Link
               to={`/user/${currentUser?.username}`}
               style={{

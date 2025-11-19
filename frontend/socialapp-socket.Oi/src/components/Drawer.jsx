@@ -24,6 +24,7 @@ import {
   WorkspacePremium,
   X,
   Mail,
+  Person3,
 } from "@mui/icons-material";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
@@ -92,9 +93,9 @@ function ResponsiveDrawer({
       pathname: "/",
     },
     {
-      title: "Explore",
-      icon: <Explore color={iconColor} />,
-      pathname: "/explore",
+      title: "Friends",
+      icon: <Person3 color={iconColor} />,
+      pathname: "/user/friends",
     },
     {
       title: "Notifications",

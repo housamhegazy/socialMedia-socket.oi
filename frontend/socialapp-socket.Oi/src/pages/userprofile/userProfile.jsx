@@ -51,12 +51,12 @@ const UserProfilePage = () => {
   const navigate = useNavigate();
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
-  //بيانات المستخدم الحالي اللي مسجل دخول
+  //=======================================بيانات المستخدم الحالي اللي مسجل دخول===========================================
   const { user: currentUser, isLoadingAuth } = useSelector(
     (state) => state.auth
   );
   const isMyProfile = username === currentUser?.username; //  التحقق من ان اسم المستخدم ده هو نفسه المستخدم المسجل دخول
-  // بيانات المستخدم اللي حابب افتح صفحته
+  //==============================  بيانات المستخدم اللي حابب افتح صفحته================================================
   const {
     data: profile,
     isLoading: userLoading,
@@ -66,8 +66,7 @@ const UserProfilePage = () => {
   });
   // لو اليوزر هو نفسه المستخدم الحالي
   const userProfile = isMyProfile ? currentUser : profile;
-
-  //============================ Get posts from backend ===============================================
+  //========================================= Get posts from backend ===============================================
   const { data: posts = [], isLoading: postsLoading } = useGetUserPostsQuery(
     userProfile?._id, // أو user.username حسب API
     { skip: !userProfile } // تجاهل الـ query حتى يكون user موجود
@@ -76,9 +75,9 @@ const UserProfilePage = () => {
   const [deleteAllPosts, { isLoading, isSuccess, isError }] =
     useDeleteAllPostsMutation();
   //================================ create chat ====================================================================
-  const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم استدعاؤه بالفعل
+  const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); 
   // ====================================== error state =================================================
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); //error message
   //============================ main menu state =====================================
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -92,13 +91,23 @@ const UserProfilePage = () => {
   //================================== send frien requist =======================================
   const [sendFriendRequist, { isLoading: loadingRequist }] =
     useSendRequistMutation();
+
+  //============================================== remove friend ===========================================================
+  const [removeFriend, { isLoading: removeLoading }] =
+    useRemoveFriendMutation();
+  //============================================= accept friend requist ==============================================
+  const [acceptRequest, { isLoading: isAccepting }] =
+    useAcceptRequestMutation();
+  //====================================CANCEL FRIEND REQUIST ===========================================================================
+  const [cancelRequest, { isLoading: loadingCancel }] =
+    useCancelFriendRequistMutation();
   //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل بنحدد منها شكل الزرارا بتاع ارسال طلب الصداقه ====================================
   const { data: friendshipStatus, isLoading: statusLoading } =
     useGetFriendshipStatusQuery(userProfile?._id, {
       skip: !userProfile || isMyProfile,
     }); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
 
-  // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)========================================
+  // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)==============
   const [requestSent, setRequestSent] = useState(false);
   // ======================= تحديد الحالة الأولية ==============
   useEffect(() => {
@@ -110,32 +119,57 @@ const UserProfilePage = () => {
       setRequestSent(true); // إذا كان هناك طلب مرسل بالفعل، اضبط الحالة المحلية
     }
   }, [friendshipStatus]);
-  //============================================== remove friend ===========================================================
-  const [removeFriend, { isLoading: removeLoading }] =
-    useRemoveFriendMutation();
-  //============================================= accept friend requist ==============================================
-  const [acceptRequest, { isLoading: isAccepting }] =
-    useAcceptRequestMutation();
-  //====================================CANCEL FRIEND REQUIST ===========================================================================
-  const [cancelRequest, { isLoading: loadingCancel }] = useCancelFriendRequistMutation();
-  useEffect(() => {
-    if (userError) {
-      setError("User not found");
+    // =================================== دالة عرض الزر بناءً على الحالة ===================================
+  const getFriendButtonState = () => {
+    const status = friendshipStatus?.status;
+    const direction = friendshipStatus?.direction;
+    const requestId = friendshipStatus?.requestId;
+
+    // 1. إذا كان طلب معلّق (مرسل من المستخدم الحالي) أو تم إرساله للتو
+    if ((status === "Pending" && direction === "Sent") || requestSent) {
+      return {
+        text: "remove requist",
+        disabled: false,
+        icon: <Done />,
+        color: "default",
+        handler: () => cancelFriendRequist(),
+      };
     }
-  }, [userError]);
 
-  if (error) {
-    return <Err_404Page />;
-  }
-  if (userLoading || postsLoading || isLoadingAuth) return <LoadingPage />;
+    // 2. إذا كان صديقاً بالفعل
+    if (status === "Friends") {
+      return {
+        text: "remove friend",
+        disabled: false,
+        icon: <Done />,
+        color: "success",
+        handler: () => handleUnfriend(),
+      };
+    }
 
-  if (userError || !userProfile) {
-    return <div>User not found</div>;
-  }
+    // 3. إذا كان طلب معلّق (وارد للمستخدم الحالي)
+    if (status === "Pending" && direction === "Received" && requestId) {
+      // هذا سيتطلب زراً آخر لـ 'قبول/رفض'
+      return {
+        text: "accept requist",
+        disabled: false,
+        icon: <Done />,
+        color: "info",
+        handler: () => handleAcceptRequest(requestId, userProfile.username), // 💡 تمرير الـ ID والـ Handler
+      };
+    }
 
-  if (userError) {
-    return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
-  }
+    // 4. الحالة الافتراضية (لا يوجد علاقة)
+    return {
+      text: " Add friend",
+      disabled: loadingRequist,
+      icon: <PersonAdd />,
+      color: "primary",
+      handler: () => handleSendFriendRequist(),
+    };
+  };
+  const buttonState = getFriendButtonState(); // جلب حالة الزر
+
   //=========================================================================================================================================
   //=================================================== functions ==============================================================================
   //============================================================================================================================================
@@ -329,76 +363,44 @@ const UserProfilePage = () => {
     }
   };
   //==================================== CANCEL requist ==============================================
-const cancelFriendRequist = async ()=>{
-  try {
-    await cancelRequest(userProfile._id).unwrap();
-    setRequestSent(false)
-    Swal.fire({
+  const cancelFriendRequist = async () => {
+    try {
+      await cancelRequest(userProfile._id).unwrap();
+      setRequestSent(false);
+      Swal.fire({
         icon: "success",
         title: "requist cancelled",
         timer: 2000,
         showConfirmButton: false,
       });
-  } catch (error) {
-    console.log(error);
+    } catch (error) {
+      console.log(error);
       Swal.fire({
         icon: "error",
         title: "فشل القبول!",
         text: error.data?.message || "حدث خطأ أثناء قبول الطلب.",
       });
-  }
-}
-  // =================================== دالة عرض الزر بناءً على الحالة ===================================
-  const getFriendButtonState = () => {
-    const status = friendshipStatus?.status;
-    const direction = friendshipStatus?.direction;
-    const requestId = friendshipStatus?.requestId;
-
-    // 1. إذا كان طلب معلّق (مرسل من المستخدم الحالي) أو تم إرساله للتو
-    if ((status === "Pending" && direction === "Sent") || requestSent) {
-      return {
-        text: "remove requist",
-        disabled: false,
-        icon: <Done />,
-        color: "default",
-        handler: ()=>cancelFriendRequist(),
-      };
     }
-
-    // 2. إذا كان صديقاً بالفعل
-    if (status === "Friends") {
-      return {
-        text: "remove friend",
-        disabled: false,
-        icon: <Done />,
-        color: "success",
-        handler: () => handleUnfriend(),
-      };
-    }
-
-    // 3. إذا كان طلب معلّق (وارد للمستخدم الحالي)
-    if (status === "Pending" && direction === "Received" && requestId) {
-      // هذا سيتطلب زراً آخر لـ 'قبول/رفض'
-      return {
-        text: "accept requist",
-        disabled: false,
-        icon: <Done />,
-        color: "info",
-        handler: () => handleAcceptRequest(requestId, userProfile.username), // 💡 تمرير الـ ID والـ Handler
-      };
-    }
-
-    // 4. الحالة الافتراضية (لا يوجد علاقة)
-    return {
-      text: " Add friend",
-      disabled: loadingRequist,
-      icon: <PersonAdd />,
-      color: "primary",
-      handler: () => handleSendFriendRequist(),
-    };
   };
-  const buttonState = getFriendButtonState(); // جلب حالة الزر
 
+  useEffect(() => {
+    if (userError) {
+      setError("User not found");
+    }
+  }, [userError]);
+
+  if (error) {
+    return <Err_404Page />;
+  }
+  if (userLoading || postsLoading || isLoadingAuth) return <LoadingPage />;
+
+  if (userError || !userProfile) {
+    return <div>User not found</div>;
+  }
+
+  if (userError) {
+    return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
+  }
   return (
     <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
       {/* صفحة المستخدم */}
@@ -535,12 +537,13 @@ const cancelFriendRequist = async ()=>{
             </Typography>
             {isMyProfile && (
               <Button
+                onClick={()=>{navigate("/user/friends")}}
                 variant="contained"
                 color="primary"
                 fullWidth
                 sx={{ marginBottom: 2 }}
               >
-                Edit Profile
+                my friends
               </Button>
             )}
 

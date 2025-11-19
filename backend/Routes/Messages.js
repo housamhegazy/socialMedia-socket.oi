@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Message = require('../Models/Message');
-const { AuthMiddleware } = require("../middleware/authMiddleware.js");
+const { AuthMiddleware } = require("../middleware/authMiddleware");
 
 // جلب رسائل محادثة معينة (التاريخ)
 // GET /api/messages/:chatId
