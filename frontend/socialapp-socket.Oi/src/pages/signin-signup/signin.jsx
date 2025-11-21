@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Container,
   Box,
@@ -20,15 +20,13 @@ import {
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
-import LoadingPage from "../../components/loadingPage";
 import {
   useGetUserByNameQuery,
   useSigninMutation,
 } from "../../Api/user/userApi";
 import FacebooklogIn from "../../components/socialLoginBtns/fb";
 import XLoginButton from "../../components/socialLoginBtns/twitter";
-import GoogleLogin from "../../components/socialLoginBtns/google"
+import GoogleLogin from "../../components/socialLoginBtns/google";
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
   const theme = useTheme();
@@ -38,10 +36,6 @@ const LoginForm = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-  //=============== للتحقق من حالة المستخدم=============================
-  const { user, isAuthenticated, isLoadingAuth } = useSelector(
-    (state) => state.auth
-  );
   const { refetch } = useGetUserByNameQuery();
   // ========================== لتسجيل الدخول==========================
   const [signin, { isLoading, isError, error }] = useSigninMutation();
@@ -51,12 +45,6 @@ const LoginForm = () => {
     email: "",
     password: "",
   });
-
-  useEffect(() => {
-    if (isAuthenticated && user && !isLoadingAuth) {
-      navigate("/"); // ✅ يروح للهوم فقط لما المستخدم فعلاً داخل
-    }
-  }, [isAuthenticated, user, isLoadingAuth, navigate]);
 
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
@@ -128,178 +116,166 @@ const LoginForm = () => {
       });
     }
   };
-  if (isLoadingAuth) {
-    return <LoadingPage />;
-  }
-if(user){
-  return
-}
-  if (!user) {
-    return (
-      // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
+
+  return (
+    // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          p: 3,
+          borderRadius: 2,
+          boxShadow:
+            theme.palette.mode === "dark"
+              ? "0 0 20px rgba(255, 255, 255, 0.1)"
+              : "0 0 20px rgba(0, 0, 0, 0.1)",
+          bgcolor: theme.palette.background.paper,
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
+          <LockOpenOutlined />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign In
+        </Typography>
+
+        {/* رسالة النجاح أو الخطأ */}
+        {message.text && (
+          <Typography
+            color={
+              message.type === "success"
+                ? theme.palette.success.main
+                : theme.palette.error.main
+            }
+            sx={{ mt: 2, fontWeight: "bold" }}
+          >
+            {message.text}
+          </Typography>
+        )}
+
+        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Grid
+            container
+            spacing={2}
+            direction="column"
+            justifyContent="center"
+          >
+            {/* البريد الإلكتروني */}
+            <Grid>
+              <TextField
+                required
+                fullWidth
+                label="Email Address"
+                name="email"
+                autoComplete="email"
+                value={formData.email}
+                onChange={handleChange}
+                error={!!errors.email}
+                helperText={errors.email}
+                dir="ltr"
+              />
+            </Grid>
+            {/* كلمة المرور */}
+            <Grid>
+              <TextField
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                value={formData.password}
+                onChange={handleChange}
+                error={!!errors.password}
+                helperText={errors.password}
+                dir="ltr"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          {/* رابط نسيت كلمة المرور */}
+          <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
+            <Grid>
+              <Link
+                href="#"
+                variant="body2"
+                sx={{ color: theme.palette.primary.light }}
+              >
+                you forgot password?
+              </Link>
+            </Grid>
+          </Grid>
+
+          {/* زر تسجيل الدخول */}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              " Sign in"
+            )}
+          </Button>
+
+          {/* رابط لإنشاء حساب جديد */}
+          <Grid container justifyContent="center">
+            <Grid>
+              <Typography variant="body2" color="text.secondary">
+                Don't have an account?
+                <Link
+                  href="/signup"
+                  variant="body2"
+                  sx={{ ml: 1, fontWeight: "bold" }}
+                >
+                  Register
+                </Link>
+              </Typography>
+            </Grid>
+          </Grid>
+        </Box>
         <Box
           sx={{
-            marginTop: 8,
             display: "flex",
             flexDirection: "column",
+            justifyContent: "center",
             alignItems: "center",
-            p: 3,
-            borderRadius: 2,
-            boxShadow:
-              theme.palette.mode === "dark"
-                ? "0 0 20px rgba(255, 255, 255, 0.1)"
-                : "0 0 20px rgba(0, 0, 0, 0.1)",
-            bgcolor: theme.palette.background.paper,
+            mt: 5,
+            backgroundColor: "#ffffff4d",
+            borderRadius: "20px",
+            px: 5,
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
-            <LockOpenOutlined />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign In
-          </Typography>
-
-          {/* رسالة النجاح أو الخطأ */}
-          {message.text && (
-            <Typography
-              color={
-                message.type === "success"
-                  ? theme.palette.success.main
-                  : theme.palette.error.main
-              }
-              sx={{ mt: 2, fontWeight: "bold" }}
-            >
-              {message.text}
-            </Typography>
-          )}
-
-          <Box
-            component="form"
-            noValidate
-            onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
-          >
-            <Grid
-              container
-              spacing={2}
-              direction="column"
-              justifyContent="center"
-            >
-              {/* البريد الإلكتروني */}
-              <Grid>
-                <TextField
-                  required
-                  fullWidth
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={!!errors.email}
-                  helperText={errors.email}
-                  dir="ltr"
-                />
-              </Grid>
-              {/* كلمة المرور */}
-              <Grid>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={!!errors.password}
-                  helperText={errors.password}
-                  dir="ltr"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={() => setShowPassword(!showPassword)}
-                          onMouseDown={(e) => e.preventDefault()}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            {/* رابط نسيت كلمة المرور */}
-            <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
-              <Grid>
-                <Link
-                  href="#"
-                  variant="body2"
-                  sx={{ color: theme.palette.primary.light }}
-                >
-                  you forgot password?
-                </Link>
-              </Grid>
-            </Grid>
-
-            {/* زر تسجيل الدخول */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "تسجيل الدخول"
-              )}
-            </Button>
-
-            {/* رابط لإنشاء حساب جديد */}
-            <Grid container justifyContent="center">
-              <Grid>
-                <Typography variant="body2" color="text.secondary">
-                  Don't have an account?
-                  <Link
-                    href="/signup"
-                    variant="body2"
-                    sx={{ ml: 1, fontWeight: "bold" }}
-                  >
-                    Register
-                  </Link>
-                </Typography>
-              </Grid>
-            </Grid>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              mt: 5,
-              backgroundColor: "#ffffff4d",
-              borderRadius: "20px",
-              px: 5,
-            }}
-          >
-            <GoogleLogin />{" "}
-            {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
-            <FacebooklogIn />{" "}
-            {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
-            <XLoginButton />
-          </Box>
+          <GoogleLogin />{" "}
+          {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
+          <FacebooklogIn />{" "}
+          {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
+          <XLoginButton />
         </Box>
-      </Container>
-    );
-  }
+      </Box>
+    </Container>
+  );
 };
 
 export default LoginForm;

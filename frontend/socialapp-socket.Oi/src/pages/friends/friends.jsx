@@ -77,7 +77,7 @@ const FriendsList = () => {
         maxWidth: 1200,
         mx: "auto",
         p: 3,
-        backgroundColor: "#f5f7fa", // خلفية خفيفة
+        // backgroundColor: "primary", // خلفية خفيفة
         borderRadius: 4,
       }}
       className="w-full"

@@ -16,35 +16,26 @@ import {
 import { LockOutlined, Visibility, VisibilityOff } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { useNavigate } from "react-router";
-import { useSelector } from "react-redux";
 import { useSignupMutation } from "../../Api/user/userApi";
-import LoadingPage from "../../components/loadingPage";
 
 // المكون الرئيسي لتسجيل الدخول
 const SignUpForm = () => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { user, isLoadingAuth } = useSelector((state) => state.auth);
 
   // ==================== signup =============================
   const [signup, { isLoading, isError, error }] = useSignupMutation();
-  // حالات تخزين بيانات النموذج
+  // حالات التحقق من الأخطاء
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
+    // حالات تخزين بيانات النموذج
   const [formData, setFormData] = useState({
     username: "",
     name: "",
     email: "",
     password: "",
   });
-
-  // حالات التحقق من الأخطاء
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState({ text: "", type: "" });
-  useEffect(() => {
-    if (user && !isLoadingAuth) {
-      navigate("/"); // لو المستخدم مسجل بالفعل، روح للهوم
-    }
-  }, [user, isLoadingAuth, navigate]);
   // وظيفة لتحديث بيانات النموذج
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -96,7 +87,6 @@ const SignUpForm = () => {
       tempErrors.password = "password must be at least 6 characters long.";
       isValid = false;
     }
-
     setErrors(tempErrors);
     return isValid;
   };
@@ -112,25 +102,22 @@ const SignUpForm = () => {
       return;
     }
     try {
-  const response = await signup(formData).unwrap();
-  setMessage({ text: "Success", type: "success" });
-  navigate("/");
-} catch (err) {
-  console.log("Signup Error:", err);
-  setMessage({
-    text: err?.data?.message || "Registration failed",
-    type: "error",
-  });
-}
+    await signup(formData).unwrap();
+      setMessage({ text: "Success", type: "success" });
+      
+       setTimeout(() => {
+        navigate("/");
+      }, 1500); // تأخير بسيط قبل إعادة التوجيه
+      
+    } catch (err) {
+      console.log("Signup Error:", err);
+      setMessage({
+        text: err?.data?.message || "Registration failed",
+        type: "error",
+      });
+    }
   };
-  if (isLoadingAuth) {
-    return <LoadingPage />;
-  }
-  if (user) {
-    return null;
-  }
 
-  if (!user) {
     return (
       // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
       <Container component="main" maxWidth="xs">
@@ -183,7 +170,7 @@ const SignUpForm = () => {
               sx={{ flexDirection: "column", justifyContent: "center" }}
             >
               {/*  username */}
-              <Grid >
+              <Grid>
                 <TextField
                   name="username"
                   required
@@ -198,7 +185,7 @@ const SignUpForm = () => {
                 />
               </Grid>
               {/* الاسم الأول */}
-              <Grid >
+              <Grid>
                 <TextField
                   name="name"
                   required
@@ -213,7 +200,7 @@ const SignUpForm = () => {
                 />
               </Grid>
               {/* البريد الإلكتروني */}
-              <Grid >
+              <Grid>
                 <TextField
                   required
                   fullWidth
@@ -228,7 +215,7 @@ const SignUpForm = () => {
                 />
               </Grid>
               {/* كلمة المرور */}
-              <Grid >
+              <Grid>
                 <TextField
                   required
                   fullWidth
@@ -278,7 +265,7 @@ const SignUpForm = () => {
             <Grid container justifyContent="flex-end">
               <Grid>
                 <Link
-                  href="/login"
+                  href="/signin"
                   variant="body2"
                   sx={{
                     color: theme.palette.getContrastText(
@@ -295,6 +282,4 @@ const SignUpForm = () => {
       </Container>
     );
   }
-};
-
 export default SignUpForm;
