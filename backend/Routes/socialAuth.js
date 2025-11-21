@@ -21,7 +21,7 @@ router.get(
 ); // بدء المصادقة
 router.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/signin" }),
+  passport.authenticate("google", { failureRedirect: "/signin" , session: false}),
   (req, res) => {
     // 1. إنشاء رمز JWT هنا
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
@@ -41,7 +41,7 @@ router.get(
 );
 router.get(
   "/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/signin" }),
+  passport.authenticate("facebook", { failureRedirect: "/signin" , session: false}),
   (req, res) => {
       const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
@@ -56,7 +56,7 @@ router.get(
 router.get("/auth/x", passport.authenticate("twitter")); // تم تغيير المسار إلى x
 router.get(
   "/auth/x/callback",
-  passport.authenticate("twitter", { failureRedirect: "/signin" }),
+  passport.authenticate("twitter", { failureRedirect: "/signin", session: false }),
   (req, res) => {
       const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,

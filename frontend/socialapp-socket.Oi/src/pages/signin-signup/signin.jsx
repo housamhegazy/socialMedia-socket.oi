@@ -131,7 +131,9 @@ const LoginForm = () => {
   if (isLoadingAuth) {
     return <LoadingPage />;
   }
-
+if(user){
+  return
+}
   if (!user) {
     return (
       // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات

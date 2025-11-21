@@ -4,6 +4,7 @@ const User = require("../Models/User.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
+
 const {
   cloudinary,
   bufferToDataUri,

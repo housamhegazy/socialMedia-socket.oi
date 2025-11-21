@@ -33,26 +33,26 @@ const io = new Server(httpServer, {
 const userSockets = new Map();
 // Save io + userSockets to app
 app.set("io", io);
-app.set("userSockets", userSockets); // ← Add this
+app.set("userSockets", userSockets); 
 //======================================== end socket import ============================
 
 //========================================== cors =======================================
 app.use(
   cors({
-    origin: "http://localhost:5173", // استبدل هذا بعنوان الـ frontend الخاص بك
+    origin: "http://localhost:5173", 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
 
 app.use(cookieParser());
 app.use(express.json());
-//========================================== passport session =================================
+//=================== passport session موجود عشان تسجيل الدخول بتويتر فقط لكن باقي الموقع ب jwt ====================
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_secret_key', // يجب أن يكون مفتاحًا سريًا قوياً ومخزوناً في .env
-    resave: false, // لا تحفظ الجلسة مرة أخرى إذا لم يتم تعديلها
-    saveUninitialized: false, // لا تنشئ جلسة للمستخدمين الذين لم يسجلوا الدخول
+    secret: process.env.SESSION_SECRET || 'your_secret_key', 
+    resave: false, 
+    saveUninitialized: false, 
     cookie: { 
-        secure: process.env.NODE_ENV === 'production', // استخدم 'true' في الإنتاج
+        secure: process.env.NODE_ENV === 'production', 
         maxAge: 1000 * 60 * 60 * 24 // 24 ساعة
     }
 }));
@@ -60,7 +60,7 @@ app.use(session({
 //============================================get routes======================================================
 // إعداد Passport لتسجيل الدخول بجوجل 
 app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.session());
 
 const registerRoute = require("./Routes/Users.js");
 const postsRoute = require("./Routes/Posts.js");
