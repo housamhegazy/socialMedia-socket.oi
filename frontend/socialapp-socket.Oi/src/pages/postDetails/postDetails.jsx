@@ -36,7 +36,6 @@ import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
 import { useState } from "react";
-import DialogComp from "../home/dialog";
 import AddComment from "../home/addComment";
 const PostDetails = () => {
   const theme = useTheme();
@@ -53,7 +52,6 @@ const PostDetails = () => {
   //=================== add likes =========================================
   const [likePost] = useLikePostMutation();
   //===================== edite dialog =================================
-  const [openDialog, setOpenDialog] = useState(false);
   const [openLikesDialog, setOpenLikesDialog] = useState(false);
   const commentIdToHighlight = searchParams.get("comment");
   const commentRefs = useRef({});
@@ -95,12 +93,6 @@ const PostDetails = () => {
     handleClose();
     handleDelete(postId);
   };
-  //================================= open dialoge ==========================
-  const openDialogFunc = () => {
-    setOpenDialog(true);
-    setAnchorEl(null);
-  };
-
   //=============================================================================
   const handleDelete = async (postId) => {
     const result = await Swal.fire({
@@ -250,9 +242,6 @@ const PostDetails = () => {
                         <Typography variant="body2">delete </Typography>
                       </MenuItem>
                       <MenuItem
-                        onClick={() => {
-                          openDialogFunc();
-                        }}
                         sx={{ color: "inherit" }}
                       >
                         <ListItemIcon>

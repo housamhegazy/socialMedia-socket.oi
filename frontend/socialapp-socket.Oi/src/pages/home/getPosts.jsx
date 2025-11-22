@@ -28,7 +28,9 @@ const GetPosts = () => {
         }}
       >
         <Typography color="error">
-          {error?.data?.message || "Error while fetching posts"}
+          {error?.
+// @ts-ignore
+          data?.message || "Error while fetching posts"}
         </Typography>
       </Box>
     );

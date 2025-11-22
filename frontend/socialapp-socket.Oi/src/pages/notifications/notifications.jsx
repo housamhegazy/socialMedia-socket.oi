@@ -64,7 +64,7 @@ const Notifications = () => {
     // أو يمكنك إضافة Query Parameter لتحديد التعليق:
     if (notif.type === "comment" || notif.type === "reply") {
       // المسار سيصبح: /posts/:postId?highlightComment=:commentId
-      targetPath = `/posts/${postId}?comment=${notif.comment._id}`;
+      targetPath = `/posts/${postId}?comment=${notif.comment?._id}`;
     }
 
     // 3. التنقل

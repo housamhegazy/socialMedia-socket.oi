@@ -26,7 +26,7 @@ import { useNavigate } from "react-router";
 const PostComposer = ({ user }) => {
   const theme = useTheme();
   const navigate = useNavigate()
-  const [createPost, { isLoading, isError, error }] = useCreatePostMutation();
+  const [createPost, { isLoading }] = useCreatePostMutation();
   
   //store data of post states
   const [postText, setPostText] = useState(""); // post text
@@ -81,6 +81,7 @@ const PostComposer = ({ user }) => {
       setMessage("Post uploaded successfully!");
       // refetch(); // إعادة تحميل البوستات
     } catch (error) {
+      console.log(error);
       setStatus("error");
       setMessage("Failed to connect to the server.");
     }

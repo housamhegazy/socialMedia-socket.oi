@@ -36,9 +36,10 @@ import { useState } from "react";
 import DialogComp from "./dialog";
 import AddComment from "./addComment";
 const CardComponent = ({ post, isMyProfile }) => {
+  // @ts-ignore
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
-  const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
+  const [deletePost, { isError, error }] = useDeletePostMutation();
   //=================== add likes =========================================
   const [likePost] = useLikePostMutation();
   //===================== edite dialog =================================
@@ -345,10 +346,12 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
             variant="body2"
             sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
           >
-            {error?.data?.message || "Failed to delete post."}
+            {error?.
+// @ts-ignore
+            data?.message || "Failed to delete post."}
           </Typography>
         )}
-        <AddComment post={post} user={user} openCommentBox={openCommentBox} setOpenCommentBox={setOpenCommentBox} />
+        <AddComment post={post} user={user} openCommentBox={openCommentBox} setOpenCommentBox={setOpenCommentBox} commentRefs={undefined} commentIdToHighlight={undefined} />
       </Card>
     </Box>
   );

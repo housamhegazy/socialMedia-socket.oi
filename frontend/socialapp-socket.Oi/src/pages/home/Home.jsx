@@ -1,7 +1,7 @@
 import Box from "@mui/material/Box/";
 import PostComposer from "./createPost";
 import GetPosts from "./getPosts";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 // import { useGetUserByNameQuery } from "../Api/Redux/userApi"; // Your RTK Query hook
 import { useNavigate } from "react-router";
 import LoadingPage from "../../components/loadingPage";
@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 
 
 const Home = () => {
+    // @ts-ignore
     const { user, isLoadingAuth } = useSelector((state) => state.auth);
     const navigate = useNavigate();
     
