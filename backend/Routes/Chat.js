@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Chat = require("../Models/Chat");
 const Message = require("../Models/Message");
-const { AuthMiddleware } = require("../middleware/authMiddleware.js");
+const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
 
 // 1. جلب محادثات مستخدم معين (يستخدم لعرض قائمة المحادثات)
 // GET /api/chats
