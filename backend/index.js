@@ -26,7 +26,7 @@ const { Server } = require("socket.io");
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://socialmedia-socket-oi.onrender.com",
+    origin: "http://localhost:5173",
     credentials: true,
   },
 });
@@ -39,7 +39,7 @@ app.set("userSockets", userSockets);
 //========================================== cors =======================================
 app.use(
   cors({
-    origin: "https://socialmedia-socket-oi.onrender.com", 
+    origin: "http://localhost:5173", 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
@@ -164,10 +164,7 @@ io.on("connection", (socket) => {
 module.exports = { io, userSockets };
 //=================================================connect to mongodb================================================
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Could not connect to MongoDB...", err));
 //=================================================start server================================================
