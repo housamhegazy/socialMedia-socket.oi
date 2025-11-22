@@ -48,15 +48,14 @@ function ResponsiveDrawer({
   const iconColor = theme.palette.mode === "dark" ? "inherit" : "primary";
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [signOut, { isLoading, isSuccess, error }] = useSignOutMutation();
+  const [signOut, { isLoading }] = useSignOutMutation();
   const { user: currentUser, isAuthenticated } = useSelector(
+    // @ts-ignore
     (state) => state.auth
   );
   //=========================socket notification ===========================
   const {
-    data: unreadCountData,
-    isLoading: loadinggg,
-    isError: is,
+    data: unreadCountData
   } = useGetUnreadCountQuery(undefined, {
     // 🚨 الشرط الأهم: لا تجلب البيانات إلا إذا كان المستخدم مسجلاً
     skip: !isAuthenticated,
@@ -81,9 +80,7 @@ function ResponsiveDrawer({
   };
   //================================ chats ==================================================
   const {
-    data: chats,
-    isLoading: loadingchat,
-    isError,
+    data: chats
   } = useGetUserChatsQuery();
   //list items data
   const myList = [

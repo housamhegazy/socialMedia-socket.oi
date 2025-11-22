@@ -1,15 +1,15 @@
-// src/Api/notifications/context/SocketProvider.jsx
 
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 // 💡 استيراد تعريف الـ Context والـ RTK Query
-import SocketContext from "./SocketContext";
+import {SocketContext} from "./SocketContext";
 import { notificationApi } from "../notificationsApi";
 import { chatApi } from "../../chatApi/chatApi"; // 💡 جديد: استيراد API الدردشة
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  // @ts-ignore
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
@@ -48,7 +48,7 @@ export const SocketProvider = ({ children }) => {
       });
 
       // 💡 جديد: الاستماع لرسائل الدردشة الجديدة
-      newSocket.on("receive_message", (message) => {
+      newSocket.on("receive_message", () => {
         // ⚠️ لا تستخدم invalidateTags هنا!
         // تحديث الرسائل يتم مباشرة في المكون (ChatDetail) عبر useState.
         // لكن يمكنك استخدامها لإجبار قائمة المحادثات على إعادة الجلب.

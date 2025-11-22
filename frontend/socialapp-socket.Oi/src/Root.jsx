@@ -48,6 +48,7 @@ const Root = () => {
   //theme functions
   // ###############################
   //get theme from local storage
+  // @ts-ignore
   const mode = useSelector((state) => state.theme.mode);
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
   const handleTheme = () => {
@@ -62,7 +63,8 @@ const Root = () => {
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
   //import user from auth slice to control drawer and sidebar عشان يكون كل الموقع بيتحدث في نفس اللحظه 
-  const { user, isAuthenticated, isLoadingAuth } = useSelector(
+  const {isAuthenticated, isLoadingAuth } = useSelector(
+    // @ts-ignore
     (state) => state.auth
   );
 

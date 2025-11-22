@@ -21,10 +21,10 @@ import Swal from "sweetalert2";
 const FriendsList = () => {
   const navigate = useNavigate();
   //=========================================== handleSendmessage =========================================
-  const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); // تم استدعاؤه بالفعل
-  const { data: friends = [], isLoading, isError } = useGetFriendsListQuery();
+  const [createChat] = useCreateChatMutation(); // تم استدعاؤه بالفعل
+  const { data: friends = [], isLoading } = useGetFriendsListQuery();
     //============================================== remove friend ===========================================================
-    const [removeFriend, { isLoading: removeLoading }] =
+    const [removeFriend] =
       useRemoveFriendMutation();
   const handleSendmessage = async (receiverId) => {
     try {
@@ -100,7 +100,7 @@ const FriendsList = () => {
       <Grid container spacing={4} justifyContent="flex-end">
         {friends.map((friend) => (
           // كل صديق في عمود يأخذ 3 وحدات من أصل 12 (4 بطاقات في الصف الواحد)
-          <Grid item xs={12} sm={6} md={4} lg={3} key={friend._id}>
+          <Grid key={friend._id}>
             <Card
               sx={{
                 textAlign: "center",

@@ -46,6 +46,7 @@ const PostDetails = () => {
   //========================get one post
   const { data: post, isLoading: isFetching } = useGetOnePostQuery(postId);
 
+  // @ts-ignore
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
   const [deletePost, { isLoading, isError, error }] = useDeletePostMutation();
@@ -400,7 +401,9 @@ const PostDetails = () => {
             variant="body2"
             sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
           >
-            {error?.data?.message || "Failed to delete post."}
+            {error?.
+// @ts-ignore
+            data?.message || "Failed to delete post."}
           </Typography>
         )}
         <AddComment

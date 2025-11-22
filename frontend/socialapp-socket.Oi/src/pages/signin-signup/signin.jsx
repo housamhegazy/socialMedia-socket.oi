@@ -33,12 +33,12 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   // حالات التحقق من الأخطاء
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
   const { refetch } = useGetUserByNameQuery();
   // ========================== لتسجيل الدخول==========================
-  const [signin, { isLoading, isError, error }] = useSigninMutation();
+  const [signin, { isLoading}] = useSigninMutation();
 
   // ==========================حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)==========================
   const [formData, setFormData] = useState({

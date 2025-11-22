@@ -8,7 +8,6 @@ import {
   Button,
   Box,
   IconButton,
-  useTheme,
   CircularProgress,
   ListItemIcon,
   Menu,
@@ -47,12 +46,12 @@ import {
 } from "../../Api/friendRequistApi/friendRequistApi";
 
 const UserProfilePage = () => {
-  const theme = useTheme();
   const navigate = useNavigate();
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //=======================================بيانات المستخدم الحالي اللي مسجل دخول===========================================
   const { user: currentUser, isLoadingAuth } = useSelector(
+    // @ts-ignore
     (state) => state.auth
   );
   const isMyProfile = username === currentUser?.username; //  التحقق من ان اسم المستخدم ده هو نفسه المستخدم المسجل دخول
@@ -72,10 +71,10 @@ const UserProfilePage = () => {
     { skip: !userProfile } // تجاهل الـ query حتى يكون user موجود
   );
   //============================ import delete all posts from posts api ===========================================
-  const [deleteAllPosts, { isLoading, isSuccess, isError }] =
+  const [deleteAllPosts] =
     useDeleteAllPostsMutation();
   //================================ create chat ====================================================================
-  const [createChat, { isLoading: isCreating }] = useCreateChatMutation(); 
+  const [createChat] = useCreateChatMutation(); 
   // ====================================== error state =================================================
   const [error, setError] = useState(null); //error message
   //============================ main menu state =====================================
@@ -87,22 +86,22 @@ const UserProfilePage = () => {
   const [preview, setPreview] = useState(null); // save image in preview in page
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   //=============================== import update avatar ======================================
-  const [updateAvatar, { loading }] = useUpdateAvatarMutation();
+  const [updateAvatar] = useUpdateAvatarMutation();
   //================================== send frien requist =======================================
   const [sendFriendRequist, { isLoading: loadingRequist }] =
     useSendRequistMutation();
 
   //============================================== remove friend ===========================================================
-  const [removeFriend, { isLoading: removeLoading }] =
+  const [removeFriend] =
     useRemoveFriendMutation();
   //============================================= accept friend requist ==============================================
-  const [acceptRequest, { isLoading: isAccepting }] =
+  const [acceptRequest] =
     useAcceptRequestMutation();
   //====================================CANCEL FRIEND REQUIST ===========================================================================
-  const [cancelRequest, { isLoading: loadingCancel }] =
+  const [cancelRequest] =
     useCancelFriendRequistMutation();
   //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل بنحدد منها شكل الزرارا بتاع ارسال طلب الصداقه ====================================
-  const { data: friendshipStatus, isLoading: statusLoading } =
+  const { data: friendshipStatus } =
     useGetFriendshipStatusQuery(userProfile?._id, {
       skip: !userProfile || isMyProfile,
     }); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
@@ -131,7 +130,7 @@ const UserProfilePage = () => {
         text: "remove requist",
         disabled: false,
         icon: <Done />,
-        color: "default",
+        color: "inherit",
         handler: () => cancelFriendRequist(),
       };
     }
@@ -558,6 +557,7 @@ const UserProfilePage = () => {
                 <Button
                   onClick={buttonState.handler}
                   variant="contained"
+                  // @ts-ignore
                   color={buttonState.color}
                   startIcon={
                     loadingRequist ? (

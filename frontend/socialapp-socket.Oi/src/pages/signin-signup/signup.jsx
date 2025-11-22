@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Box,
@@ -24,9 +24,14 @@ const SignUpForm = () => {
   const navigate = useNavigate();
 
   // ==================== signup =============================
-  const [signup, { isLoading, isError, error }] = useSignupMutation();
+  const [signup, { isLoading}] = useSignupMutation();
   // حالات التحقق من الأخطاء
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    username: "",
+    name: "",
+    email: "",
+    password: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
     // حالات تخزين بيانات النموذج

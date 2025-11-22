@@ -9,6 +9,7 @@ import FriendRequestsDropdown from "./friendRequistsDropDown";
 const AppBarComponent = ({ handleDrawerToggle, theme, handleTheme }) => {
   //===========================================================================
   const { user: currentUser, isAuthenticated } = useSelector(
+    // @ts-ignore
     (state) => state.auth
   );
   const navigate = useNavigate();
