@@ -20,7 +20,12 @@ export const SocketProvider = ({ children }) => {
       const newSocket = io("http://localhost:3000", {
         // لا تستخدم /notifications هنا، اجعلها على root path
         withCredentials: true,
+        transports: ["websocket"],
+        query: {
+          userId: user._id, // 🔥 أهم سطر
+        },
       });
+      
       setSocket(newSocket);
 
       // 2. إرسال حدث الانضمام (Join) عند الاتصال
@@ -28,7 +33,7 @@ export const SocketProvider = ({ children }) => {
         newSocket.emit("join", user._id);
         console.log(`Socket connected for user: ${user._id}`);
       });
-
+      
       // 3. الاستماع للإشعارات الجديدة القادمة من السيرفر
       newSocket.on("receiveNotification", (notification) => {
         console.log("New Notification received via Socket:", notification);

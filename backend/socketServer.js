@@ -1,71 +1,84 @@
-// Map لتخزين المستخدمين النشطين (UserID -> Socket ID)
-// خاص بالاتصال الصوتي 
-const activeCallUsers = new Map(); 
+module.exports = function (io) {
+  // مستخدمين المكالمة
+  const activeCallUsers = new Map(); // { userId: socketId }
 
-const callSocketHandler = (io, socket) => {
-    const userId = socket.handshake.query.userId;
-    
-    if (userId) {
-        // تسجيل المستخدم عند الاتصال
-        activeCallUsers.set(userId, socket.id);
-        console.log(`Call User ${userId} connected.`);
+  io.on("connection", (socket) => {
+    console.log("🔌 New socket connected:", socket.id);
 
-        // 1. حدث بدء المكالمة (يرسله المتصل)
-        socket.on('call-user', ({ targetUserId, offer }) => {
-            const targetSocketId = activeCallUsers.get(targetUserId);
+    // ======================================================
+    //  1) استقبال userId من الـ handshake (لو موجود)
+    // ======================================================
+    const handshakeUserId = socket.handshake.query.userId;
 
-            if (targetSocketId) {
-                // إرسال إشارة المكالمة الواردة إلى المتلقي
-                io.to(targetSocketId).emit('incoming-call', {
-                    callerId: userId,
-                    offer: offer,
-                    isVideo: true // يمكن أن يكون خيارًا
-                });
-                console.log(`Signaling: Incoming call from ${userId} to ${targetUserId}`);
-            } else {
-                // التعامل مع المستخدم غير المتصل
-                socket.emit('call-failed', { message: 'المستخدم غير متصل حاليًا.' });
-            }
-        });
-
-        // 2. حدث الرد على المكالمة (يرسله المتلقي)
-        socket.on('call-answered', ({ targetUserId, answer }) => {
-            const targetSocketId = activeCallUsers.get(targetUserId);
-            
-            if (targetSocketId) {
-                // إرسال الـ Answer إلى المتصل الأصلي
-                io.to(targetSocketId).emit('answer-received', {
-                    answer: answer
-                });
-            }
-        });
-
-        // 3. تبادل مرشحات الاتصال (ICE Candidates)
-        socket.on('ice-candidate', ({ targetUserId, candidate }) => {
-            const targetSocketId = activeCallUsers.get(targetUserId);
-            
-            if (targetSocketId) {
-                // إرسال الـ candidate للطرف الآخر
-                io.to(targetSocketId).emit('ice-candidate-received', {
-                    candidate: candidate
-                });
-            }
-        });
-
-        // 4. إنهاء المكالمة
-        socket.on('call-end', ({ targetUserId }) => {
-            const targetSocketId = activeCallUsers.get(targetUserId);
-            if (targetSocketId) {
-                io.to(targetSocketId).emit('call-ended-by-peer');
-            }
-        });
-
-        // 5. التنظيف عند قطع الاتصال
-        socket.on('disconnect', () => {
-            activeCallUsers.delete(userId);
-            console.log(`Call User ${userId} disconnected.`);
-        });
+    if (handshakeUserId) {
+      activeCallUsers.set(handshakeUserId, socket.id);
+      console.log(`📥 Registered via handshake → ${handshakeUserId} = ${socket.id}`);
     }
-};
 
-module.exports = callSocketHandler;
+    // ======================================================
+    //  2) تسجيل المستخدم عند دخوله مكالمة
+    // ======================================================
+    socket.on("join_call", ({ userId }) => {
+      if (!userId) return;
+
+      activeCallUsers.set(userId, socket.id);
+      console.log(`🎧 User joined call → ${userId} = ${socket.id}`);
+    });
+
+    // ======================================================
+    //  3) إرسال OFFER
+    // ======================================================
+    socket.on("send_offer", ({ targetUserId, offer }) => {
+      const targetSocketId = activeCallUsers.get(targetUserId);
+
+      if (!targetSocketId) {
+        console.log("❌ Target user not connected:", targetUserId);
+        return;
+      }
+
+      io.to(targetSocketId).emit("receive_offer", { offer });
+      console.log(`📤 Sent OFFER → ${targetUserId}`);
+    });
+
+    // ======================================================
+    //  4) إرسال ANSWER
+    // ======================================================
+    socket.on("send_answer", ({ targetUserId, answer }) => {
+      const targetSocketId = activeCallUsers.get(targetUserId);
+
+      if (!targetSocketId) {
+        console.log("❌ Target user not connected:", targetUserId);
+        return;
+      }
+
+      io.to(targetSocketId).emit("receive_answer", { answer });
+      console.log(`📤 Sent ANSWER → ${targetUserId}`);
+    });
+
+    // ======================================================
+    //  5) إرسال ICE CANDIDATE
+    // ======================================================
+    socket.on("send_ice_candidate", ({ targetUserId, candidate }) => {
+      const targetSocketId = activeCallUsers.get(targetUserId);
+
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("receive_ice_candidate", { candidate });
+      }
+    });
+
+    // ======================================================
+    //  6) عند فصل المستخدم
+    // ======================================================
+    socket.on("disconnect", () => {
+      console.log("❌ Socket disconnected:", socket.id);
+
+      // حذف أي userId مربوط بنفس socket
+      for (const [userId, sId] of activeCallUsers.entries()) {
+        if (sId === socket.id) {
+          activeCallUsers.delete(userId);
+          console.log(`🗑️ Removed user from call list: ${userId}`);
+        }
+      }
+    });
+  });
+};

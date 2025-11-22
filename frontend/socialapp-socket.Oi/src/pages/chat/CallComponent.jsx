@@ -33,6 +33,7 @@ const CallComponent = ({ targetUserId }) => {
         } catch (error) {
             console.error("Error accessing media devices: ", error);
             setCallStatus('error');
+            alert(`Media access failed: ${error.name} - ${error.message}`); // تنبيه للمستخدم
             return null;
         }
     };
@@ -57,7 +58,7 @@ const CallComponent = ({ targetUserId }) => {
         // تبادل ICE Candidates عبر السوكيت
         peerConnection.current.onicecandidate = (event) => {
             if (event.candidate && socket) {
-                socket.emit('ice-candidate', {
+                socket.emit('send_ice_candidate', {
                     targetUserId: targetUserId,
                     candidate: event.candidate
                 });
@@ -80,7 +81,7 @@ const CallComponent = ({ targetUserId }) => {
         const offer = await peerConnection.current.createOffer();
         await peerConnection.current.setLocalDescription(offer);
         
-        socket.emit('call-user', { 
+        socket.emit('send_offer', { 
             targetUserId: targetUserId, 
             offer: offer 
         });
@@ -117,7 +118,7 @@ const CallComponent = ({ targetUserId }) => {
         const answer = await peerConnection.current.createAnswer();
         await peerConnection.current.setLocalDescription(answer);
         
-        socket.emit('call-answered', { 
+        socket.emit('send_answer', { 
             targetUserId: targetUserId, 
             answer: answer 
         });
@@ -136,10 +137,10 @@ const CallComponent = ({ targetUserId }) => {
         // let incomingOffer = null;
 
         // أ. استقبال مكالمة واردة
-        const handleIncomingCall = ({ callerId, offer }) => {
+        const handleIncomingCall = ({ offer }) => {
             setCallStatus('ringing');
         incomingOfferRef.current = offer;
-        console.log(`Incoming call received from: ${callerId}`);
+        console.log(`Incoming call received from: (offer)`);
         };
 
         // ب. استقبال الـ Answer من المتلقي
@@ -162,15 +163,15 @@ const CallComponent = ({ targetUserId }) => {
             endCall(); // استخدام دالة الإنهاء المحلية
         };
 
-        socket.on('incoming-call', handleIncomingCall);
-        socket.on('answer-received', handleAnswerReceived);
-        socket.on('ice-candidate-received', handleIceCandidateReceived);
+        socket.on('receive_offer', handleIncomingCall);
+        socket.on('receive_answer', handleAnswerReceived);
+        socket.on('receive_ice_candidate', handleIceCandidateReceived);
         socket.on('call-ended-by-peer', handleCallEndedByPeer);
 
         return () => {
-            socket.off('incoming-call', handleIncomingCall);
-            socket.off('answer-received', handleAnswerReceived);
-            socket.off('ice-candidate-received', handleIceCandidateReceived);
+            socket.off('receive_offer', handleIncomingCall);
+            socket.off('receive_answer', handleAnswerReceived);
+            socket.off('receive_ice_candidate', handleIceCandidateReceived);
             socket.off('call-ended-by-peer', handleCallEndedByPeer);
         };
     }, [socket, targetUserId, endCall, currentUser]); // *إضافة endCall إلى dependencies*
