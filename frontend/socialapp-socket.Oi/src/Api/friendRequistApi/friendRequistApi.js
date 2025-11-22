@@ -4,7 +4,7 @@ export const friendRequistApi = createApi({
   reducerPath: "friendRequistApi",
   tagTypes: ["FriendRequist", "Friends"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: "https://socialmedia-socket-oi.onrender.com",
     credentials: "include",
   }),
   endpoints: (builder) => ({

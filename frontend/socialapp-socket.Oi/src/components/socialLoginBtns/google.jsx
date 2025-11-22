@@ -5,7 +5,7 @@ import React from 'react';
 
 const GoogleLogin = () => {
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/auth/google'; // يوجه إلى نهاية الباك اند
+    window.location.href = 'https://socialmedia-socket-oi.onrender.com/auth/google'; // يوجه إلى نهاية الباك اند
   };
   return (
      <Box sx={{ my: 2 }}>

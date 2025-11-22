@@ -26,7 +26,7 @@ const { Server } = require("socket.io");
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://socialmedia-socket-oi.onrender.com",
     credentials: true,
   },
 });
@@ -39,7 +39,7 @@ app.set("userSockets", userSockets);
 //========================================== cors =======================================
 app.use(
   cors({
-    origin: "http://localhost:5173", 
+    origin: "https://socialmedia-socket-oi.onrender.com", 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );

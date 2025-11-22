@@ -17,7 +17,7 @@ export const SocketProvider = ({ children }) => {
     // ⚠️ يتم إنشاء الاتصال فقط إذا كان المستخدم مسجلاً الدخول
     if (isAuthenticated && user?._id) {
       // 1. إنشاء الاتصال (تأكد من العنوان والمنفذ)
-      const newSocket = io("http://localhost:3000", {
+      const newSocket = io("https://socialmedia-socket-oi.onrender.com", {
         // لا تستخدم /notifications هنا، اجعلها على root path
         withCredentials: true,
         transports: ["websocket"],

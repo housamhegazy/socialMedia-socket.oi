@@ -5,7 +5,7 @@ export const postsApi = createApi({
   reducerPath: "postsApi",
   tagTypes: ["Post"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: "https://socialmedia-socket-oi.onrender.com",
     credentials: "include",
   }),
   endpoints: (builder) => ({

@@ -5,7 +5,7 @@ export const commentApi = createApi({
   reducerPath: "commentApi",
   tagTypes: ["Comment"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: "https://socialmedia-socket-oi.onrender.com",
     credentials: "include",
   }),
   endpoints: (builder) => ({

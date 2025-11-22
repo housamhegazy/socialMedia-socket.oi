@@ -1,22 +1,25 @@
 // Need to use the React-specific entry point to import createApi
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 // Define a service using a base URL and expected endpoints
 export const userApi = createApi({
-  reducerPath: 'userApi',
-  tagTypes: ['User'],
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:3000', credentials: 'include'  }),
+  reducerPath: "userApi",
+  tagTypes: ["User"],
+  baseQuery: fetchBaseQuery({
+    baseUrl: "https://socialmedia-socket-oi.onrender.com",
+    credentials: "include",
+  }),
   endpoints: (builder) => ({
     getUserByName: builder.query({
       query: () => `/api/users/me/profile`,
-      providesTags: ['User'],
+      providesTags: ["User"],
     }),
     //get any user profile in website
     getUserByUserName: builder.query({
       query: (username) => `/api/users/${username}`,
-      providesTags: ['User'],
+      providesTags: ["User"],
     }),
-        // ✅ Sign up new user
+    // ✅ Sign up new user
     signup: builder.mutation({
       query: (body) => ({
         url: "/api/users/register",
@@ -36,29 +39,36 @@ export const userApi = createApi({
       // invalidatesTags: ["User"],
     }),
     //signout
-     signOut: builder.mutation({
+    signOut: builder.mutation({
       query: () => ({
-        url: '/api/users/logout',
-        method: 'POST',
+        url: "/api/users/logout",
+        method: "POST",
       }),
       // invalidatesTags: ['User'],
     }),
-     updateAvatar: builder.mutation({
+    updateAvatar: builder.mutation({
       query: (formData) => ({
-        url: '/api/users/edit',
-        method: 'PUT',
-        body:formData,
+        url: "/api/users/edit",
+        method: "PUT",
+        body: formData,
       }),
-      invalidatesTags: ['User'],
+      invalidatesTags: ["User"],
     }),
     //search
-    searchUsers : builder.query({
-      query:(query)=> `/api/users/search?svalue=${query}`,
-      providesTags: ['User'],
-    })
+    searchUsers: builder.query({
+      query: (query) => `/api/users/search?svalue=${query}`,
+      providesTags: ["User"],
+    }),
   }),
-})
+});
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetUserByNameQuery,useGetUserByUserNameQuery ,useSignupMutation,
-  useSigninMutation,useSignOutMutation,useSearchUsersQuery,useUpdateAvatarMutation } = userApi
+export const {
+  useGetUserByNameQuery,
+  useGetUserByUserNameQuery,
+  useSignupMutation,
+  useSigninMutation,
+  useSignOutMutation,
+  useSearchUsersQuery,
+  useUpdateAvatarMutation,
+} = userApi;

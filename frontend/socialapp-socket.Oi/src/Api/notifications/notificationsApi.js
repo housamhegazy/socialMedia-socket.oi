@@ -6,7 +6,7 @@ export const notificationApi = createApi({
   reducerPath: "notificationApi",
   tagTypes: ["Notification", "UnreadCount"], // 💡 تم إضافة Tag للعداد
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3000",
+    baseUrl: "https://socialmedia-socket-oi.onrender.com",
     credentials: "include",
   }),
   endpoints: (builder) => ({

@@ -5,7 +5,7 @@ import React from 'react';
 
 const FacebooklogIn = () => {
   const handleFacebook = () => {
-    window.location.href = 'http://localhost:3000/auth/facebook'; // يوجه إلى نهاية الباك اند
+    window.location.href = 'https://socialmedia-socket-oi.onrender.com/auth/facebook'; // يوجه إلى نهاية الباك اند
   };
   return (
      <Box sx={{ my: 2 }}>
