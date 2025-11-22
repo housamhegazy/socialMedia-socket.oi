@@ -27,7 +27,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: [
-      "https://frontend-domain-here.com", 
+      "https://socialmediaweb20.netlify.app", 
       "http://localhost:5173"
     ],
     credentials: true,
@@ -43,7 +43,7 @@ app.set("userSockets", userSockets);
 app.use(
   cors({
     origin: [
-      "https://frontend-domain-here.com", 
+      "https://socialmediaweb20.netlify.app", 
       "http://localhost:5173"
     ], 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
