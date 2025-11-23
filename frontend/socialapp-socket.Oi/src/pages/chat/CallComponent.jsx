@@ -211,16 +211,16 @@ const CallComponent = ({ targetUserId }) => {
 
   return (
     <Box sx={{ p: 2, border: "1px solid #ccc", mt: 2 }}>
-      <Typography variant="h6">حالة المكالمة: {callStatus}</Typography>
+      <Typography variant="h6">call status : {callStatus}</Typography>
       {openVedioCallCard && (
-        <>
+        <Box sx={{width:"100%",display:"flex",justifyContent:"center",flexDirection:"column",zIndex:"1000",alignItems:"center"}}>
           <video
             ref={localVideoRef}
             autoPlay
             muted
             style={{
-              width: "100%",
-              height: "500px",
+              width: "80%",
+              height: "20vh",
               backgroundColor: "#000",
               margin: "5px",
             }}
@@ -231,13 +231,14 @@ const CallComponent = ({ targetUserId }) => {
             ref={remoteVideoRef}
             autoPlay
             style={{
-              width: "100%",
-              height: "500px",
+              width: "80%",
+              height: "20vh",
+            
               backgroundColor: "#333",
               margin: "5px",
             }}
           />
-        </>
+        </Box>
       )}
 
       <Box sx={{ mt: 2 }}>
@@ -248,7 +249,7 @@ const CallComponent = ({ targetUserId }) => {
             onClick={startCall}
             disabled={!targetUserId || !socket}
           >
-            بدء مكالمة
+            start call
           </Button>
         )}
 
@@ -261,14 +262,14 @@ const CallComponent = ({ targetUserId }) => {
               onClick={handleAnswerClick}
               sx={{ mr: 1 }}
             >
-              رد
+              accept
             </Button>
           </>
         )}
 
         {(callStatus === "calling" || callStatus === "connected") && (
           <Button variant="contained" color="error" onClick={endCall}>
-            إنهاء المكالمة
+             end call
           </Button>
         )}
       </Box>

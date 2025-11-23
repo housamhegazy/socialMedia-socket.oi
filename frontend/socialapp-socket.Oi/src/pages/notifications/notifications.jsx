@@ -102,7 +102,7 @@ const Notifications = () => {
           mb: 3,
         }}
       >
-        <Typography variant="h6" fontWeight="bold">
+        <Typography sx={{fontSize:"15px"}} fontWeight="bold">
           Notifications ({notifications.length})
         </Typography>
         <Button
@@ -110,10 +110,11 @@ const Notifications = () => {
           onClick={handleMarkAllAsRead}
           variant="outlined"
           size="small"
+          sx={{fontSize:"12px",textTransform:"none"}}
           color="inherit"
           disabled={!notifications.some((n) => !n.isRead) || isMarking} // تعطيل الزر إذا لم يكن هناك غير مقروء
         >
-          mark all as resd
+          mark all as read
         </Button>
       </Box>
 
@@ -167,11 +168,12 @@ const Notifications = () => {
                     primary={
                       <Box>
                         <Typography
+                        color="inherit"
                           component="span"
                           variant="body1"
                           fontWeight={!notif.isRead ? "bold" : "normal"}
                         >
-                          <span style={{ color: theme.palette.primary.main }}>
+                          <span style={{ color: theme.palette.text.secondary}}>
                             {notif.sender?.name}
                           </span>
                           {notif.type === "reply" &&

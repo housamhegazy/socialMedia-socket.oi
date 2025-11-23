@@ -1,14 +1,18 @@
 // src/components/Chat/ChatDetail.jsx
 
 import React, { useEffect, useState, useRef } from "react";
-import { useGetChatDetailsQuery, useGetMessagesQuery } from "../../Api/chatApi/chatApi";
+import {
+  useGetChatDetailsQuery,
+  useGetMessagesQuery,
+} from "../../Api/chatApi/chatApi";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocket } from "../../Api/notifications/context/SocketContext"; // 💡 استخدام الـ Hook المشترك
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, useTheme } from "@mui/material";
 import CallComponent from "./CallComponent";
 
 const ChatDetail = () => {
+  const theme = useTheme()
   const { chatId } = useParams(); // جلب الـ ID من URL
   // @ts-ignore
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -77,14 +81,15 @@ const ChatDetail = () => {
 
   const { data: chatDetails } = useGetChatDetailsQuery(chatId);
   // دالة لتحديد ID المستخدم الآخر
-const getRecipientId = (chat, currentUserId) => {
+  const getRecipientId = (chat, currentUserId) => {
     if (!chat || !chat.members) return null;
-    const recipient = chat.members.find(member => member._id !== currentUserId);
+    const recipient = chat.members.find(
+      (member) => member._id !== currentUserId
+    );
     return recipient ? recipient._id : null;
-};
+  };
 
-const recipientId = getRecipientId(chatDetails, currentUser._id);
-
+  const recipientId = getRecipientId(chatDetails, currentUser._id);
 
   if (isLoading || isFetching)
     return <Typography>Loading messages...</Typography>;
@@ -92,65 +97,108 @@ const recipientId = getRecipientId(chatDetails, currentUser._id);
     return <Typography color="error">يرجى تسجيل الدخول.</Typography>;
 
   return (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      height: "100vh",
+      bgcolor: theme.palette.background.paper,
+    }}
+  >
+    {/* 👇 الجزء العلوي الثابت (CallComponent) */}
+    {recipientId && (
+      <Box
+        sx={{
+          p: 1.5,
+          borderBottom: "1px solid #ccc",
+          backgroundColor: theme.palette.background.paper,
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+        }}
+      >
+        <CallComponent targetUserId={recipientId} />
+      </Box>
+    )}
+
+    {/* 👇 صندوق الرسائل (Scrollable) */}
     <Box
       sx={{
+        flexGrow: 1,
+        overflowY: "auto",
+        p: 2,
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        justifyContent: "flex-end",
+        gap: 1,
       }}
     >
-      <Box sx={{ overflowY: "auto", p: 2 }}>
-        {recipientId && (
-            <CallComponent 
-                targetUserId={recipientId} 
-            />
-        )}
-        {messages.map((msg) => (
-          <Box
-            key={msg._id || Math.random()} // نستخدم الـ ID من DB، أو Math.random() إذا لم يكن متاحًا بعد (لا يفضل)
+      {messages.map((msg) => (
+        <Box
+          key={msg._id || Math.random()}
+          sx={{
+            display: "flex",
+            justifyContent:
+              msg.sender._id === currentUser._id ? "flex-end" : "flex-start",
+          }}
+        >
+          <Typography
             sx={{
-              textAlign: msg.sender._id === currentUser._id ? "right" : "left",
-              mb: 1,
+              p: 1.2,
+              borderRadius: "18px",
+              maxWidth: "70%",
+              fontSize: "0.95rem",
+              bgcolor:
+                msg.sender._id === currentUser._id
+                  ? "#1877f2"
+                  : "#e4e6eb",
+              color:
+                msg.sender._id === currentUser._id ? "white" : "black",
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                display: "inline-block",
-                p: 1,
-                borderRadius: "10px",
-                maxWidth: "70%",
-                backgroundColor:
-                  msg.sender._id === currentUser._id ? "#1976d2" : "#e0e0e0",
-                color: msg.sender._id === currentUser._id ? "white" : "black",
-              }}
-            >
-              {msg.text}
-            </Typography>
-          </Box>
-        ))}
-        <div ref={messagesEndRef} />
-      </Box>
-
-      <Box sx={{ p: 1, borderTop: "1px solid #ccc" }}>
-        <input
-          type="text"
-          placeholder="اكتب رسالتك..."
-          style={{ width: "100%", padding: "10px" }}
-          onKeyDown={(e) => {
-            // @ts-ignore
-            if (e.key === "Enter" && e.target.value.trim()) {
-              // @ts-ignore
-              sendMessage(e.target.value.trim());
-              // @ts-ignore
-              e.target.value = ""; // مسح حقل الإدخال
-            }
-          }}
-        />
-      </Box>
+            {msg.text}
+          </Typography>
+        </Box>
+      ))}
+      <div ref={messagesEndRef}></div>
     </Box>
-  );
+
+    {/* 👇 صندوق الكتابة ثابت تحت */}
+    <Box
+      sx={{
+        p: 1.5,
+        borderTop: "1px solid #ccc",
+        bgcolor: theme.palette.background.paper,
+        display: "flex",
+        alignItems: "center",
+        gap: 1,
+        position: "sticky",
+        bottom: 0,
+        zIndex: 10,
+      }}
+    >
+      <input
+        type="text"
+        placeholder="Write a message..."
+        style={{
+          width: "100%",
+          padding: "12px 14px",
+          borderRadius: "20px",
+          border: "1px solid #ccc",
+          outline: "none",
+          fontSize: "1rem",
+        }}
+        onKeyDown={(e) => {
+          const input = e.currentTarget;
+          if (e.key === "Enter" && input.value.trim()) {
+            sendMessage(input.value.trim());
+            input.value = "";
+          }
+        }}
+      />
+    </Box>
+  </Box>
+);
+
 };
 
 export default ChatDetail;
