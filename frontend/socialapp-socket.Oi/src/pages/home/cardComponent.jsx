@@ -179,7 +179,7 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
                   PaperProps={{
                     sx: {
                       mt: 1,
-                      minWidth: 180,
+                      minWidth: 60,
                       borderRadius: 2,
                       boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                     },

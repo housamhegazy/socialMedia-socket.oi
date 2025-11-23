@@ -401,7 +401,7 @@ const UserProfilePage = () => {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: "2rem" }}>
+    <Container maxWidth="lg" sx={{ paddingTop: "2rem",p:0 }}>
       {/* صفحة المستخدم */}
       <Grid container spacing={4}>
         {/* قسم معلومات المستخدم */}
@@ -537,10 +537,10 @@ const UserProfilePage = () => {
             {isMyProfile && (
               <Button
                 onClick={()=>{navigate("/user/friends")}}
-                variant="contained"
-                color="primary"
+                variant="outlined"
+                color="inherit"
                 fullWidth
-                sx={{ marginBottom: 2 }}
+                sx={{ marginBottom: 2 ,textTransform:"none",width:"150px"}}
               >
                 my friends
               </Button>
@@ -601,7 +601,7 @@ const UserProfilePage = () => {
         {/* create post */}
         {isMyProfile && <PostComposer user={currentUser} />}
         <Grid sx={{ width: "100%" }}>
-          <Paper elevation={3} sx={{ padding: 2, width: "100%" }}>
+          <Paper elevation={3} sx={{  width: "100%" }}>
             {posts?.length > 0 && (
               <>
                 {isMyProfile && (
@@ -626,7 +626,7 @@ const UserProfilePage = () => {
                         PaperProps={{
                           sx: {
                             mt: 1,
-                            minWidth: 180,
+                            minWidth: 60,
                             borderRadius: 2,
                             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
                           },
