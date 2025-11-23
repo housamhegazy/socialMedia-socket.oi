@@ -446,8 +446,8 @@ const UserProfilePage = () => {
                     src={preview || userProfile?.avatar}
                     alt={userProfile?.name}
                     sx={{
-                      width: 150,
-                      height: 150,
+                      width: {xs:100,sm:150},
+                      height: {xs:100,sm:150},
                       mb: 2,
                       border: "3px solid #eee",
                       boxShadow: 3,

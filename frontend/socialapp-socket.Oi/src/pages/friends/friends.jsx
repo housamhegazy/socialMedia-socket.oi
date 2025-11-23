@@ -86,18 +86,19 @@ const FriendsList = () => {
         variant="h4"
         sx={{
           mb: 4,
-          fontWeight: 800,
+          fontWeight: {xs:200,sm:800},
           color: "#3f51b5",
-          textAlign: "right",
+          textAlign: "center",
           display: "flex",
+          fontSize:{xs:"15px",sm:"20px"},
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "center",
         }}
       >
-        قائمة الأصدقاء ({friends.length}) <Group sx={{ mr: 1, fontSize: 35 }} />
+        friends list  ({friends.length})  
       </Typography>
 
-      <Grid container spacing={4} justifyContent="flex-end">
+      <Grid container spacing={4} justifyContent="center">
         {friends.map((friend) => (
           // كل صديق في عمود يأخذ 3 وحدات من أصل 12 (4 بطاقات في الصف الواحد)
           <Grid key={friend._id}>
@@ -126,8 +127,8 @@ const FriendsList = () => {
                   src={friend.avatar || ""}
                   alt={friend.username}
                   sx={{
-                    width: 100,
-                    height: 100,
+                    width: {xs:50,sm:100},
+                    height: {xs:50,sm:100},
                     mb: 2,
                     border: "4px solid #3f51b5",
                   }}
@@ -139,27 +140,28 @@ const FriendsList = () => {
                   {friend.name}
                 </Typography>
                 <Divider sx={{ my: 1.5, width: "80%" }} />
-                <Typography sx={{ fontWeight: 100 }}>
+                <Typography sx={{ fontWeight: 50 }}>
                   @{friend.username}
                 </Typography>
               </CardContent>
 
               <CardActions sx={{ justifyContent: "center", gap: 1, pb: 2 }}>
                 {/* زر إرسال رسالة (بدون معالج) */}
-                <Tooltip title={`مراسلة ${friend.username}`} placement="bottom">
+                <Tooltip title={`message ${friend.username}`} placement="bottom">
                   <Button
                     onClick={() => {
                       const receiverId = friend._id;
                       handleSendmessage(receiverId);
                     }}
                     variant="outlined"
-                    color="primary"
+                    color="inherit"
                     size="small"
                     startIcon={<Send />}
                     sx={{
                       borderRadius: 5,
                       width: "45%",
                       textTransform: "none",
+                      fontSize:"12px"
                     }}
                   >
                     message
@@ -178,6 +180,7 @@ const FriendsList = () => {
                       borderRadius: 5,
                       width: "45%",
                       textTransform: "none",
+                      fontSize:"12px"
                     }}
                   >
                     delete

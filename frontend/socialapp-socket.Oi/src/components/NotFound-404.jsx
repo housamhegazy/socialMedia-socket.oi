@@ -34,7 +34,7 @@ const Err_404Page = () => {
     <Box
       sx={{
         textAlign: "center",
-        mt: 8,
+        m: 4,
         p: 3,
         backgroundColor: isNotFoundError && theme.palette.background.default,
         borderRadius: 2,
@@ -47,13 +47,14 @@ const Err_404Page = () => {
     >
       <Typography
         variant="h1"
+        sx={{fontSize:{xs:"20px",sm:"60px"}}}
         color={isNotFoundError && theme.palette.text.primary}
         gutterBottom
       >
         {statusDisplay}
       </Typography>
 
-      <Typography variant="h4" gutterBottom>
+      <Typography component="p" gutterBottom>
         {title}
       </Typography>
 

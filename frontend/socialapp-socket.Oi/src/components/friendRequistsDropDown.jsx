@@ -83,17 +83,10 @@ const FriendRequestsDropdown = () => {
           px: { xs: 0.5 },
           borderRadius: 2,
           fontWeight: "bold",
-          p: "8px 16px",
-          minWidth: 150,
-          // backgroundColor: requestsCount > 0 ? "#ff9800" : "primary.main", // لون مميز عند وجود طلبات
-          // "&:hover": {
-          //   backgroundColor: requestsCount > 0 ? "#e68a00" : "primary.dark",
-          // },
         }}
-        startIcon={<GroupAdd />}
       >
         <Badge badgeContent={requestsCount} color="error">
-          <NotificationAdd />
+          <GroupAdd />
         </Badge>
         
       </Button>
@@ -118,8 +111,8 @@ const FriendRequestsDropdown = () => {
         sx={{
           mt: 1,
           ".MuiPaper-root": {
-            minWidth: 300,
-            maxWidth: 400,
+            minWidth: {xs:200,sm:300},
+            maxWidth: {xs:200,sm:400},
             borderRadius: 2,
             boxShadow: "0 8px 16px rgba(0,0,0,0.2)",
           },
@@ -129,8 +122,9 @@ const FriendRequestsDropdown = () => {
           variant="h6"
           sx={{
             p: 2,
-            fontWeight: 700,
-            color: "primary.main",
+            fontSize:{xs:"12px",sm:"15px"},
+            fontWeight: {xs:200,sm:700},
+            color: "inherit",
             textAlign: "right",
           }}
         >
@@ -150,7 +144,7 @@ const FriendRequestsDropdown = () => {
         {!isLoading && requestsCount === 0 && !isError && (
           <MenuItem onClick={handleClose} disabled>
             <ListItemText
-              sx={{ textAlign: "right" }}
+              sx={{ textAlign: "right",fontSize:{xs:"12px",sm:"15px"} }}
               primary="لا يوجد طلبات صداقة معلقة."
             />
           </MenuItem>
@@ -173,15 +167,15 @@ const FriendRequestsDropdown = () => {
             sx={{
               gap: 1,
               py: 1.5,
-              // استخدام Flexbox لعكس الترتيب في الـ RTL
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              flexWrap:"wrap"
             }}
           >
-            <ListItemIcon sx={{ minWidth: 40 }}>
+            <ListItemIcon sx={{ minWidth: 10 }}>
               <Avatar
-                src={request.sender?.profilePicture || ""}
+                src={request.sender?.avatar || ""}
                 alt={request.sender?.username}
               >
                 <Person />
@@ -208,7 +202,7 @@ const FriendRequestsDropdown = () => {
               sx={{
                 borderRadius: 5,
                 whiteSpace: "nowrap",
-                minWidth: 90,
+                // minWidth: 90,
               }}
               startIcon={
                 isAccepting ? (
@@ -218,7 +212,7 @@ const FriendRequestsDropdown = () => {
                 )
               }
             >
-              قبول
+              accept
             </Button>
 
             {/* زر الرفض (إضافة بسيطة) */}

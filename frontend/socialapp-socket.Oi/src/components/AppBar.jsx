@@ -1,6 +1,6 @@
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import { Avatar, IconButton, Box, Button } from "@mui/material";
+import { Avatar, IconButton, Box, Button, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -65,7 +65,7 @@ const AppBarComponent = ({ handleDrawerToggle, theme, handleTheme }) => {
 
         {isAuthenticated && (
           <>
-            <Box sx={{mr:3}}>
+            <Box sx={{mr:1}}>
               <FriendRequestsDropdown />
             </Box>
             <Link
@@ -76,10 +76,14 @@ const AppBarComponent = ({ handleDrawerToggle, theme, handleTheme }) => {
                 marginRight: 10,
               }}
             >
-              {currentUser.name}
+              <Typography sx={{fontSize:{xs:"12px",sm:"15px"}}}>{currentUser.name}</Typography>
             </Link>
             <Avatar
-              sx={{ cursor: "pointer" }}
+            onClick = {()=>{
+              navigate(`/user/${currentUser?.username}`)
+            }}
+              sx={{ cursor: "pointer",width: {xs:30,sm:40},
+                    height: {xs:30,sm:40}, }}
               alt={"fullName"}
               src={currentUser?.avatar}
             />
