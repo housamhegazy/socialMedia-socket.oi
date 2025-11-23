@@ -58,9 +58,9 @@ const FriendRequestsDropdown = () => {
       await acceptRequest(requestId).unwrap();
 
       // يفضل استخدام مكتبة مثل SweetAlert2 لعرض رسالة نجاح
-      console.log(`تم قبول طلب الصداقة من ${senderUsername}`);
+      console.log(` requist accepted from ${senderUsername}`);
     } catch (error) {
-      console.error("فشل في قبول الطلب:", error);
+      console.error("failed to accept requist", error);
       // عرض رسالة خطأ
     }
   };
@@ -145,7 +145,7 @@ const FriendRequestsDropdown = () => {
           <MenuItem onClick={handleClose} disabled>
             <ListItemText
               sx={{ textAlign: "right",fontSize:{xs:"12px",sm:"15px"} }}
-              primary="لا يوجد طلبات صداقة معلقة."
+              primary="No Friend Requists"
             />
           </MenuItem>
         )}
