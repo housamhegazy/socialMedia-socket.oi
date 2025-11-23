@@ -96,11 +96,16 @@ console.log(removeImage);
     <Dialog
       open
       fullWidth
-      maxWidth="sm"
+      // maxWidth="sm"
+    
       sx={{
+        
+        m:0,
         "& .MuiDialog-paper": {
           borderRadius: "16px",
-          padding: 2,
+          width:"100%",
+          maxWidth:{xs:"100%",sm:"600px"},
+          m:"10px",
         },
       }}
     >
@@ -127,16 +132,16 @@ console.log(removeImage);
       {/* المحتوى */}
       <DialogContent
         dividers
-        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 1,m:0,p:.5 }}
       >
         {/* صورة المستخدم */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <Avatar
             alt="User"
             src={post?.owner.avatar}
-            sx={{ width: 40, height: 40 }}
+            sx={{ width: 30, height: 30 }}
           />
-          <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+          <Typography variant="body2" sx={{ fontWeight: "bold",fontSize:"14px" }}>
             {post?.owner.name}
           </Typography>
         </Box>
@@ -186,16 +191,13 @@ console.log(removeImage);
         </Box>}
         
 
-        {/* أيقونة Grok / AI */}
-        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-          <GrokIcon />
-        </Box>
+      
 
         {/* زر تحديد الجمهور (Everyone can reply) */}
         <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
           <Public
             sx={{
-              fontSize: "16px",
+              fontSize: "14px",
               color:
                 theme.palette.mode == "dark"
                   ? theme.palette.text.secondary
@@ -239,7 +241,7 @@ console.log(removeImage);
               }}
               aria-label="upload picture"
             >
-              <ImageOutlined />
+              <ImageOutlined sx={{fontSize: 14}}/>
 
               <input
                 onChange={(e) => {
@@ -253,7 +255,7 @@ console.log(removeImage);
             <IconButton>
               <GifBoxOutlined
                 sx={{
-                  fontSize: 20,
+                  fontSize: 14,
                   color:
                     theme.palette.mode == "dark"
                       ? theme.palette.text.secondary
@@ -264,7 +266,7 @@ console.log(removeImage);
             <IconButton>
               <FormatListBulletedOutlined
                 sx={{
-                  fontSize: 20,
+                  fontSize: 14,
                   color:
                     theme.palette.mode == "dark"
                       ? theme.palette.text.secondary
@@ -275,7 +277,7 @@ console.log(removeImage);
             <IconButton>
               <SentimentSatisfiedOutlined
                 sx={{
-                  fontSize: 20,
+                  fontSize: 14,
                   color:
                     theme.palette.mode == "dark"
                       ? theme.palette.text.secondary
@@ -286,7 +288,7 @@ console.log(removeImage);
             <IconButton>
               <CalendarTodayOutlined
                 sx={{
-                  fontSize: 20,
+                  fontSize: 14,
                   color:
                     theme.palette.mode == "dark"
                       ? theme.palette.text.secondary
@@ -297,7 +299,7 @@ console.log(removeImage);
             <IconButton>
               <LocationOnOutlined
                 sx={{
-                  fontSize: 20,
+                  fontSize: 14,
                   color:
                     theme.palette.mode == "dark"
                       ? theme.palette.text.secondary
@@ -310,14 +312,14 @@ console.log(removeImage);
       </DialogContent>
 
       {/* الأزرار */}
-      <DialogActions sx={{ justifyContent: "space-between", px: 3 }}>
-        <Button variant="outlined">Cancel</Button>
+      <DialogActions sx={{ justifyContent: "flex-end"  }}>
+        
         <Button
           onClick={() => {
             handleEdit();
           }}
           variant="contained"
-          sx={{ borderRadius: "20px" }}
+          sx={{ borderRadius: "20px" ,fontSize:"12px"}}
         >
         {updating ? "loading" : "Update"}
           

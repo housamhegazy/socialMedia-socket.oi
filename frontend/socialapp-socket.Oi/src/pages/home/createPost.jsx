@@ -104,12 +104,12 @@ const PostComposer = ({ user }) => {
       }}
     >
       {/* 2. منطقة كتابة المنشور */}
-      <Box sx={{ p: 2, display: "flex", gap: 1 }}>
+      <Box sx={{ display: "flex", gap: 1 }}>
         {/* صورة المستخدم (Avatar) */}
         <Avatar
           alt="User"
           src={user?.avatar}
-          sx={{ width: 48, height: 48, mt: 1 ,cursor:"pointer"}}
+          sx={{ width: {xs:25,sm:48}, height: {xs:25,sm:48}, mt: 1 ,cursor:"pointer"}}
             onClick={() => navigate(`/user/${user?.username}`)}
         />
 
@@ -123,7 +123,7 @@ const PostComposer = ({ user }) => {
             value={postText}
             onChange={(e) => setPostText(e.target.value)}
             sx={{
-              fontSize: "20px",
+              fontSize: "14px",
               py: 1.5,
               color: theme.palette.text.primary,
             }}
@@ -168,16 +168,12 @@ const PostComposer = ({ user }) => {
               )}
             </Box>
           )}
-          {/* أيقونة Grok / AI */}
-          <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-            <GrokIcon />
-          </Box>
 
           {/* زر تحديد الجمهور (Everyone can reply) */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Public
               sx={{
-                fontSize: "16px",
+                fontSize: "10px",
                 color:
                   theme.palette.mode == "dark"
                     ? theme.palette.text.secondary
@@ -188,6 +184,7 @@ const PostComposer = ({ user }) => {
             <Typography
               variant="caption"
               sx={{
+                fontSize:{xs:"10px", sm:"12px"},
                 color:
                   theme.palette.mode == "dark"
                     ? theme.palette.text.secondary
@@ -221,7 +218,7 @@ const PostComposer = ({ user }) => {
                 }}
                 aria-label="upload picture"
               >
-                <ImageOutlined />
+                <ImageOutlined  sx={{fontSize: 14}}/>
 
                 <input
                   onChange={(e) => {
@@ -235,7 +232,7 @@ const PostComposer = ({ user }) => {
               <IconButton>
                 <GifBoxOutlined
                   sx={{
-                    fontSize: 20,
+                    fontSize: 14,
                     color:
                       theme.palette.mode == "dark"
                         ? theme.palette.text.secondary
@@ -246,7 +243,7 @@ const PostComposer = ({ user }) => {
               <IconButton>
                 <FormatListBulletedOutlined
                   sx={{
-                    fontSize: 20,
+                    fontSize: 14,
                     color:
                       theme.palette.mode == "dark"
                         ? theme.palette.text.secondary
@@ -257,7 +254,7 @@ const PostComposer = ({ user }) => {
               <IconButton>
                 <SentimentSatisfiedOutlined
                   sx={{
-                    fontSize: 20,
+                    fontSize: 14,
                     color:
                       theme.palette.mode == "dark"
                         ? theme.palette.text.secondary
@@ -268,7 +265,7 @@ const PostComposer = ({ user }) => {
               <IconButton>
                 <CalendarTodayOutlined
                   sx={{
-                    fontSize: 20,
+                    fontSize: 14,
                     color:
                       theme.palette.mode == "dark"
                         ? theme.palette.text.secondary
@@ -279,7 +276,7 @@ const PostComposer = ({ user }) => {
               <IconButton>
                 <LocationOnOutlined
                   sx={{
-                    fontSize: 20,
+                    fontSize: 14,
                     color:
                       theme.palette.mode == "dark"
                         ? theme.palette.text.secondary
@@ -299,8 +296,8 @@ const PostComposer = ({ user }) => {
                 textTransform: "none",
                 fontWeight: "bold",
                 borderRadius: "20px",
-                minWidth: "80px",
-                padding: "8px 16px",
+                // minWidth: "40px",
+                padding: "8px",
               }}
             >
               {isLoading ? "Posting..." : "Post"}

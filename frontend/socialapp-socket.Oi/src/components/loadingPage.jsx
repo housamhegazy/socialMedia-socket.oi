@@ -18,7 +18,7 @@ const LoadingPage = ({ text = "Loading..." }) => {
       }}
     >
       <CircularProgress
-        size={60}
+        size={30}
         thickness={4}
         sx={{
           color:
@@ -31,7 +31,7 @@ const LoadingPage = ({ text = "Loading..." }) => {
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 500,
+          fontWeight: 400,
           letterSpacing: 0.5,
           opacity: 0.8,
         }}
