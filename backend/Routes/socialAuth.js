@@ -8,8 +8,8 @@ function setAuthCookie(res, token) {
   // إعداد الكوكيز مع الخيارات المناسبة
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "Strict" : "Lax",
+    secure: true, //process.env.NODE_ENV === "production"
+    sameSite: "None",//process.env.NODE_ENV === "production" ? "Strict" : "Lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 أسبوع
   });
 }
