@@ -14,7 +14,7 @@ passport.use(
       // ... (الإعدادات تبقى كما هي)
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "https://socialmedia-socket-oi.onrender.com/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, cb) => {
       try {
@@ -88,7 +88,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      callbackURL: "/auth/facebook/callback",
+      callbackURL: "https://socialmedia-socket-oi.onrender.com/auth/facebook/callback",
       profileFields: ["id", "displayName", "photos", "email"],
     },
     async (accessToken, refreshToken, profile, cb) => {
@@ -232,15 +232,3 @@ passport.use(
     }
   )
 )
-// passport.serializeUser((user, done) => {
-//   done(null, user._id);
-// })
-
-// passport.deserializeUser(async (id, done) => {
-//   try {
-//     const user = await User.findById(id).select("-password");
-//     done(null, user);
-//   } catch (error) {
-//     done(error, null);
-//   }
-// });
