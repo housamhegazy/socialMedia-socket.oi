@@ -31,7 +31,7 @@ const AddComment = ({
   const theme = useTheme();
   const navigate = useNavigate();
   //===================create post ===========================
-  const [createComment, { isLoading, isError, Error }] =
+  const [createComment] =
     useCreateCommentMutation();
   //================= create reply ==========================
   const [createReply] = useCreateReplyMutation();
@@ -47,9 +47,9 @@ const AddComment = ({
   const [replyText, setreplyText] = useState("");
   const [activeReplyId, setActiveReplyId] = useState(null);
   //=========================== DELETE COMMENT ===============================
-  const [deleteComment, { isLoading: deleteLoad }] = useDeleteCommentMutation();
+  const [deleteComment] = useDeleteCommentMutation();
   //=========================== delete reply =====================================
-  const [deleteReply,{isLoading:deleteLoadd}] = useDeleteReplyMutation()
+  const [deleteReply] = useDeleteReplyMutation()
   //================================ send comment ==============================
   const handleSendComment = async () => {
     const postId = post?._id;

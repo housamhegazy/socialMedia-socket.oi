@@ -9,7 +9,6 @@ import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocket } from "../../Api/notifications/context/SocketContext"; // 💡 استخدام الـ Hook المشترك
 import { Typography, Box, useTheme } from "@mui/material";
-import CallComponent from "./CallComponent";
 
 const ChatDetail = () => {
   const theme = useTheme()
@@ -117,7 +116,6 @@ const ChatDetail = () => {
           zIndex: 10,
         }}
       >
-        <CallComponent targetUserId={recipientId} />
       </Box>
     )}
 

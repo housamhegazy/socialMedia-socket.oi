@@ -15,7 +15,6 @@ const Message = require('./Models/Message');
 // const path = require("path");
 // const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
-const callSocketHandler = require('./socketServer'); // 💡 استدعاء ملف الـ Handler الجديد
 //======================================start websocket and socket io ========================================
 //npm install socket.io-client
 //    npm install ws
@@ -111,9 +110,6 @@ io.on("connection", (socket) => {
   // منطق الاتصال عند تسجيل الدخول وجلب الاشعارات
   console.log("user connected", socket.id);
 
-  //======================================= call ======================================
-  callSocketHandler(io, socket);
-  //======================================== ==========================================
   //user joints with ther id
   socket.on("join", (userId) => {
     userSockets.set(userId, socket.id);
