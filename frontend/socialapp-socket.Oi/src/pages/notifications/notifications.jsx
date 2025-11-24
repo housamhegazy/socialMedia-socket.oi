@@ -39,8 +39,7 @@ const Notifications = () => {
     isError,
   } = useGetNotificationsQuery();
   const [
-    deleteNotification,
-    { isLoading: isDeleting, isSuccess: isDeletedSuccessfully },
+    deleteNotification
   ] = useDeleteNotificationMutation();
   const notifications = notificationsData || [];
   const theme = useTheme();
