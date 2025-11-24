@@ -48,8 +48,14 @@ const ChatList = () => {
     if (result.isConfirmed) {
       try {
         await deleteChat(chatId).unwrap();
+        Swal.fire("Deleted!", "The chat has been deleted.", "success");
       } catch (err) {
         console.error("Failed to delete the chat: ", err);
+        Swal.fire(
+          "Error!",
+          "There was an error deleting the chat.",
+          "error"
+        );
       }
     }
   };
