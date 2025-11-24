@@ -103,7 +103,7 @@ const ChatDetail = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
+        height: "100vh", // افترض أن شريط التنقل العلوي بارتفاع 64 بكسل
         bgcolor: theme.palette.background.paper,
       }}
     >
@@ -115,33 +115,35 @@ const ChatDetail = () => {
             borderBottom: "1px solid #ccc",
             backgroundColor: theme.palette.background.paper,
             position: "sticky",
-            top: 0,
+            top: 64,
             zIndex: 10,
           }}
-        ></Box>
+        >
+          {/* يمكن وضع مكون الاتصال هنا */}
+          <Box
+            sx={{
+              p: 1.5,
+              position: "sticky",
+              top: 64,
+              bgColor: theme.palette.background.paper,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              zIndex: 10,
+            }}
+          >
+            <img
+              src={recipient.avatar}
+              alt={recipient?.name}
+              style={{ width: 40, height: 40, borderRadius: "50%" }}
+            />
+            <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+              {recipient.name}
+            </Typography>
+          </Box>
+        </Box>
       )}
-      <Box
-        sx={{
-          p: 1.5,
-          borderBottom: "1px solid #ccc",
-          position: "sticky",
-          top: 0,
-          bgColor: theme.palette.background.paper,
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-          zIndex: 10,
-        }}
-      >
-        <img
-          src={recipient.avatar}
-          alt={recipient?.name}
-          style={{ width: 40, height: 40, borderRadius: "50%" }}
-        />
-        <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-          {recipient.name}
-        </Typography>
-      </Box>
+
       {/* 👇 صندوق الرسائل (Scrollable) */}
       <Box
         sx={{
