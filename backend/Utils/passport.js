@@ -166,7 +166,7 @@ passport.use(
     {
       consumerKey: process.env.X_CONSUMER_KEY,
       consumerSecret: process.env.X_CONSUMER_SECRET,
-      callbackURL: "https://socialmedia-socket-oi.onrender.com//auth/x/callback",
+      callbackURL: "https://socialmedia-socket-oi.onrender.com/auth/x/callback",
       userProfileURL:
         "https://api.x.com/1.1/account/verify_credentials.json?include_email=true",
     },
