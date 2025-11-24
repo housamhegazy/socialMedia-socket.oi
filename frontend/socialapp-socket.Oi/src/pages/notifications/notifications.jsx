@@ -140,118 +140,128 @@ const Notifications = () => {
           ) : (
             notifications.map((notif, index) => (
               <Box
-                onClick={() => {
-                  handleNotificationClick(notif);
-                }}
                 key={notif._id}
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
+                  backgroundColor: !notif.isRead
+                    ? theme.palette.action.hover
+                    : theme.palette.background.paper,
                 }}
               >
-                <ListItem
-                  alignItems="flex-start"
-                  sx={{
-                    py: 2,
-                    cursor: "pointer",
-                    backgroundColor: !notif.isRead
-                      ? theme.palette.action.hover
-                      : theme.palette.background.paper,
-                    transition: "background-color 0.2s",
-                    "&:hover": {
-                      backgroundColor: theme.palette.action.selected,
-                    },
-                  }}
+                <Box
                   onClick={() => {
-                    // الانتقال لصفحة البوست ثم وضع علامة مقروء
-                    if (!notif.isRead) handleMarkAsRead(notif._id);
-                    // navigate(`/post/${notif.postId}`);
+                    handleNotificationClick(notif);
                   }}
                 >
-                  {/* 1. أفاتار المرسل */}
-                  <ListItemAvatar>
-                    <Avatar
-                      src={notif.sender?.avatar}
-                      alt={notif.sender?.name}
-                    />
-                  </ListItemAvatar>
+                  <ListItem
+                    alignItems="flex-start"
+                    sx={{
+                      py: 2,
+                      cursor: "pointer",
+                      backgroundColor: !notif.isRead
+                        ? theme.palette.action.hover
+                        : theme.palette.background.paper,
+                      transition: "background-color 0.2s",
+                      "&:hover": {
+                        backgroundColor: theme.palette.action.selected,
+                      },
+                    }}
+                    onClick={() => {
+                      // الانتقال لصفحة البوست ثم وضع علامة مقروء
+                      if (!notif.isRead) handleMarkAsRead(notif._id);
+                      // navigate(`/post/${notif.postId}`);
+                    }}
+                  >
+                    {/* 1. أفاتار المرسل */}
+                    <ListItemAvatar>
+                      <Avatar
+                        src={notif.sender?.avatar}
+                        alt={notif.sender?.name}
+                      />
+                    </ListItemAvatar>
 
-                  {/* 2. محتوى الإشعار */}
-                  <ListItemText
-                    disableTypography
-                    primary={
-                      <Box>
-                        <Typography
-                          color="inherit"
-                          component="span"
-                          variant="body1"
-                          fontWeight={!notif.isRead ? "bold" : "normal"}
+                    {/* 2. محتوى الإشعار */}
+                    <ListItemText
+                      disableTypography
+                      primary={
+                        <Box>
+                          <Typography
+                            color="inherit"
+                            component="span"
+                            variant="body1"
+                            fontWeight={!notif.isRead ? "bold" : "normal"}
+                          >
+                            <span
+                              style={{ color: theme.palette.text.secondary }}
+                            >
+                              {notif.sender?.name}
+                            </span>
+                            {notif.type === "reply" &&
+                              " replied to your comment "}
+                            {notif.type === "like" && " liked your post "}
+                            {notif.type === "comment" &&
+                              ` commented on your post "${
+                                notif.post?.text
+                                  ? notif.post.text.substring(0, 30) + "..."
+                                  : "..."
+                              }" `}
+                            {/* يمكن إضافة أنواع إشعارات أخرى هنا */}
+                          </Typography>
+
+                          {!notif.isRead && (
+                            <Chip
+                              label="new"
+                              size="small"
+                              color="error"
+                              sx={{ ml: 1, height: 20 }}
+                            />
+                          )}
+                        </Box>
+                      }
+                      secondary={
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            mt: 0.5,
+                            color: "text.secondary",
+                          }}
                         >
-                          <span style={{ color: theme.palette.text.secondary }}>
-                            {notif.sender?.name}
-                          </span>
-                          {notif.type === "reply" &&
-                            " replied to your comment "}
-                          {notif.type === "like" && " liked your post "}
-                          {notif.type === "comment" &&
-                            ` commented on your post "${
-                              notif.post?.text
-                                ? notif.post.text.substring(0, 30) + "..."
-                                : "..."
-                            }" `}
-                          {/* يمكن إضافة أنواع إشعارات أخرى هنا */}
-                        </Typography>
+                          <AccessTime sx={{ fontSize: 14, mr: 0.5 }} />
+                          <Typography variant="caption">
+                            {/* يجب استخدام مكتبة لتنسيق الوقت (مثل date-fns) */}
+                            {/* formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar }) */}
+                            {/* {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar })} */}
+                            {formatDistanceToNow(new Date(notif.createdAt), {
+                              addSuffix: true,
+                              // إذا أردت اللغة العربية، أضف locale: ar
+                              locale: ar,
+                            })}
+                          </Typography>
+                        </Box>
+                      }
+                    />
 
-                        {!notif.isRead && (
-                          <Chip
-                            label="new"
-                            size="small"
-                            color="error"
-                            sx={{ ml: 1, height: 20 }}
-                          />
-                        )}
-                      </Box>
-                    }
-                    secondary={
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          mt: 0.5,
-                          color: "text.secondary",
+                    {/* 3. زر الإجراء السريع */}
+                    {!notif.isRead && (
+                      <Button
+                        size="small"
+                        color="inherit"
+                        onClick={(e) => {
+                          e.stopPropagation(); // 💡 منع التنقل عبر الـ Box
+                          handleMarkAsRead(notif._id); // وضع علامة مقروء فقط
                         }}
                       >
-                        <AccessTime sx={{ fontSize: 14, mr: 0.5 }} />
-                        <Typography variant="caption">
-                          {/* يجب استخدام مكتبة لتنسيق الوقت (مثل date-fns) */}
-                          {/* formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar }) */}
-                          {/* {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar })} */}
-                          {formatDistanceToNow(new Date(notif.createdAt), {
-                            addSuffix: true,
-                            // إذا أردت اللغة العربية، أضف locale: ar
-                            locale: ar,
-                          })}
-                        </Typography>
-                      </Box>
-                    }
-                  />
+                        read
+                      </Button>
+                    )}
+                  </ListItem>
+                  
+                </Box>
 
-                  {/* 3. زر الإجراء السريع */}
-                  {!notif.isRead && (
-                    <Button
-                      size="small"
-                      color="inherit"
-                      onClick={(e) => {
-                        e.stopPropagation(); // 💡 منع التنقل عبر الـ Box
-                        handleMarkAsRead(notif._id); // وضع علامة مقروء فقط
-                      }}
-                    >
-                      read
-                    </Button>
-                  )}
-                </ListItem>
-                <Box sx={{ backgroundColor: theme.palette.background.paper}}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
                   {" "}
                   <IconButton
                     onClick={() => {
@@ -263,10 +273,11 @@ const Notifications = () => {
                     <Delete />
                   </IconButton>
                 </Box>
-                {index < notifications.length - 1 && <Divider component="li" />}
+                
               </Box>
             ))
           )}
+          
         </List>
       </Paper>
     </Box>
