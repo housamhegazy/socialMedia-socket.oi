@@ -12,7 +12,7 @@ router.get("/", AuthMiddleware, async (req, res) => {
     const chats = await Chat.find({
       members: { $in: [userId] }, // ابحث عن المحادثات التي يكون المستخدم طرفاً فيها
     })
-      .populate("members", "username avatar") // جلب بيانات الطرف الآخر
+      .populate("members", "name username avatar") // جلب بيانات الطرف الآخر
       .populate("lastMessage") // جلب آخر رسالة
       .sort({ updatedAt: -1 }); // ترتيب تنازلي حسب آخر تحديث
 
