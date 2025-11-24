@@ -90,9 +90,6 @@ const ChatDetail = () => {
   };
   const recipient = getRecipient(chatDetails);
   const recipientId = recipient?._id;
-  console.log("members:", chatDetails?.members);
-  console.log("currentUserId:", currentUserId);
-  console.log("recipient:", recipient);
   if (isLoading || isFetching)
     return <Typography>Loading messages...</Typography>;
   if (!currentUser)
