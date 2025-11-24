@@ -72,5 +72,22 @@ const members = [senderId, receiverId].map(id => id.toString()).sort();
     res.status(500).json({ message: "Failed to create or retrieve chat.", error: err.message });
   }
 });
+//delete chat
+router.delete('/delete/:chatId', AuthMiddleware, async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const userId = req.user.id; 
+        const chat = await Chat.findOneAndDelete({
+            _id: chatId,
+            members: userId 
+        });
+        if (!chat) {
+            return res.status(404).json({ message: 'المحادثة غير موجودة أو لا تملك صلاحية حذفها.' });
+        }
+        res.status(200).json({ message: 'chat deleted successfully.' });
+    } catch (err) {
+        res.status(500).json({ message: 'فشل في حذف المحادثة.', error: err.message });
+    }
+});
 
 module.exports = router;
