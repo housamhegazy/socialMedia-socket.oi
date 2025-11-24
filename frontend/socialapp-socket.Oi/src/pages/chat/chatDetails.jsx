@@ -139,7 +139,7 @@ const ChatDetail = () => {
           style={{ width: 40, height: 40, borderRadius: "50%" }}
         />
         <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-          {recipient.username}
+          {recipient.name}
         </Typography>
       </Box>
       {/* 👇 صندوق الرسائل (Scrollable) */}
