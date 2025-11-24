@@ -28,15 +28,20 @@ import {
   useGetNotificationsQuery,
   useMarkNotificationAsReadMutation,
 } from "../../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
+import { useState } from "react";
 const Notifications = () => {
   // const { notifications } = useSocket();
   // 🔥 1. جلب قائمة الإشعارات
+  const [deletingId, setDeletingId] = useState(null);
   const {
     data: notificationsData,
     isLoading,
     isError,
   } = useGetNotificationsQuery();
-  const [deleteNotification] = useDeleteNotificationMutation();
+  const [
+    deleteNotification,
+    { isLoading: isDeleting, isSuccess: isDeletedSuccessfully },
+  ] = useDeleteNotificationMutation();
   const notifications = notificationsData || [];
   const theme = useTheme();
   const navigate = useNavigate(); // 💡 تهيئة Hook التنقل
@@ -55,8 +60,15 @@ const Notifications = () => {
   };
 
   // دالة لحذف إشعار
-  const handleDelete = (notificationId) => {
-    deleteNotification(notificationId);
+  const handleDelete = async (notificationId) => {
+    setDeletingId(notificationId); // ضع معرف الإشعار الذي يتم حذفه
+    try {
+      await deleteNotification(notificationId).unwrap();
+    } catch (error) {
+      console.error("Failed to delete notification:", error);
+    } finally {
+      setDeletingId(null); // قم بمسح المعرف بعد الانتهاء
+    }
   };
 
   const handleNotificationClick = (notif) => {
@@ -138,7 +150,7 @@ const Notifications = () => {
               no notifications
             </Typography>
           ) : (
-            notifications.map((notif, index) => (
+            notifications.map((notif) => (
               <Box
                 key={notif._id}
                 sx={{
@@ -258,7 +270,6 @@ const Notifications = () => {
                       </Button>
                     )}
                   </ListItem>
-                  
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -267,17 +278,20 @@ const Notifications = () => {
                     onClick={() => {
                       handleDelete(notif._id);
                     }}
+                    disabled={deletingId === notif._id} // تعطيل الزر أثناء الحذف
                     color="error"
                     sx={{ ml: 1 }}
                   >
-                    <Delete />
+                    {deletingId === notif._id ? (
+                      <CircularProgress color="inherit" size={24} />
+                    ) : (
+                      <Delete />
+                    )}
                   </IconButton>
                 </Box>
-                
               </Box>
             ))
           )}
-          
         </List>
       </Paper>
     </Box>
