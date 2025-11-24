@@ -186,7 +186,7 @@ const SignUpForm = () => {
                   onChange={handleChange}
                   error={!!errors.username}
                   helperText={errors.username}
-                  dir="rtl"
+                  dir="ltr"
                 />
               </Grid>
               {/* الاسم الأول */}
@@ -201,7 +201,7 @@ const SignUpForm = () => {
                   onChange={handleChange}
                   error={!!errors.name}
                   helperText={errors.name}
-                  dir="rtl"
+                  dir="ltr"
                 />
               </Grid>
               {/* البريد الإلكتروني */}
@@ -225,7 +225,7 @@ const SignUpForm = () => {
                   required
                   fullWidth
                   name="password"
-                  label="كلمة المرور"
+                  label=" Password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   value={formData.password}
