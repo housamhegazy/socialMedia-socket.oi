@@ -29,13 +29,15 @@ import {
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { Link, useLocation, useNavigate } from "react-router";
 import GrokIcon from "./grokIcon";
-import { Button } from "@mui/material";
+import { Button, useMediaQuery } from "@mui/material";
 import { useSignOutMutation } from "../Api/user/userApi"; // Your RTK Query hook
 import { useDispatch, useSelector } from "react-redux";
 import { clearAuthUser } from "../Api/user/authSlice";
 // import { useSocket } from "../Api/notifications/context/SocketContext";
 import { useGetUnreadCountQuery } from "../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
 import { useGetUserChatsQuery } from "../Api/chatApi/chatApi";
+import SearchUsers from "./search";
+import SideBar from "./SideBar";
 function ResponsiveDrawer({
   handleDrawerClose,
   handleDrawerTransitionEnd,
@@ -53,10 +55,10 @@ function ResponsiveDrawer({
     // @ts-ignore
     (state) => state.auth
   );
+  const isMobile = useMediaQuery('(max-width:900px)');
+
   //=========================socket notification ===========================
-  const {
-    data: unreadCountData
-  } = useGetUnreadCountQuery(undefined, {
+  const { data: unreadCountData } = useGetUnreadCountQuery(undefined, {
     // 🚨 الشرط الأهم: لا تجلب البيانات إلا إذا كان المستخدم مسجلاً
     skip: !isAuthenticated,
     // أو يمكنك استخدام polling Interval لتحديث العداد بشكل دوري (اختياري)
@@ -79,9 +81,7 @@ function ResponsiveDrawer({
     }
   };
   //================================ chats ==================================================
-  const {
-    data: chats
-  } = useGetUserChatsQuery();
+  const { data: chats } = useGetUserChatsQuery();
   //list items data
   const myList = [
     {
@@ -186,7 +186,9 @@ function ResponsiveDrawer({
       <Divider />
       {/* <Toolbar /> */}
       <List>
-        <Divider />
+        {/* search box */}
+        {isMobile ? <SearchUsers/> : null}
+        {/* <Divider /> */}
         <>
           {myList.map((item, index) => {
             return (

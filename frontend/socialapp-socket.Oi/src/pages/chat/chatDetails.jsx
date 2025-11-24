@@ -111,7 +111,7 @@ const ChatDetail = () => {
       {recipientId && (
         <Box
           sx={{
-            p: 1.5,
+            p: .5,
             borderBottom: "1px solid #ccc",
             backgroundColor: theme.palette.background.paper,
             position: "sticky",
@@ -122,7 +122,7 @@ const ChatDetail = () => {
           {/* يمكن وضع مكون الاتصال هنا */}
           <Box
             sx={{
-              p: 1.5,
+              p: .5,
               position: "sticky",
               top: 64,
               bgColor: theme.palette.background.paper,
