@@ -31,7 +31,7 @@ router.get('/:chatId', AuthMiddleware, async (req, res) => {
             _id: chatId,
             members: req.user.id // تأكد أن المستخدم الحالي (req.user.id) عضو في هذه المحادثة
         })
-        .populate('members', 'username avatar') // 👈 جلب تفاصيل الأعضاء
+        .populate('members', 'name username avatar') // 👈 جلب تفاصيل الأعضاء
         .populate('lastMessage'); // يمكنك جلب تفاصيل آخر رسالة أيضًا إذا أردت
 
         if (!chat) {
@@ -65,7 +65,7 @@ const members = [senderId, receiverId].map(id => id.toString()).sort();
     }
 
     // جلب البيانات بعد التحديث
-    chat = await chat.populate("members", "username avatar");
+    chat = await chat.populate("members", "name username avatar");
 
     res.status(200).json(chat);
   } catch (err) {

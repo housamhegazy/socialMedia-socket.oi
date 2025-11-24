@@ -83,14 +83,16 @@ const ChatDetail = () => {
   // دالة لتحديد ID المستخدم الآخر
   const getRecipient = (chatDetails) => {
     if (!chatDetails || !chatDetails.members) return null;
-    const recipient = chatDetails.members.find(
-      (member) => member._id !== currentUserId
+    const recipient = chatDetails?.members?.find(
+      (member) => String(member._id) !== String(currentUserId)
     );
     return recipient ? recipient : null;
   };
-  const recepient = getRecipient(chatDetails);
-  const recipientId = recepient?._id;
-  console.log("this is recepient", recepient.name);
+  const recipient = getRecipient(chatDetails);
+  const recipientId = recipient?._id;
+  console.log("members:", chatDetails?.members);
+  console.log("currentUserId:", currentUserId);
+  console.log("recipient:", recipient);
   if (isLoading || isFetching)
     return <Typography>Loading messages...</Typography>;
   if (!currentUser)
@@ -105,7 +107,6 @@ const ChatDetail = () => {
         bgcolor: theme.palette.background.paper,
       }}
     >
-      <Typography variant="body1" color="inherit">{recepient?.name}</Typography>
       {/* 👇 الجزء العلوي الثابت (CallComponent) */}
       {recipientId && (
         <Box
@@ -119,7 +120,28 @@ const ChatDetail = () => {
           }}
         ></Box>
       )}
-
+      <Box
+        sx={{
+          p: 1.5,
+          borderBottom: "1px solid #ccc",
+          position: "sticky",
+          top: 0,
+          bgColor: theme.palette.background.paper,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+          zIndex: 10,
+        }}
+      >
+        <img
+          src={recipient.avatar}
+          alt={recipient?.name}
+          style={{ width: 40, height: 40, borderRadius: "50%" }}
+        />
+        <Typography sx={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+          {recipient.username}
+        </Typography>
+      </Box>
       {/* 👇 صندوق الرسائل (Scrollable) */}
       <Box
         sx={{
