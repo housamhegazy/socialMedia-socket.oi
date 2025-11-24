@@ -4,9 +4,12 @@ import { useSelector } from "react-redux";
 import { Button, Box, Typography } from "@mui/material";
 
 const STUN_SERVERS = {
-  iceServers: [
+  iceServers:[
     { urls: "stun:stun.l.google.com:19302" },
-    // أضف المزيد هنا لزيادة الموثوقية
+    { urls: "stun:stun1.l.google.com:19302" },
+    { urls: "stun:stun2.l.google.com:19302" },
+    { urls: "stun:stun3.l.google.com:19302" },
+    { urls: "stun:stun4.l.google.com:19302" },
   ],
 };
 
@@ -22,6 +25,11 @@ const CallComponent = ({ targetUserId }) => {
   const [callStatus, setCallStatus] = useState("idle"); // idle, ringing, calling, connected
   const incomingOfferRef = useRef(null);
   const [openVedioCallCard, setopenVedioCallCard] = useState(false);
+   useEffect(() => {
+    if (socket && currentUser?._id) {
+      socket.emit("join_call", { userId: currentUser._id });
+    }
+  }, [socket, currentUser]);
   // -----------------------------------------------------
   // 1. إدارة الوسائط (Local Stream)
   // -----------------------------------------------------

@@ -28,10 +28,10 @@ const io = new Server(httpServer, {
   cors: {
     origin: [
       "https://socialmediaweb20.netlify.app", 
-      "http://localhost:5173"
     ],
     credentials: true,
   },
+   transports: ["websocket"],
 });
 const userSockets = new Map();
 // Save io + userSockets to app
