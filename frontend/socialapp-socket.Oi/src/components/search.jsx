@@ -98,7 +98,7 @@ const SearchUsers = () => {
                   }}
                 >
                   <Avatar
-                    src={user.profilePicture}
+                    src={user.avatar}
                     alt={user.username}
                     sx={{ width: 40, height: 40 }}
                   />
