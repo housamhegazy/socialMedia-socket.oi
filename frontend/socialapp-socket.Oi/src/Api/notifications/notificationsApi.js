@@ -46,6 +46,16 @@ export const notificationApi = createApi({
           : { type: "Notification", id: notificationId },
       ],
     }),
+    deleteNotification: builder.mutation({
+      query: (notificationId) => ({
+        url: `/notifications/delete/${notificationId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: (result, error, notificationId) => [
+        "UnreadCount",
+        { type: "Notification", id: notificationId },
+      ],
+    }),
   }),
 });
 
@@ -53,4 +63,5 @@ export const {
   useGetNotificationsQuery,
   useGetUnreadCountQuery,
   useMarkNotificationAsReadMutation,
+  useDeleteNotificationMutation,
 } = notificationApi;

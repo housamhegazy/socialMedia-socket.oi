@@ -12,16 +12,19 @@ import {
   Chip, // للمقروء/غير المقروء
   useTheme,
   CircularProgress,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // 💡 استيراد useNavigate
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import {
   AccessTime,
+  Delete,
   MarkEmailRead,
   MarkEmailUnread,
 } from "@mui/icons-material";
 import {
+  useDeleteNotificationMutation,
   useGetNotificationsQuery,
   useMarkNotificationAsReadMutation,
 } from "../../Api/notifications/notificationsApi"; // 💡 تأكد من المسار الصحيح
@@ -33,6 +36,7 @@ const Notifications = () => {
     isLoading,
     isError,
   } = useGetNotificationsQuery();
+  const [deleteNotification] = useDeleteNotificationMutation();
   const notifications = notificationsData || [];
   const theme = useTheme();
   const navigate = useNavigate(); // 💡 تهيئة Hook التنقل
@@ -50,8 +54,13 @@ const Notifications = () => {
     markRead({ markAll: true });
   };
 
+  // دالة لحذف إشعار
+  const handleDelete = (notificationId) => {
+    deleteNotification(notificationId);
+  };
+
   const handleNotificationClick = (notif) => {
-    const postId = notif.post._id
+    const postId = notif.post._id;
     // 1. ضع علامة كمقروء (إذا لم تكن مقروءة بالفعل)
     if (!notif.isRead) {
       handleMarkAsRead(notif._id);
@@ -70,6 +79,7 @@ const Notifications = () => {
     // 3. التنقل
     navigate(targetPath);
   };
+
   // ------------------
   // 🚨 حالات التحميل والخطأ
   // ------------------
@@ -92,7 +102,7 @@ const Notifications = () => {
     );
   }
   return (
-    <Box sx={{ width:"100%", margin: "20px auto", p: 2 }}>
+    <Box sx={{ width: "100%", margin: "20px auto", p: 2 }}>
       {/* ➡️ العنوان والإجراءات العلوية */}
       <Box
         sx={{
@@ -102,7 +112,7 @@ const Notifications = () => {
           mb: 3,
         }}
       >
-        <Typography sx={{fontSize:"15px"}} fontWeight="bold">
+        <Typography sx={{ fontSize: "15px" }} fontWeight="bold">
           Notifications ({notifications.length})
         </Typography>
         <Button
@@ -110,7 +120,7 @@ const Notifications = () => {
           onClick={handleMarkAllAsRead}
           variant="outlined"
           size="small"
-          sx={{fontSize:"12px",textTransform:"none"}}
+          sx={{ fontSize: "12px", textTransform: "none" }}
           color="inherit"
           disabled={!notifications.some((n) => !n.isRead) || isMarking} // تعطيل الزر إذا لم يكن هناك غير مقروء
         >
@@ -134,6 +144,11 @@ const Notifications = () => {
                   handleNotificationClick(notif);
                 }}
                 key={notif._id}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
               >
                 <ListItem
                   alignItems="flex-start"
@@ -168,12 +183,12 @@ const Notifications = () => {
                     primary={
                       <Box>
                         <Typography
-                        color="inherit"
+                          color="inherit"
                           component="span"
                           variant="body1"
                           fontWeight={!notif.isRead ? "bold" : "normal"}
                         >
-                          <span style={{ color: theme.palette.text.secondary}}>
+                          <span style={{ color: theme.palette.text.secondary }}>
                             {notif.sender?.name}
                           </span>
                           {notif.type === "reply" &&
@@ -226,6 +241,7 @@ const Notifications = () => {
                   {!notif.isRead && (
                     <Button
                       size="small"
+                      color="inherit"
                       onClick={(e) => {
                         e.stopPropagation(); // 💡 منع التنقل عبر الـ Box
                         handleMarkAsRead(notif._id); // وضع علامة مقروء فقط
@@ -235,6 +251,18 @@ const Notifications = () => {
                     </Button>
                   )}
                 </ListItem>
+                <Box sx={{ backgroundColor: theme.palette.background.paper}}>
+                  {" "}
+                  <IconButton
+                    onClick={() => {
+                      handleDelete(notif._id);
+                    }}
+                    color="error"
+                    sx={{ ml: 1 }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Box>
                 {index < notifications.length - 1 && <Divider component="li" />}
               </Box>
             ))

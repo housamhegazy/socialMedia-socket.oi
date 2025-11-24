@@ -90,4 +90,31 @@ router.patch("/mark-read/:notificationId", AuthMiddleware, async (req, res) => {
       .json({ success: false, message: "Server error during update." });
   }
 });
+//===================== حذف إشعار ========================================
+router.delete("/delete/:notificationId", AuthMiddleware, async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    const userId = req.user.id;
+    const deletedNotification = await NotificationSchema.findOneAndDelete({
+      _id: notificationId,
+      recipient: userId,
+    });
+
+    if (!deletedNotification) {
+      return res.status(404).json({
+        success: false,
+        message: "Notification not found or not authorized to delete.",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Notification deleted successfully.",
+      notificationId: deletedNotification._id,
+    });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res.status(500).json({ success: false, message: "Server error during deletion." });
+  }
+}); 
 module.exports = router;
