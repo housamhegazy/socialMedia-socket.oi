@@ -25,7 +25,6 @@ import {
   useSigninMutation,
 } from "../../Api/user/userApi";
 import FacebooklogIn from "../../components/socialLoginBtns/fb";
-import XLoginButton from "../../components/socialLoginBtns/twitter";
 import GoogleLogin from "../../components/socialLoginBtns/google";
 // المكون الرئيسي لتسجيل الدخول
 const LoginForm = () => {
@@ -270,8 +269,6 @@ const LoginForm = () => {
           <GoogleLogin />{" "}
           {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
           <FacebooklogIn />{" "}
-          {/* أضفه إذا كنت تريد عرضه بشكل مستقل، أو قم بدمجه في صفحة اللوجين */}
-          <XLoginButton />
         </Box>
       </Box>
     </Container>

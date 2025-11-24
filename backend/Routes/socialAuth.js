@@ -51,18 +51,4 @@ router.get(
   }
 );
 
-//مسارات تويتر
-
-router.get("/auth/x", passport.authenticate("twitter")); // تم تغيير المسار إلى x
-router.get(
-  "/auth/x/callback",
-  passport.authenticate("twitter", { failureRedirect: "/signin", session: false }),
-  (req, res) => {
-      const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    }); // 2. تخزين التوكن في الكوكي باستخدام الدالة المساعدة
-    setAuthCookie(res, token);
-    res.redirect(`${process.env.FRONTEND_URL}/`);
-  }
-);
 module.exports = router;
