@@ -1,11 +1,8 @@
 // src/features/posts/postsApi.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // @ts-ignore
-const appEnv = import.meta.env.VITE_APP_ENV;
-const allowedBaseUrls =
-  appEnv === "production"
-    ? "https://socialmedia-socket-oi.onrender.com"
-    : "http://localhost:3000";
+// @ts-ignore
+const allowedBaseUrls = import.meta.env.VITE_API_URL;
 export const postsApi = createApi({
   reducerPath: "postsApi",
   tagTypes: ["Post"],

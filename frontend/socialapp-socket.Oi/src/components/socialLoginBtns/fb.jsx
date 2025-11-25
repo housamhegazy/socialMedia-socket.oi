@@ -2,12 +2,7 @@
 import { Facebook } from '@mui/icons-material';
 import { Box, Button, Typography } from '@mui/material';
 // @ts-ignore
-const appEnv = import.meta.env.VITE_APP_ENV;
-const allowedBaseUrls =
-  appEnv === "production"
-    ? "https://socialmedia-socket-oi.onrender.com"
-    : "http://localhost:3000";
-
+const allowedBaseUrls = import.meta.env.VITE_API_URL;
 const FacebooklogIn = () => {
   const handleFacebook = () => {
     window.location.href = `${allowedBaseUrls}/auth/facebook`; // يوجه إلى نهاية الباك اند

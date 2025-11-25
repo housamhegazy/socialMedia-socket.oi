@@ -7,14 +7,15 @@ const TwitterStrategy = require("passport-twitter").Strategy;
 const User = require("../Models/User");
 //نستدعي الملف اللي هانرفع بيه الصور للكلاود
 const uploadAvatarToCloudinary = require("./uploadfromsocialtoCloudinary");
-
+const backendUrl = process.env.BACKEND_URL;
+console.log("backendUrl",backendUrl);
 passport.use(
   new GoogleStrategy(
     {
       // ... (الإعدادات تبقى كما هي)
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://socialmedia-socket-oi.onrender.com/auth/google/callback",
+      callbackURL: `${backendUrl}/auth/google/callback`,
     },
     async (accessToken, refreshToken, profile, cb) => {
       try {
@@ -88,7 +89,7 @@ passport.use(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-      callbackURL: "https://socialmedia-socket-oi.onrender.com/auth/facebook/callback",
+      callbackURL: `${backendUrl}/auth/facebook/callback`,
       profileFields: ["id", "displayName", "photos", "email"],
     },
     async (accessToken, refreshToken, profile, cb) => {

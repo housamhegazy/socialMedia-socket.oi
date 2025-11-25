@@ -26,14 +26,14 @@ const httpServer = createServer(app);
 
 // إعداد Socket.io مع CORS
 // تحديد الأصول المسموح بها بناءً على البيئة
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? ["https://socialmediaweb20.netlify.app"]
-    : ["http://localhost:5173"];
+// const allowedOrigins =
+//   process.env.NODE_ENV === "production"
+//     ? ["https://socialmediaweb20.netlify.app"]
+//     : ["http://localhost:5173"];
 
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -49,7 +49,7 @@ app.set("userSockets", userSockets);
 
 app.use(
   cors({
-    origin:allowedOrigins, 
+    origin:process.env.FRONTEND_URL, 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
