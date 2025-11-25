@@ -14,7 +14,6 @@ const {
 function setAuthCookie(res, token) {
   // تحديد ما إذا كانت البيئة إنتاجية أم لا
     const isProduction = process.env.NODE_ENV === "production";
-    console.log("isProduction", isProduction);
   // إعداد الكوكيز مع الخيارات المناسبة
   res.cookie("token", token, {
     httpOnly: true,

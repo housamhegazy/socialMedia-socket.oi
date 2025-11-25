@@ -137,8 +137,6 @@ router.delete("/cancel/:receiverId",AuthMiddleware,async (req, res) => {
     const receiverId = req.params.receiverId;
     // ID المستخدم الحالي (يجب أن يكون هو المُرسِل)
     const currentUserId = req.user.id; 
-    console.log("receiverid" , receiverId);
-
     try {
         // البحث عن وحذف الطلب المعلق الذي أرسله المستخدم الحالي إلى receiverId
         const result = await FriendRequest.findOneAndDelete({
