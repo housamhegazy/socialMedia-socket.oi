@@ -8,7 +8,6 @@ const User = require("../Models/User");
 //نستدعي الملف اللي هانرفع بيه الصور للكلاود
 const uploadAvatarToCloudinary = require("./uploadfromsocialtoCloudinary");
 const backendUrl = process.env.BACKEND_URL;
-console.log("backendUrl",backendUrl);
 passport.use(
   new GoogleStrategy(
     {
