@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {SocketContext} from "./SocketContext";
 import { notificationApi } from "../notificationsApi";
 import { chatApi } from "../../chatApi/chatApi"; // 💡 جديد: استيراد API الدردشة
+// @ts-ignore
+const socketUrl = import.meta.env.VITE_API_URL;
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
@@ -17,7 +19,7 @@ export const SocketProvider = ({ children }) => {
     // ⚠️ يتم إنشاء الاتصال فقط إذا كان المستخدم مسجلاً الدخول
     if (isAuthenticated && user?._id) {
       // 1. إنشاء الاتصال (تأكد من العنوان والمنفذ)
-      const newSocket = io("https://socialmedia-socket-oi.onrender.com", {
+      const newSocket = io(socketUrl, {
         // لا تستخدم /notifications هنا، اجعلها على root path
         withCredentials: true,
         transports: ["websocket"],

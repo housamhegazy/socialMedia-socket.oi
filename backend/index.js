@@ -1,45 +1,32 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 const mongoose = require("mongoose");
-require("dotenv").config();
 //====================== خاص ب  passport  ==========================================
-const session = require("express-session"); // <--- إضافة هذا
 const passport = require("passport"); // إضافة passport
 require("./Utils/passport.js"); // استيراد إعداد passport
-//====================================================================================
+const initializeSocket = require("./Utils/socketHandler");// استيراد ملف معالج الويب سوكيت
 const cors = require("cors"); // للسماح لـ frontend بالاتصال بـ backend
-// 💡 استيراد نماذج الدردشة والرسائل (جديد)
-const Chat = require("./Models/Chat");
-const Message = require("./Models/Message");
-// const path = require("path");
-// const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
-//======================================start websocket and socket io ========================================
-//npm install socket.io-client
-//    npm install ws
-//npm install socket.io
-//============================================= socket imports ===========================================
+
+//=====================================================start websocket and socket io =====================================================
 const { createServer } = require("http");
-const { Server } = require("socket.io");
 const httpServer = createServer(app);
 
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-  transports: ["websocket"],
-});
 const userSockets = new Map();
-// Save io + userSockets to app
+
+// ✅ إنشاء socket.io وربطه بالسيرفر
+const { io, userSockets: initializedUserSockets } = initializeSocket(
+    httpServer,
+    process.env.FRONTEND_URL,
+    userSockets
+);
+
+// تخزين io & userSockets لاستخدامهم في الراوتر
 app.set("io", io);
-app.set("userSockets", userSockets);
-//======================================== end socket import ============================
-
-//=================================== cors =======================================
-
+app.set("userSockets", initializedUserSockets);
+//================================================================ cors ================================================================
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -49,24 +36,12 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
-//=================== passport session موجود عشان تسجيل الدخول بتويتر فقط لكن باقي الموقع ب jwt ====================
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24, // 24 ساعة
-    },
-  })
-);
 
-//============================================get routes======================================================
-// إعداد Passport لتسجيل الدخول بجوجل
+//====================== خاص ب  passport  ==========================================
 app.use(passport.initialize());
 // app.use(passport.session());
 
+//======================================================================get routes======================================================
 const registerRoute = require("./Routes/Users.js");
 const postsRoute = require("./Routes/Posts.js");
 const commentsRoute = require("./Routes/Comments.js");
@@ -87,62 +62,6 @@ app.use("/api/chat", chatRoute);
 app.use("/api/messages", messagesRoute);
 app.use("/api/friendrequist", friendRequistRoute);
 app.use("", socialLogInRoute);
-
-//======================================socket io connection handling to notifications and send messages and call ================================================
-
-io.on("connection", (socket) => {
-  //=========================================================== user joined with their id =====================================
-  socket.on("join", (userId) => {
-    userSockets.set(userId, socket.id);
-    console.log(`user ${userId} joined with socket ${socket.id}`);
-  });
-
-  // =====================================================2.  الانضمام إلى غرفة المحادثة==============================================
-  socket.on("join_chat", (chatId) => {
-    socket.join(chatId);
-    console.log(`Socket ${socket.id} joined chat room: ${chatId}`);
-  });
-
-  // ============================================3. المنطق الجديد: إرسال الرسائل============================================
-  socket.on("send_message", async (data) => {
-    const { chatId, senderId, text } = data;
-    try {
-      // أ. حفظ الرسالة في قاعدة البيانات
-      const newMessage = new Message({
-        chatId: chatId,
-        sender: senderId,
-        text: text,
-      });
-      const savedMessage = await newMessage.save(); // ب. تحديث آخر رسالة في نموذج المحادثة
-
-      await Chat.findByIdAndUpdate(chatId, {
-        lastMessage: savedMessage._id,
-        updatedAt: Date.now(),
-      }); // ج. جلب بيانات المرسل (لتمريرها كاملة للفرونت إند)
-      const messageWithSender = await Message.findById(
-        savedMessage._id
-      ).populate("sender", "username profilePicture"); // د. بث الرسالة إلى جميع أعضاء الغرفة
-      io.to(chatId).emit("receive_message", messageWithSender);
-    } catch (error) {
-      console.error("Error saving or broadcasting message:", error);
-      socket.emit("message_error", "Failed to send message.");
-    }
-  });
-
-  // عند قطع الاتصال
-  socket.on("disconnect", () => {
-    for (let [userId, socketId] of userSockets.entries()) {
-      if (socketId === socket.id) {
-        userSockets.delete(userId);
-        console.log(`user ${userId} disconnected`);
-        break;
-      }
-    }
-  });
-});
-
-//======= export for use in routes
-module.exports = { io, userSockets };
 //=================================================connect to mongodb================================================
 mongoose
   .connect(process.env.MONGODB_URI)

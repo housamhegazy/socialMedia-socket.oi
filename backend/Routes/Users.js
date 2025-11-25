@@ -126,11 +126,12 @@ router.get("/me/profile", AuthMiddleware, async (req, res) => {
 });
 
 router.post("/logout", (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   try {
     res.clearCookie("token", {
       httpOnly: true, // ✅ يمنع الوصول للتوكن من الجافاسكريبت في المتصفح
-      secure: process.env.NODE_ENV === "production", // ✅ الكوكي تكون محمية في HTTPS فقط في الإنتاج
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ⚠️ تعديل مهم
+      secure:  isProduction, // ✅ الكوكي تكون محمية في HTTPS فقط في الإنتاج
+      sameSite: isProduction ? "None" : "Lax", // ⚠️ تعديل مهم
       path: "/", // ✅ يضمن حذف الكوكي من كل المسارات
     });
     return res.status(200).json({ message: "Logged out successfully" });

@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const allowedBaseUrls = import.meta.env.VITE_API_URL;
 export const notificationApi = createApi({
   reducerPath: "notificationApi",
-  tagTypes: ["Notification", "UnreadCount"], // 💡 تم إضافة Tag للعداد
+  tagTypes: ["Notification", "UnreadCount"],
   baseQuery: fetchBaseQuery({
     baseUrl: allowedBaseUrls,
     credentials: "include",

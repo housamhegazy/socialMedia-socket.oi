@@ -16,6 +16,8 @@ import {
   Typography,
   Divider,
   IconButton,
+  ListItemAvatar,
+  Avatar,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import Swal from "sweetalert2";
@@ -51,88 +53,105 @@ const ChatList = () => {
         Swal.fire("Deleted!", "The chat has been deleted.", "success");
       } catch (err) {
         console.error("Failed to delete the chat: ", err);
-        Swal.fire(
-          "Error!",
-          "There was an error deleting the chat.",
-          "error"
-        );
+        Swal.fire("Error!", "There was an error deleting the chat.", "error");
       }
     }
   };
 
   return (
-    <Box sx={{ width: "100%", bgcolor: "background.paper" }}>
-      <Typography variant="h6" p={2}>
-        chat
-      </Typography>
-      <Divider />
-      <List>
-        {chats.length === 0 ? (
-          <Typography p={2}> no chats </Typography>
-        ) : (
-          chats.map((chat) => {
-            const recipient = getRecipient(chat);
-            const lastMessageText = chat.lastMessage
-              ? chat.lastMessage.text
-              : "Start a chat";
+<Box sx={{ width: "100%", bgcolor: "background.paper", borderRadius: 2, overflow: "hidden" }}>
+  <Typography variant="h6" p={2} sx={{ fontWeight: 600 }}>
+    Chats
+  </Typography>
+  <Divider />
 
-            return (
-              <>
-                <Box
-                  key={chat._id}
-                  sx={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  {/* ربط الـ Chat ID بمسار الصفحة المفصلة */}
-                  <ListItemButton
-                    sx={{ color: "text.primary" }}
-                    component={Link}
-                    to={`/chatdetails/${chat._id}`}
-                  >
-                    <ListItemText
-                      primary={recipient ? recipient.name : "مستخدم محذوف"}
-                      secondary={
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.secondary"
-                          noWrap // لمنع تجاوز النص
-                        >
-                          {lastMessageText}
-                        </Typography>
-                      }
-                    />
-                    {/* يمكنك إضافة وقت آخر رسالة هنا */}
-                    <Typography variant="body1" color="inherit">
-                      {chat.lastMessage
-                        ? new Date(
-                            chat.lastMessage.createdAt
-                          ).toLocaleTimeString()
-                        : ""}
-                    </Typography>
-                  </ListItemButton>
-                  {/* delete button */}
+  <List disablePadding>
+    {chats.length === 0 ? (
+      <Typography p={2}>No chats</Typography>
+    ) : (
+      chats.map((chat) => {
+        const recipient = getRecipient(chat);
+        const lastMessageText = chat.lastMessage
+          ? chat.lastMessage.text
+          : "Start a chat";
 
-                  <IconButton
-                    onClick={() => {
-                      handleDelete(chat._id);
+        return (
+          <ListItem
+            key={chat._id}
+            secondaryAction={
+              <IconButton 
+                edge="end" 
+                onClick={() => handleDelete(chat._id)} 
+                color="error"
+                sx={{ "&:hover": { bgcolor: "error.light" } }}
+              >
+                <Delete />
+              </IconButton>
+            }
+            sx={{
+              px: 2,
+              "&:hover": { bgcolor: "action.hover" },
+            }}
+          >
+            <ListItemButton
+              component={Link}
+              to={`/chatdetails/${chat._id}`}
+              sx={{ borderRadius: 1 }}
+            >
+              {/* الصورة */}
+              <ListItemAvatar>
+                <Avatar
+                  src={recipient?.avatar || ""}
+                  alt={recipient?.name}
+                  sx={{ width: 48, height: 48 }}
+                />
+              </ListItemAvatar>
+
+              {/* الاسم + آخر رسالة */}
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    {recipient ? recipient.name : "مستخدم محذوف"}
+                  </Typography>
+                }
+                secondary={
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "block",
+                      maxWidth: "200px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
-                    color="error"
                   >
-                    <Delete />
-                  </IconButton>
-                </Box>
-                <Divider variant="inset" component="li" />
-              </>
-            );
-          })
-        )}
-      </List>
-    </Box>
+                    {lastMessageText}
+                  </Typography>
+                }
+              />
+
+              {/* الوقت */}
+              <Typography
+                variant="caption"
+                sx={{ color: "text.secondary", whiteSpace: "nowrap" }}
+              >
+                {chat.lastMessage
+                  ? new Date(chat.lastMessage.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""}
+              </Typography>
+            </ListItemButton>
+          </ListItem>
+        );
+      })
+    )}
+  </List>
+</Box>
+
+
   );
 };
 

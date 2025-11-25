@@ -47,6 +47,7 @@ router.post("/:postId", AuthMiddleware, async (req, res) => {
       //send realtime notification
       const io = req.app.get("io")
       const userSockets = req.app.get("userSockets");
+      console.log("userSocket hhhhhhh ",userSockets,"iooooooooooooooooooooooo",io);
       const recipientSocketId = userSockets.get(newPost.owner.toString());
       if(recipientSocketId){
         io.to(recipientSocketId).emit("receiveNotification",populatedNotification)

@@ -8,13 +8,13 @@ const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
 // GET /api/chats
 router.get("/", AuthMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id; // يفترض أن الـ ID يأتي من الـ middleware
+    const userId = req.user.id;
     const chats = await Chat.find({
       members: { $in: [userId] }, // ابحث عن المحادثات التي يكون المستخدم طرفاً فيها
     })
-      .populate("members", "name username avatar") // جلب بيانات الطرف الآخر
-      .populate("lastMessage") // جلب آخر رسالة
-      .sort({ updatedAt: -1 }); // ترتيب تنازلي حسب آخر تحديث
+      .populate("members", "name username avatar")
+      .populate("lastMessage")
+      .sort({ updatedAt: -1 });
 
     res.status(200).json(chats);
   } catch (err) {
@@ -22,35 +22,40 @@ router.get("/", AuthMiddleware, async (req, res) => {
   }
 });
 //===================== جلب تفاصيل محادثه واحده ========================================
-router.get('/:chatId', AuthMiddleware, async (req, res) => {
-    try {
-        const { chatId } = req.params;
+router.get("/:chatId", AuthMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
 
-        // البحث عن المحادثة باستخدام ID وتأكيد أن المستخدم الحالي عضو فيها
-        const chat = await Chat.findOne({
-            _id: chatId,
-            members: req.user.id // تأكد أن المستخدم الحالي (req.user.id) عضو في هذه المحادثة
-        })
-        .populate('members', 'name username avatar') // 👈 جلب تفاصيل الأعضاء
-        .populate('lastMessage'); // يمكنك جلب تفاصيل آخر رسالة أيضًا إذا أردت
+    // البحث عن المحادثة باستخدام ID وتأكيد أن المستخدم الحالي عضو فيها
+    const chat = await Chat.findOne({
+      _id: chatId,
+      members: req.user.id, // تأكد أن المستخدم الحالي (req.user.id) عضو في هذه المحادثة
+    })
+      .populate("members", "name username avatar") // 👈 جلب تفاصيل الأعضاء
+      .populate("lastMessage"); // يمكنك جلب تفاصيل آخر رسالة أيضًا إذا أردت
 
-        if (!chat) {
-            return res.status(404).json({ message: "chat not found or you don't have permission to access it." });
-        }
-
-        res.status(200).json(chat);
-
-    } catch (err) {
-        console.error("Error fetching chat details:", err);
-        res.status(500).json({ message: "failed to fetch chat details.", error: err.message });
+    if (!chat) {
+      return res
+        .status(404)
+        .json({
+          message: "chat not found or you don't have permission to access it.",
+        });
     }
+
+    res.status(200).json(chat);
+  } catch (err) {
+    console.error("Error fetching chat details:", err);
+    res
+      .status(500)
+      .json({ message: "failed to fetch chat details.", error: err.message });
+  }
 });
 // 2. إنشاء محادثة جديدة (أو جلب محادثة موجودة)
 // POST /api/chats
 router.post("/", AuthMiddleware, async (req, res) => {
   const { receiverId } = req.body;
   const senderId = req.user.id;
-const members = [senderId, receiverId].map(id => id.toString()).sort();
+  const members = [senderId, receiverId].map((id) => id.toString()).sort();
   try {
     let chat = await Chat.findOne({
       members: {
@@ -69,25 +74,36 @@ const members = [senderId, receiverId].map(id => id.toString()).sort();
 
     res.status(200).json(chat);
   } catch (err) {
-    res.status(500).json({ message: "Failed to create or retrieve chat.", error: err.message });
+    res
+      .status(500)
+      .json({
+        message: "Failed to create or retrieve chat.",
+        error: err.message,
+      });
   }
 });
 //delete chat
-router.delete('/delete/:chatId', AuthMiddleware, async (req, res) => {
-    try {
-        const { chatId } = req.params;
-        const userId = req.user.id; 
-        const chat = await Chat.findOneAndDelete({
-            _id: chatId,
-            members: userId 
+router.delete("/delete/:chatId", AuthMiddleware, async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const userId = req.user.id;
+    const chat = await Chat.findOneAndDelete({
+      _id: chatId,
+      members: userId,
+    });
+    if (!chat) {
+      return res
+        .status(404)
+        .json({
+          message: "chat not found or you don't have permission to delete it.",
         });
-        if (!chat) {
-            return res.status(404).json({ message: "chat not found or you don't have permission to delete it." });
-        }
-        res.status(200).json({ message: 'chat deleted successfully.' });
-    } catch (err) {
-        res.status(500).json({ message:  "failed to delete chat" , error: err.message });
     }
+    res.status(200).json({ message: "chat deleted successfully." });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "failed to delete chat", error: err.message });
+  }
 });
 
 module.exports = router;

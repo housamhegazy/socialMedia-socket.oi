@@ -38,9 +38,7 @@ const Notifications = () => {
     isLoading,
     isError,
   } = useGetNotificationsQuery();
-  const [
-    deleteNotification
-  ] = useDeleteNotificationMutation();
+  const [deleteNotification] = useDeleteNotificationMutation();
   const notifications = notificationsData || [];
   const theme = useTheme();
   const navigate = useNavigate(); // 💡 تهيئة Hook التنقل
@@ -113,8 +111,8 @@ const Notifications = () => {
     );
   }
   return (
-    <Box sx={{ width: "100%", margin: "20px auto", p: 2 }}>
-      {/* ➡️ العنوان والإجراءات العلوية */}
+    <Box sx={{ width: "100%", maxWidth: 700, margin: "20px auto", p: 2 }}>
+      {/* Header */}
       <Box
         sx={{
           display: "flex",
@@ -123,109 +121,124 @@ const Notifications = () => {
           mb: 3,
         }}
       >
-        <Typography sx={{ fontSize: "15px" }} fontWeight="bold">
+        <Typography fontSize="16px" fontWeight="bold">
           Notifications ({notifications.length})
         </Typography>
+
         <Button
-          startIcon={<MarkEmailRead />}
+          startIcon={<MarkEmailRead sx={{ fontSize: 18 }} />}
           onClick={handleMarkAllAsRead}
           variant="outlined"
           size="small"
-          sx={{ fontSize: "12px", textTransform: "none" }}
+          sx={{
+            fontSize: "12px",
+            textTransform: "none",
+            borderRadius: "10px",
+            px: 1.5,
+          }}
           color="inherit"
-          disabled={!notifications.some((n) => !n.isRead) || isMarking} // تعطيل الزر إذا لم يكن هناك غير مقروء
+          disabled={!notifications.some((n) => !n.isRead) || isMarking}
         >
-          mark all as read
+          Mark all as read
         </Button>
       </Box>
 
-      <Paper elevation={3} sx={{ borderRadius: "12px", overflow: "hidden" }}>
+      <Paper
+        elevation={2}
+        sx={{
+          borderRadius: "14px",
+          overflow: "hidden",
+          backgroundColor: "background.paper",
+        }}
+      >
         <List disablePadding>
-          {/* ➡️ عرض كل إشعار */}
           {notifications.length === 0 ? (
             <Typography
-              sx={{ p: 3, textAlign: "center", color: "text.secondary" }}
+              sx={{
+                p: 4,
+                textAlign: "center",
+                color: "text.secondary",
+                fontSize: "14px",
+              }}
             >
-              no notifications
+              No notifications
             </Typography>
           ) : (
-            notifications.map((notif) => (
-              <Box
-                key={notif._id}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  backgroundColor: !notif.isRead
-                    ? theme.palette.action.hover
-                    : theme.palette.background.paper,
-                }}
-              >
+            notifications.map((notif) => {
+              const isUnread = !notif.isRead;
+
+              return (
                 <Box
-                  onClick={() => {
-                    handleNotificationClick(notif);
+                  key={notif._id}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    backgroundColor: isUnread
+                      ? theme.palette.action.hover
+                      : theme.palette.background.paper,
+                    transition: "0.2s",
+                    borderBottom: "1px solid",
+                    borderColor: "divider",
+                    "&:hover": {
+                      backgroundColor: theme.palette.action.selected,
+                    },
                   }}
                 >
+                  {/* Left clickable area */}
                   <ListItem
-                    alignItems="flex-start"
+                    onClick={() => {
+                      if (isUnread) handleMarkAsRead(notif._id);
+                      handleNotificationClick(notif);
+                    }}
                     sx={{
                       py: 2,
+                      pr: 1,
                       cursor: "pointer",
-                      backgroundColor: !notif.isRead
-                        ? theme.palette.action.hover
-                        : theme.palette.background.paper,
-                      transition: "background-color 0.2s",
-                      "&:hover": {
-                        backgroundColor: theme.palette.action.selected,
-                      },
+                      width: "100%",
                     }}
-                    onClick={() => {
-                      // الانتقال لصفحة البوست ثم وضع علامة مقروء
-                      if (!notif.isRead) handleMarkAsRead(notif._id);
-                      // navigate(`/post/${notif.postId}`);
-                    }}
+                    alignItems="flex-start"
                   >
-                    {/* 1. أفاتار المرسل */}
+                    {/* Avatar */}
                     <ListItemAvatar>
                       <Avatar
                         src={notif.sender?.avatar}
                         alt={notif.sender?.name}
+                        sx={{ width: 42, height: 42 }}
                       />
                     </ListItemAvatar>
 
-                    {/* 2. محتوى الإشعار */}
+                    {/* Text */}
                     <ListItemText
                       disableTypography
                       primary={
-                        <Box>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
                           <Typography
-                            color="inherit"
-                            component="span"
                             variant="body1"
-                            fontWeight={!notif.isRead ? "bold" : "normal"}
+                            color="text.primary"
+                            fontWeight={isUnread ? "bold" : "normal"}
                           >
                             <span
                               style={{ color: theme.palette.text.secondary }}
                             >
                               {notif.sender?.name}
-                            </span>
+                            </span>{" "}
                             {notif.type === "reply" &&
-                              " replied to your comment "}
-                            {notif.type === "like" && " liked your post "}
+                              "replied to your comment"}
+                            {notif.type === "like" && "liked your post"}
                             {notif.type === "comment" &&
-                              ` commented on your post "${
+                              `commented on your post "${
                                 notif.post?.text
                                   ? notif.post.text.substring(0, 30) + "..."
-                                  : "..."
-                              }" `}
-                            {/* يمكن إضافة أنواع إشعارات أخرى هنا */}
+                                  : ""
+                              }"`}
                           </Typography>
 
-                          {!notif.isRead && (
+                          {isUnread && (
                             <Chip
                               label="new"
-                              size="small"
                               color="error"
+                              size="small"
                               sx={{ ml: 1, height: 20 }}
                             />
                           )}
@@ -240,56 +253,50 @@ const Notifications = () => {
                             color: "text.secondary",
                           }}
                         >
-                          <AccessTime sx={{ fontSize: 14, mr: 0.5 }} />
+                          <AccessTime sx={{ fontSize: 15, mr: 0.5 }} />
                           <Typography variant="caption">
-                            {/* يجب استخدام مكتبة لتنسيق الوقت (مثل date-fns) */}
-                            {/* formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar }) */}
-                            {/* {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: ar })} */}
                             {formatDistanceToNow(new Date(notif.createdAt), {
                               addSuffix: true,
-                              // إذا أردت اللغة العربية، أضف locale: ar
                               locale: ar,
                             })}
                           </Typography>
                         </Box>
                       }
                     />
+                  </ListItem>
 
-                    {/* 3. زر الإجراء السريع */}
+                  {/* Action buttons (delete / mark read) */}
+                  <Box sx={{ pr: 1, display: "flex", gap: 0.5 }}>
                     {!notif.isRead && (
                       <Button
                         size="small"
                         color="inherit"
+                        sx={{ fontSize: "11px" }}
                         onClick={(e) => {
-                          e.stopPropagation(); // 💡 منع التنقل عبر الـ Box
-                          handleMarkAsRead(notif._id); // وضع علامة مقروء فقط
+                          e.stopPropagation();
+                          handleMarkAsRead(notif._id);
                         }}
                       >
-                        read
+                        Read
                       </Button>
                     )}
-                  </ListItem>
-                </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  {" "}
-                  <IconButton
-                    onClick={() => {
-                      handleDelete(notif._id);
-                    }}
-                    disabled={deletingId === notif._id} // تعطيل الزر أثناء الحذف
-                    color="error"
-                    sx={{ ml: 1 }}
-                  >
-                    {deletingId === notif._id ? (
-                      <CircularProgress color="inherit" size={24} />
-                    ) : (
-                      <Delete />
-                    )}
-                  </IconButton>
+                    <IconButton
+                      onClick={() => handleDelete(notif._id)}
+                      color="error"
+                      size="small"
+                      disabled={deletingId === notif._id}
+                    >
+                      {deletingId === notif._id ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <Delete sx={{ fontSize: 20 }} />
+                      )}
+                    </IconButton>
+                  </Box>
                 </Box>
-              </Box>
-            ))
+              );
+            })
           )}
         </List>
       </Paper>
