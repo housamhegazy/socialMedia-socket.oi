@@ -35,14 +35,14 @@ router.get('/:chatId', AuthMiddleware, async (req, res) => {
         .populate('lastMessage'); // يمكنك جلب تفاصيل آخر رسالة أيضًا إذا أردت
 
         if (!chat) {
-            return res.status(404).json({ message: 'المحادثة غير موجودة أو لا تملك صلاحية الوصول إليها.' });
+            return res.status(404).json({ message: "chat not found or you don't have permission to access it." });
         }
 
         res.status(200).json(chat);
 
     } catch (err) {
         console.error("Error fetching chat details:", err);
-        res.status(500).json({ message: 'فشل في جلب تفاصيل المحادثة.', error: err.message });
+        res.status(500).json({ message: "failed to fetch chat details.", error: err.message });
     }
 });
 // 2. إنشاء محادثة جديدة (أو جلب محادثة موجودة)
@@ -82,11 +82,11 @@ router.delete('/delete/:chatId', AuthMiddleware, async (req, res) => {
             members: userId 
         });
         if (!chat) {
-            return res.status(404).json({ message: 'المحادثة غير موجودة أو لا تملك صلاحية حذفها.' });
+            return res.status(404).json({ message: "chat not found or you don't have permission to delete it." });
         }
         res.status(200).json({ message: 'chat deleted successfully.' });
     } catch (err) {
-        res.status(500).json({ message: 'فشل في حذف المحادثة.', error: err.message });
+        res.status(500).json({ message:  "failed to delete chat" , error: err.message });
     }
 });
 

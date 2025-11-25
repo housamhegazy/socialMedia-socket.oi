@@ -10,8 +10,8 @@ require("./Utils/passport.js"); // استيراد إعداد passport
 //====================================================================================
 const cors = require("cors"); // للسماح لـ frontend بالاتصال بـ backend
 // 💡 استيراد نماذج الدردشة والرسائل (جديد)
-const Chat = require('./Models/Chat'); 
-const Message = require('./Models/Message');
+const Chat = require("./Models/Chat");
+const Message = require("./Models/Message");
 // const path = require("path");
 // const methodOverride = require("method-override");
 const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
@@ -24,32 +24,25 @@ const { createServer } = require("http");
 const { Server } = require("socket.io");
 const httpServer = createServer(app);
 
-// إعداد Socket.io مع CORS
-// تحديد الأصول المسموح بها بناءً على البيئة
-// const allowedOrigins =
-//   process.env.NODE_ENV === "production"
-//     ? ["https://socialmediaweb20.netlify.app"]
-//     : ["http://localhost:5173"];
-
 const io = new Server(httpServer, {
   cors: {
     origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
     credentials: true,
   },
-   transports: ["websocket"],
+  transports: ["websocket"],
 });
 const userSockets = new Map();
 // Save io + userSockets to app
 app.set("io", io);
-app.set("userSockets", userSockets); 
+app.set("userSockets", userSockets);
 //======================================== end socket import ============================
 
-//========================================== cors =======================================
+//=================================== cors =======================================
 
 app.use(
   cors({
-    origin:process.env.FRONTEND_URL, 
+    origin: process.env.FRONTEND_URL,
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
@@ -57,18 +50,20 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 //=================== passport session موجود عشان تسجيل الدخول بتويتر فقط لكن باقي الموقع ب jwt ====================
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your_secret_key', 
-    resave: false, 
-    saveUninitialized: false, 
-    cookie: { 
-        secure: process.env.NODE_ENV === 'production', 
-        maxAge: 1000 * 60 * 60 * 24 // 24 ساعة
-    }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your_secret_key",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24, // 24 ساعة
+    },
+  })
+);
 
 //============================================get routes======================================================
-// إعداد Passport لتسجيل الدخول بجوجل 
+// إعداد Passport لتسجيل الدخول بجوجل
 app.use(passport.initialize());
 // app.use(passport.session());
 
@@ -78,8 +73,8 @@ const commentsRoute = require("./Routes/Comments.js");
 const notificationRoute = require("./Routes/Notification.js");
 const chatRoute = require("./Routes/Chat.js");
 const messagesRoute = require("./Routes/Messages.js");
-const friendRequistRoute = require("./Routes/friendRoutes.js")
-const socialLogInRoute = require("./Routes/socialAuth.js")
+const friendRequistRoute = require("./Routes/friendRoutes.js");
+const socialLogInRoute = require("./Routes/socialAuth.js");
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -90,42 +85,23 @@ app.use("/api/comments", commentsRoute);
 app.use("/notifications", notificationRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/messages", messagesRoute);
-app.use("/api/friendrequist",friendRequistRoute)
-app.use("",socialLogInRoute)
+app.use("/api/friendrequist", friendRequistRoute);
+app.use("", socialLogInRoute);
 
-
-//=================================================auto refresh================================================
-// app.use(methodOverride("_method"));// لتمكين استخدام طرق HTTP مثل PUT و DELETE
-// //begin livereload
-// const livereload = require("livereload");
-// const liveReloadServer = livereload.createServer(); // إنشاء سيرفر LiveReload
-// liveReloadServer.watch(path.join(__dirname, "public"));
-// const connectLivereload = require("connect-livereload"); // استيراد Middleware
-// app.use(connectLivereload());
-// liveReloadServer.server.once("connection", () => {
-//   setTimeout(() => {
-//     liveReloadServer.refresh("/");
-//   }, 100);
-// });
-//end livereload
 //======================================socket io connection handling to notifications and send messages and call ================================================
 
 io.on("connection", (socket) => {
-
-  // منطق الاتصال عند تسجيل الدخول وجلب الاشعارات
-  console.log("user connected", socket.id);
-
-  //user joints with ther id
+  //=========================================================== user joined with their id =====================================
   socket.on("join", (userId) => {
     userSockets.set(userId, socket.id);
-    console.log(`user ${userId} joint with socket ${socket.id}`);
+    console.log(`user ${userId} joined with socket ${socket.id}`);
   });
 
-  // 2. المنطق الجديد: الانضمام إلى غرفة المحادثة
+  // =====================================================2.  الانضمام إلى غرفة المحادثة==============================================
   socket.on("join_chat", (chatId) => {
     socket.join(chatId);
     console.log(`Socket ${socket.id} joined chat room: ${chatId}`);
-  }); 
+  });
 
   // ============================================3. المنطق الجديد: إرسال الرسائل============================================
   socket.on("send_message", async (data) => {
@@ -151,8 +127,6 @@ io.on("connection", (socket) => {
       console.error("Error saving or broadcasting message:", error);
       socket.emit("message_error", "Failed to send message.");
     }
-
-    
   });
 
   // عند قطع الاتصال
