@@ -12,11 +12,13 @@ const {
 } = require("../Utils/cloudinary.js");
 // protected route to set auth cookie
 function setAuthCookie(res, token) {
+  // تحديد ما إذا كانت البيئة إنتاجية أم لا
+    const isProduction = process.env.NODE_ENV === "production";
   // إعداد الكوكيز مع الخيارات المناسبة
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,  //process.env.NODE_ENV === "production" اثناء التطوير يكون
-    sameSite: "None",//process.env.NODE_ENV === "production" ? "Strict" : "Lax"
+    secure: isProduction,  //process.env.NODE_ENV === "production" اثناء التطوير يكون
+    sameSite: isProduction ? "None" : "Lax",//process.env.NODE_ENV === "production" ? "Strict" : "Lax"
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 أسبوع
   });
 }

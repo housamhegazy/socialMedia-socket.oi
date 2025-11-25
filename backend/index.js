@@ -23,12 +23,17 @@ const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const httpServer = createServer(app);
+
+// إعداد Socket.io مع CORS
+// تحديد الأصول المسموح بها بناءً على البيئة
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? ["https://socialmediaweb20.netlify.app"]
+    : ["http://localhost:5173"];
+
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      "https://socialmediaweb20.netlify.app", 
-      "http://localhost:5173"
-    ],
+    origin: allowedOrigins,
     credentials: true,
   },
    transports: ["websocket"],
@@ -40,12 +45,10 @@ app.set("userSockets", userSockets);
 //======================================== end socket import ============================
 
 //========================================== cors =======================================
+
 app.use(
   cors({
-    origin: [
-      "https://socialmediaweb20.netlify.app", 
-      "http://localhost:5173"
-    ], 
+    origin:allowedOrigins, 
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
