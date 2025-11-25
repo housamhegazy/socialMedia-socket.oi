@@ -28,8 +28,8 @@ const httpServer = createServer(app);
 // تحديد الأصول المسموح بها بناءً على البيئة
 const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? "https://socialmediaweb20.netlify.app"
-    : "http://localhost:5173";
+    ? ["https://socialmediaweb20.netlify.app"]
+    : ["http://localhost:5173"];
 
 const io = new Server(httpServer, {
   cors: {
