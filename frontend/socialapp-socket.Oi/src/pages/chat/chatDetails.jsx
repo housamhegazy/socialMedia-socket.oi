@@ -5,13 +5,14 @@ import {
   useGetChatDetailsQuery,
   useGetMessagesQuery,
 } from "../../Api/chatApi/chatApi";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useSocket } from "../../Api/notifications/context/SocketContext"; // 💡 استخدام الـ Hook المشترك
 import { Typography, Box, useTheme } from "@mui/material";
 
 const ChatDetail = () => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { chatId } = useParams(); // جلب الـ ID من URL
   // @ts-ignore
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -118,6 +119,7 @@ const ChatDetail = () => {
         >
           {/* يمكن وضع مكون الاتصال هنا */}
           <Box
+          onClick={() => {navigate(`/user/${recipientId}`)}}
             sx={{
               p: .5,
               position: "sticky",

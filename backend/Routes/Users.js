@@ -14,6 +14,7 @@ const {
 function setAuthCookie(res, token) {
   // تحديد ما إذا كانت البيئة إنتاجية أم لا
     const isProduction = process.env.NODE_ENV === "production";
+    console.log("isProduction", isProduction);
   // إعداد الكوكيز مع الخيارات المناسبة
   res.cookie("token", token, {
     httpOnly: true,
@@ -22,6 +23,7 @@ function setAuthCookie(res, token) {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 أسبوع
   });
 }
+
 // dont forget to npm install cookie-parser in backend
 
 router.post("/register", async (req, res) => {
