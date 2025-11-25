@@ -1,11 +1,16 @@
 // زر الدخول عن طريق جوجل 
 import { Facebook } from '@mui/icons-material';
 import { Box, Button, Typography } from '@mui/material';
-import React from 'react';
+// @ts-ignore
+const appEnv = import.meta.env.VITE_APP_ENV;
+const allowedBaseUrls =
+  appEnv === "production"
+    ? "https://socialmedia-socket-oi.onrender.com"
+    : "http://localhost:3000";
 
 const FacebooklogIn = () => {
   const handleFacebook = () => {
-    window.location.href = 'https://socialmedia-socket-oi.onrender.com/auth/facebook'; // يوجه إلى نهاية الباك اند
+    window.location.href = `${allowedBaseUrls}/auth/facebook`; // يوجه إلى نهاية الباك اند
   };
   return (
      <Box sx={{ my: 2 }}>

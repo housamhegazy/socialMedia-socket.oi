@@ -1,10 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+// @ts-ignore
+const appEnv = import.meta.env.VITE_APP_ENV;
+const allowedBaseUrls =
+  appEnv === "production"
+    ? "https://socialmedia-socket-oi.onrender.com"
+    : "http://localhost:3000";
+
 
 export const friendRequistApi = createApi({
   reducerPath: "friendRequistApi",
   tagTypes: ["FriendRequist", "Friends"],
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://socialmedia-socket-oi.onrender.com",
+    baseUrl: allowedBaseUrls,
     credentials: "include",
   }),
   endpoints: (builder) => ({
