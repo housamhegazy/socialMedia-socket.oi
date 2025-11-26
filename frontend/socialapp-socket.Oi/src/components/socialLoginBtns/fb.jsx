@@ -15,6 +15,7 @@ const FacebooklogIn = () => {
         startIcon={<Facebook />}
         sx={{
           backgroundColor: '#4285F4',
+          width:"150px",
           color: 'white',
           '&:hover': {
             backgroundColor: '#d8dee9ff',
@@ -23,13 +24,13 @@ const FacebooklogIn = () => {
           textTransform: 'none',
           fontSize: '1rem',
           fontWeight: 'bold',
-          padding: '10px 20px',
+          padding: '10px 10px',
           borderRadius: '5px',
           boxShadow: '0 2px 4px 0 rgba(0,0,0,.25)',
         }}
       >
         <Typography component="span" sx={{ ml: 1 }}>
-          Facebook Login
+          Facebook
         </Typography>
       </Button>
     </Box>

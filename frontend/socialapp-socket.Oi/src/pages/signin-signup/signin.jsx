@@ -118,10 +118,9 @@ const LoginForm = () => {
   return (
     // استخدام CssBaseline لتطبيق الأساسيات وتصحيح اختلافات المتصفحات
     <Container component="main" maxWidth="xs">
-      <CssBaseline />
       <Box
         sx={{
-          marginTop: 8,
+          marginTop: {xs:2,sm:8},
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -134,8 +133,16 @@ const LoginForm = () => {
           bgcolor: theme.palette.background.paper,
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: theme.palette.primary.main }}>
-          <LockOpenOutlined />
+        <Avatar
+          sx={{
+            m: 1,
+            bgcolor:
+              theme.palette.mode === "dark"
+                ? theme.palette.info.dark
+                : theme.palette.primary.main,
+          }}
+        >
+          <LockOpenOutlined color="inherit" />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign In
@@ -219,7 +226,7 @@ const LoginForm = () => {
                   color: theme.palette.mode === "dark" ? "#90caf9" : "#1976d2",
                 }}
               >
-                you forgot password?
+                forget your password ?
               </Link>
             </Grid>
           </Grid>
@@ -229,7 +236,7 @@ const LoginForm = () => {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, py: 1.5, position: "relative" }}
+            sx={{ mt: 3, mb: 2, py: 1, position: "relative" }}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -265,10 +272,10 @@ const LoginForm = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            mt: 5,
-            backgroundColor: "#ffffff4d",
+            mt: 2,
+            backgroundColor: theme.palette.background.paper,
             borderRadius: "20px",
-            px: 5,
+            px: 2,
           }}
         >
           <GoogleLogin />{" "}

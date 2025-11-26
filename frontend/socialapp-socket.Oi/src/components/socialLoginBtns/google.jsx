@@ -14,23 +14,25 @@ const GoogleLogin = () => {
         onClick={handleGoogleLogin}
         startIcon={<Google />}
         sx={{
-          color: 'inherite',
+          backgroundColor: '#4285F4',
+          width:"150px",
+          color: 'white',
           borderColor: '#ccc',
           '&:hover': {
              borderColor: '#999',
-            backgroundColor: '#fafafa',
+            // backgroundColor: '#fafafaff',
             color:"black"
           },
           textTransform: 'none',
           fontSize: '1rem',
           fontWeight: 'bold',
-          padding: '10px 20px',
+          padding: '10px 10px',
           borderRadius: '5px',
           boxShadow: '0 2px 4px 0 rgba(0,0,0,.15)',
         }}
       >
         <Typography component="span" sx={{ ml: 1 }}>
-          Google Login
+          Google
         </Typography>
       </Button>
     </Box>
