@@ -15,7 +15,6 @@ export default function ForgotPassword() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sendEmail] = useSendEmailLinkMutation();
-  console.log(email);
   const handleForgotPassword = async (e) => {
     e.preventDefault();
     setSuccess(null);
@@ -28,9 +27,11 @@ export default function ForgotPassword() {
     } catch (err) {
       console.log(err);
       setError("Network error. Try again later.");
+    }finally{
+      setLoading(false);
     }
 
-    setLoading(false);
+    
   };
 
   return (

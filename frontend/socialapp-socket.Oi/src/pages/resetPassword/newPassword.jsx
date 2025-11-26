@@ -29,7 +29,6 @@ export default function ResetPassword() {
     if (password !== confirmPassword) {
       return setError("كلمة المرور غير متطابقة");
     }
-    console.log({password,token});
     try {
       setLoading(true);
       setError("");

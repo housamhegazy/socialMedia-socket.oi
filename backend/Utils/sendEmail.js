@@ -1,25 +1,21 @@
-const nodemailer = require("nodemailer");
 
+const { Resend }  =require("resend");
+const resend = new Resend(`${process.env.RESEND_API_KEY}`);
 async function sendEmail({ to, subject, html }) {
-  // 1) إعداد الـ transporter
-  const transporter = nodemailer.createTransport({
-    service: "gmail", // تقدر تستبدلها بـ Outlook أو SMTP
-    auth: {
-      user: process.env.EMAIL_USER, // بريدك
-      pass: process.env.EMAIL_PASS, // باسورد App Password
-    },
-  });
-
-  // 2) إعداد الرسالة
-  const mailOptions = {
-    from: `"My App" <${process.env.EMAIL_USER}>`,
+  try {
+    const data = resend.emails.send({
+    from: "socialMedia <onboarding@resend.dev>",
     to,
     subject,
     html,
-  };
-
-  // 3) إرسال الرسالة
-  return transporter.sendMail(mailOptions);
+  });
+   console.log("Email sent:", data);
+    return data;
+  } catch (error) {
+     console.error("Email Error:", error);
+    throw new Error("Failed to send email");
+  }
+  
 }
 
 module.exports = sendEmail;
