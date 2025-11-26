@@ -71,7 +71,7 @@ const Root = () => {
   useEffect(() => {
     dispatch(setLoadingAuth(true));
     if (userLoading) return; // لسه بيجيب من السيرفر
-    if (apiuser) {
+    if (apiuser && apiuser._id) {
       dispatch(setAuthUser(apiuser));
     } else if (isError) {
       dispatch(clearAuthUser());
