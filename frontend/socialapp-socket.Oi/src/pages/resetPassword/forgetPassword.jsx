@@ -26,7 +26,8 @@ export default function ForgotPassword() {
       setSuccess("reset password link sent to your email successfully")
     } catch (err) {
       console.log(err);
-      setError("Network error. Try again later.");
+      setError(err.data.message)
+      
     }finally{
       setLoading(false);
     }

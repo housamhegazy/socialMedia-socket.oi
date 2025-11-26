@@ -1,8 +1,4 @@
-import {
-  Box,
-  createTheme,
-  Grid,
-} from "@mui/material";
+import { Box, createTheme, Grid } from "@mui/material";
 import AppBarComponent from "./components/AppBar";
 import { Outlet } from "react-router";
 import Footer from "./components/Footer";
@@ -62,8 +58,8 @@ const Root = () => {
     isLoading: userLoading,
     isError,
   } = useGetUserByNameQuery(); // Fetch current user
-  //import user from auth slice to control drawer and sidebar عشان يكون كل الموقع بيتحدث في نفس اللحظه 
-  const {isAuthenticated, isLoadingAuth } = useSelector(
+  //import user from auth slice to control drawer and sidebar عشان يكون كل الموقع بيتحدث في نفس اللحظه
+  const { isAuthenticated, isLoadingAuth } = useSelector(
     // @ts-ignore
     (state) => state.auth
   );
@@ -79,16 +75,14 @@ const Root = () => {
     dispatch(setLoadingAuth(false));
   }, [apiuser, userLoading, isError, dispatch]);
 
-  // loading whene userloading 
-  if (isLoadingAuth) { 
-    return (
-        <LoadingPage />
-    );
+  // loading whene userloading
+  if (isLoadingAuth) {
+    return <LoadingPage />;
   }
 
   return (
     <Box className="root" sx={{ display: "flex", flexDirection: "column" }}>
-    {/* <ScrollToTop /> */}
+      {/* <ScrollToTop /> */}
       <Box
         sx={{
           width: "100%",
@@ -100,7 +94,11 @@ const Root = () => {
           zIndex: "1000",
         }}
       >
-        <AppBarComponent handleDrawerToggle={handleDrawerToggle} theme={theme} handleTheme={handleTheme} />
+        <AppBarComponent
+          handleDrawerToggle={handleDrawerToggle}
+          theme={theme}
+          handleTheme={handleTheme}
+        />
       </Box>
       {/* عشان خاصية ال ستيكي تشتغل لازم يكون ارتفاع الكونتينر اكبر من ارتفاع البوكس الداخلي */}
       <Grid
@@ -110,7 +108,7 @@ const Root = () => {
           width: "100%",
           maxWidth: `${ContainerMaxWidth}px`,
           margin: "0 auto",
-          minHeight:`calc(100vh - 64px)`,
+          minHeight: `calc(100vh - 64px)`,
           flexWrap: "nowrap",
           alignItems: "stretch",
         }}
@@ -133,7 +131,6 @@ const Root = () => {
               handleDrawerTransitionEnd={handleDrawerTransitionEnd}
               mobileOpen={mobileOpen}
               theme={theme}
-              
             />
           </Grid>
         )}
