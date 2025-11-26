@@ -6,7 +6,6 @@ import {
   TextField,
   Button,
   Grid,
-  Link,
   CssBaseline,
   Avatar,
   CircularProgress,
@@ -19,7 +18,7 @@ import {
   VisibilityOff,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   useGetUserByNameQuery,
   useSigninMutation,
@@ -37,7 +36,7 @@ const LoginForm = () => {
   const [message, setMessage] = useState({ text: "", type: "" });
   const { refetch } = useGetUserByNameQuery();
   // ========================== لتسجيل الدخول==========================
-  const [signin, { isLoading}] = useSigninMutation();
+  const [signin, { isLoading }] = useSigninMutation();
 
   // ==========================حالات تخزين بيانات النموذج (البريد الإلكتروني وكلمة المرور فقط)==========================
   const [formData, setFormData] = useState({
@@ -214,9 +213,11 @@ const LoginForm = () => {
           <Grid container justifyContent="flex-end" sx={{ mt: 1 }}>
             <Grid>
               <Link
-                href="#"
-                variant="body2"
-                sx={{ color: theme.palette.primary.light }}
+                to="/forget-password"
+                style={{
+                  textDecoration: "none",
+                  color: theme.palette.mode === "dark" ? "#90caf9" : "#1976d2",
+                }}
               >
                 you forgot password?
               </Link>
@@ -244,9 +245,13 @@ const LoginForm = () => {
               <Typography variant="body2" color="text.secondary">
                 Don't have an account?
                 <Link
-                  href="/signup"
-                  variant="body2"
-                  sx={{ ml: 1, fontWeight: "bold" }}
+                  to="/signup"
+                  color="inherit"
+                  style={{
+                    textDecoration: "none",
+                    color:
+                      theme.palette.mode === "dark" ? "#90caf9" : "#1976d2",
+                  }}
                 >
                   Register
                 </Link>

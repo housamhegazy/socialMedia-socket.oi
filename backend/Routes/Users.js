@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../Models/User.js");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
+const sendEmail = require("../Utils/sendEmail.js");
 
 const {
   cloudinary,
@@ -13,12 +15,12 @@ const {
 // protected route to set auth cookie
 function setAuthCookie(res, token) {
   // تحديد ما إذا كانت البيئة إنتاجية أم لا
-    const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = process.env.NODE_ENV === "production";
   // إعداد الكوكيز مع الخيارات المناسبة
   res.cookie("token", token, {
     httpOnly: true,
-    secure: isProduction,  //process.env.NODE_ENV === "production" اثناء التطوير يكون
-    sameSite: isProduction ? "None" : "Lax",//process.env.NODE_ENV === "production" ? "Strict" : "Lax"
+    secure: isProduction, //process.env.NODE_ENV === "production" اثناء التطوير يكون
+    sameSite: isProduction ? "None" : "Lax", //process.env.NODE_ENV === "production" ? "Strict" : "Lax"
     maxAge: 7 * 24 * 60 * 60 * 1000, // 1 أسبوع
   });
 }
@@ -111,6 +113,74 @@ router.post("/login", async (req, res) => {
   }
 });
 
+//====1- find user by email ==== 2- create (resettoken) and (resettokenexpire) in usermodel
+//=== 3- create link (link+token) to open (change password page) and send this link to email by nodemailer
+//=== 4- whene press link in email , open reset password page , 
+//=== 5- take (token from params & neww password == rq.body )
+//=== 5- find the User that have (resettoken) and (resettokenexpire) 
+//=== 6- Hash password and save it user 
+//=== 7- make (resettoken) and (resettokenexpire) = null , then save user
+
+
+
+//reset password request
+router.post("/forget-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User with this email does not exist." });
+    }
+    // إنشاء توكن
+    const resetToken = crypto.randomBytes(20).toString("hex");
+    user.resetToken = resetToken;
+    user.resetTokenExpire = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    // رابط الريسيت
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    // إرسال الإيميل
+    await sendEmail({
+      to: user.email,
+      subject: "Reset Your Password",
+      html: `
+        <h1>Password Reset</h1>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}" target="_blank">
+          Reset Password
+        </a>
+      `,
+    });
+
+    res.json({ message: "Reset link sent to email" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error.message });
+  }
+});
+//change password
+router.put("/reset-password", async (req, res) => {
+  const { password, token } = req.body;
+  try {
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpire: { $gt: Date.now() }, // لازم يكون لسه شغال
+    });
+
+    // 2) اعمل هاش للباسورد الجديد
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user.password = hashedPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpire = undefined;
+    await user.save();
+    res.status(200).json({ message: "تم تغيير كلمة المرور بنجاح" });
+  } catch (error) {
+    res.status(500).json({ message: "حدث خطأ في السيرفر" });
+  }
+});
 // get my profile (used in redux to get user data)
 router.get("/me/profile", AuthMiddleware, async (req, res) => {
   // Retrieve user by ID
@@ -130,7 +200,7 @@ router.post("/logout", (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true, // ✅ يمنع الوصول للتوكن من الجافاسكريبت في المتصفح
-      secure:  isProduction, // ✅ الكوكي تكون محمية في HTTPS فقط في الإنتاج
+      secure: isProduction, // ✅ الكوكي تكون محمية في HTTPS فقط في الإنتاج
       sameSite: isProduction ? "None" : "Lax", // ⚠️ تعديل مهم
       path: "/", // ✅ يضمن حذف الكوكي من كل المسارات
     });
@@ -168,44 +238,52 @@ router.get("/search", AuthMiddleware, async (req, res) => {
   }
 });
 //========================================== edit profile photo ==========================================
-router.put("/edit", AuthMiddleware, upload.single("avatar"), async (req, res) => {
-  try {
-    const imageFile = req.file;
-    const ownerId = req.user.id;
+router.put(
+  "/edit",
+  AuthMiddleware,
+  upload.single("avatar"),
+  async (req, res) => {
+    try {
+      const imageFile = req.file;
+      const ownerId = req.user.id;
 
-    if (!imageFile) {
-      return res.status(400).json({ message: "لم يتم إرسال أي صورة." });
+      if (!imageFile) {
+        return res.status(400).json({ message: "لم يتم إرسال أي صورة." });
+      }
+
+      // تحويل الملف إلى base64
+      const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
+      // رفع الصورة على Cloudinary
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: "socialmediaApp/profileImage",
+        public_id: ownerId, //  هذا هو اسم الصوره ويضمن عند رفع صوره يقوم بحذف القديمه ومن الممكن تغييره الى دالة الوقت لرفع كل صوره باسم مختلف والاحتفاظ بكل الصور
+        // upload_preset: "posts-unsigned", يتم استخدامه لما ارفع صور من الفرونت اند فقط
+      });
+      // تحديث الصورة في قاعدة البيانات
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: ownerId },
+        { avatar: result.secure_url },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).json({ message: "المستخدم غير موجود." });
+      }
+
+      // ✅ رجع الصورة الجديدة
+      return res.status(200).json({
+        message: "تم تحديث الصورة بنجاح",
+        avatar: updatedUser.avatar,
+      });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: "حدث خطأ أثناء تحديث الصورة", error: error.message });
     }
-
-    // تحويل الملف إلى base64
-    const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
-    // رفع الصورة على Cloudinary
-    const result = await cloudinary.uploader.upload(dataUri, {
-      folder: "socialmediaApp/profileImage",
-      public_id: ownerId, //  هذا هو اسم الصوره ويضمن عند رفع صوره يقوم بحذف القديمه ومن الممكن تغييره الى دالة الوقت لرفع كل صوره باسم مختلف والاحتفاظ بكل الصور
-      // upload_preset: "posts-unsigned", يتم استخدامه لما ارفع صور من الفرونت اند فقط 
-    });
-    // تحديث الصورة في قاعدة البيانات
-    const updatedUser = await User.findOneAndUpdate(
-      {_id:ownerId},
-      { avatar: result.secure_url },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "المستخدم غير موجود." });
-    }
-
-    // ✅ رجع الصورة الجديدة
-    return res.status(200).json({
-      message: "تم تحديث الصورة بنجاح",
-      avatar: updatedUser.avatar,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "حدث خطأ أثناء تحديث الصورة", error: error.message });
   }
-});
+);
+
 // الدخول على صفحة اي مستخدم في تويتر عن طريق الاي دي
 router.get("/:username", AuthMiddleware, async (req, res) => {
   // Retrieve user by ID

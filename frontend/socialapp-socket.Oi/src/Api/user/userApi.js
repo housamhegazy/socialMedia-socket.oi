@@ -1,4 +1,5 @@
 // Need to use the React-specific entry point to import createApi
+import { Email } from "@mui/icons-material";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 // @ts-ignore
 const allowedBaseUrls = import.meta.env.VITE_API_URL;
@@ -61,6 +62,22 @@ export const userApi = createApi({
       query: (query) => `/api/users/search?svalue=${query}`,
       providesTags: ["User"],
     }),
+    //send forget password email
+    sendEmailLink:builder.mutation({
+      query:(email)=>({
+        url:"/api/users/forget-password",
+        method:"POST",
+        body:email
+      })
+    }),
+    //change password
+    changePassword:builder.mutation({
+      query:({password,token})=>({
+        url:"/api/users/reset-password",
+        method:"PUT",
+        body:{password,token}
+      })
+    })
   }),
 });
 // Export hooks for usage in functional components, which are
@@ -73,4 +90,6 @@ export const {
   useSignOutMutation,
   useSearchUsersQuery,
   useUpdateAvatarMutation,
+  useSendEmailLinkMutation,
+  useChangePasswordMutation
 } = userApi;

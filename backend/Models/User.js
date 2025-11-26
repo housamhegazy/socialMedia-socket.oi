@@ -86,6 +86,13 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: null, // It will be null until the first successful login
     },
+    resetToken:{
+      type:String
+    },
+    resetTokenExpire:{
+      type:String
+    }
+
   },
   {
     timestamps: true, // لإضافة حقلي createdAt و updatedAt تلقائياً

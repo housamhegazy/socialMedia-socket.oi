@@ -19,6 +19,8 @@ import PostDetails from "./pages/postDetails/postDetails";
 import ChatList from "./pages/chat/chatList";
 import ChatDetail from "./pages/chat/chatDetails";
 import FriendsList from "./pages/friends/friends";
+import ForgotPassword from "./pages/resetPassword/forgetPassword";
+import ResetPassword from "./pages/resetPassword/newPassword";
 
 function App() {
   // @ts-ignore
@@ -101,6 +103,24 @@ function App() {
           path: "/signin",
           element: !isAuthenticated ? (
             <LoginForm />
+          ) : (
+            <Navigate to="/" replace />
+          ),
+
+        },
+        {
+          path: "/forget-password",
+          element: !isAuthenticated ? (
+            <ForgotPassword />
+          ) : (
+            <Navigate to="/" replace />
+          ),
+
+        },
+        {
+          path: "/reset-password/:token",
+          element: !isAuthenticated ? (
+            <ResetPassword />
           ) : (
             <Navigate to="/" replace />
           ),
