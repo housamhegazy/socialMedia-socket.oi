@@ -27,7 +27,6 @@ function initializeSocket(httpServer, userSockets) {
             socket.join(chatId);
             console.log(`Socket ${socket.id} joined chat room: ${chatId}`);
         });
-
         // send message
         socket.on("send_message", async (data) => {
             const { chatId, senderId, text } = data;

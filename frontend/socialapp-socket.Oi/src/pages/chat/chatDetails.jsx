@@ -19,7 +19,7 @@ const ChatDetail = () => {
   const socket = useSocket(); // الحصول على مثيل السوكيت
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null); // للنزول لأسفل القائمة تلقائيًا
-  // 1. جلب الرسائل التاريخية من RTK Query
+  // 1. جلب الرسائل التاريخية من RTK Query=======================================================================================
   const {
     data: historyMessages,
     isLoading,
@@ -27,7 +27,7 @@ const ChatDetail = () => {
     isFetching,
   } = useGetMessagesQuery(chatId);
 
-  // 2. تحديث الرسائل عند جلب التاريخ لأول مرة أو عند تغيير الـ chatId
+  // 2. تحديث الرسائل عند جلب التاريخ لأول مرة أو عند تغيير الـ chatId=======================================================================================
   useEffect(() => {
     if (isSuccess && historyMessages) {
       setMessages(historyMessages);
@@ -36,7 +36,7 @@ const ChatDetail = () => {
     }
   }, [isSuccess, historyMessages, chatId]);
 
-  // 3. إدارة أحداث السوكيت (الاستقبال والانضمام)
+  // 3. إدارة أحداث السوكيت (الاستقبال والانضمام)   ====================================================================================
   useEffect(() => {
     if (!socket || !chatId) return;
 
@@ -59,12 +59,12 @@ const ChatDetail = () => {
     };
   }, [socket, chatId]); // إعادة التنفيذ عند تغيير المحادثة أو اتصال السوكيت
 
-  // 4. النزول لأسفل القائمة تلقائيًا
+  // 4. النزول لأسفل القائمة تلقائيًا  ====================================================================================
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 5. دالة إرسال الرسالة
+  // 5. دالة إرسال الرسالة  ====================================================================================
   const sendMessage = (text) => {
     if (!socket || !text || !currentUser) return;
 
@@ -77,11 +77,11 @@ const ChatDetail = () => {
     // إرسال الرسالة عبر السوكيت (الباقي يتم في الباك إند)
     socket.emit("send_message", messageData);
   };
-
+  // 6. جلب تفاصيل المحادثة (لتحديد المستخدم الآخر) ====================================================================================
   const { data: chatDetails } = useGetChatDetailsQuery(chatId);
   const currentUserId = currentUser?._id;
 
-  // دالة لتحديد ID المستخدم الآخر
+  // دالة لتحديد ID المستخدم الآخر  ====================================================================================
   const getRecipient = (chatDetails) => {
     if (!chatDetails || !chatDetails.members) return null;
     const recipient = chatDetails?.members?.find(
@@ -91,6 +91,7 @@ const ChatDetail = () => {
   };
   const recipient = getRecipient(chatDetails);
   const recipientId = recipient?._id;
+  // 7. التعامل مع حالات التحميل والأخطاء  ====================================================================================
   if (isLoading || isFetching)
     return <Typography>Loading messages...</Typography>;
   if (!currentUser)
@@ -109,7 +110,7 @@ const ChatDetail = () => {
       {recipientId && (
         <Box
           sx={{
-            p: .5,
+            p: 0.5,
             borderBottom: "1px solid #ccc",
             backgroundColor: theme.palette.background.paper,
             position: "sticky",
@@ -119,9 +120,11 @@ const ChatDetail = () => {
         >
           {/* يمكن وضع مكون الاتصال هنا */}
           <Box
-          onClick={() => {navigate(`/user/${recipientId}`)}}
+            onClick={() => {
+              navigate(`/user/${recipientId}`);
+            }}
             sx={{
-              p: .5,
+              p: 0.5,
               position: "sticky",
               top: 64,
               bgColor: theme.palette.background.paper,
@@ -159,6 +162,7 @@ const ChatDetail = () => {
             key={msg._id || Math.random()}
             sx={{
               display: "flex",
+              alignItems: "center",
               justifyContent:
                 msg.sender._id === currentUser._id ? "flex-end" : "flex-start",
             }}
@@ -175,6 +179,11 @@ const ChatDetail = () => {
               }}
             >
               {msg.text}
+            </Typography>
+            <Typography
+              sx={{ fontSize: "12px", opacity: ".5", marginLeft: "8px" }}
+            >
+              {new Date(msg.createdAt).toLocaleTimeString()}
             </Typography>
           </Box>
         ))}
