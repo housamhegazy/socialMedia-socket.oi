@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 //====================== خاص ب  passport  ==========================================
 const passport = require("passport"); // إضافة passport
 require("./Utils/passport.js"); // استيراد إعداد passport
-const initializeSocket = require("./Utils/socketHandler");// استيراد ملف معالج الويب سوكيت
+const initializeSocket = require("./Utils/socketHandler"); // استيراد ملف معالج الويب سوكيت
 const cors = require("cors"); // للسماح لـ frontend بالاتصال بـ backend
 const cookieParser = require("cookie-parser"); // لتحليل الكوكيز
 
@@ -18,9 +18,8 @@ const userSockets = new Map();
 
 // ✅ إنشاء socket.io وربطه بالسيرفر
 const { io, userSockets: initializedUserSockets } = initializeSocket(
-    httpServer,
-    process.env.FRONTEND_URL,
-    userSockets
+  httpServer,
+  userSockets
 );
 
 // تخزين io & userSockets لاستخدامهم في الراوتر
@@ -33,7 +32,7 @@ app.use(
     credentials: true, // للسماح بإرسال الكوكيز مع الطلبات
   })
 );
-
+//====================================================== middlewares ==============================================================
 app.use(cookieParser());
 app.use(express.json());
 

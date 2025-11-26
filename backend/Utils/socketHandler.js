@@ -2,12 +2,11 @@ const { Server } = require("socket.io");
 const Chat = require("../Models/Chat"); 
 const Message = require("../Models/Message");
 
-function initializeSocket(httpServer, frontendUrl, userSockets) {
-console.log("***** FRONTEND_URL =", process.env.FRONTEND_URL);
+function initializeSocket(httpServer, userSockets) {
     // ✅ إنشاء io صح
     const io = new Server(httpServer, {
         cors: {
-            origin: frontendUrl,
+            origin: process.env.FRONTEND_URL,
             methods: ["GET", "POST"],
             credentials: true,
         },
