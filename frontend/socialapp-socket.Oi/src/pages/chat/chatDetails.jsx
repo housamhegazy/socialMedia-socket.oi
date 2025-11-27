@@ -121,7 +121,7 @@ const ChatDetail = () => {
           {/* يمكن وضع مكون الاتصال هنا */}
           <Box
             onClick={() => {
-              navigate(`/user/${recipientId}`);
+              navigate(`/user/${recipient.username}`);
             }}
             sx={{
               p: 0.5,
