@@ -23,7 +23,6 @@ import {
 import {
   useDeletemyAccountMutation,
   useGetUserByUserNameQuery,
-  useSignOutMutation,
   useUpdateAvatarMutation,
 } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
