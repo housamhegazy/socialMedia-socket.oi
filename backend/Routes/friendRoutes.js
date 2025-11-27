@@ -231,7 +231,7 @@ router.get("/requests/pending", AuthMiddleware, async (req, res) => {
     const pendingRequests = await FriendRequest.find({
       receiver: currentUserId,
       status: "Pending",
-    }).populate("sender", "username avatar"); // جلب بيانات المُرسِل المطلوبة للعرض
+    }).populate("sender", "name username avatar"); // جلب بيانات المُرسِل المطلوبة للعرض
 
     res.status(200).json(pendingRequests);
   } catch (error) {

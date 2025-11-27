@@ -183,7 +183,7 @@ const FriendRequestsDropdown = () => {
             </ListItemIcon>
 
             <ListItemText
-              primary={request.sender?.username || "مستخدم مجهول"}
+              primary={request.sender?.name || "مستخدم مجهول"}
               secondary={`أرسل لك طلب صداقة.`}
               primaryTypographyProps={{ fontWeight: 600 }}
               // النص الرئيسي على اليمين في الـ RTL
