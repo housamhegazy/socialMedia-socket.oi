@@ -21,11 +21,13 @@ import {
   useGetUserPostsQuery,
 } from "../../Api/posts/postsApi";
 import {
+  useDeletemyAccountMutation,
   useGetUserByUserNameQuery,
+  useSignOutMutation,
   useUpdateAvatarMutation,
 } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   DeleteForever,
   Done,
@@ -44,9 +46,12 @@ import {
   useRemoveFriendMutation,
   useSendRequistMutation,
 } from "../../Api/friendRequistApi/friendRequistApi";
+import { clearAuthUser } from "../../Api/user/authSlice";
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
   //=======================================بيانات المستخدم الحالي اللي مسجل دخول===========================================
@@ -71,12 +76,13 @@ const UserProfilePage = () => {
     { skip: !userProfile } // تجاهل الـ query حتى يكون user موجود
   );
   //============================ import delete all posts from posts api ===========================================
-  const [deleteAllPosts] =
-    useDeleteAllPostsMutation();
+  const [deleteAllPosts] = useDeleteAllPostsMutation();
   //================================ create chat ====================================================================
-  const [createChat] = useCreateChatMutation(); 
+  const [deleteMyProfile] = useDeletemyAccountMutation();
+  const [createChat] = useCreateChatMutation();
   // ====================================== error state =================================================
   const [error, setError] = useState(null); //error message
+  const [loadingDelete, setLoadingdelete] = useState(false);
   //============================ main menu state =====================================
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -92,19 +98,18 @@ const UserProfilePage = () => {
     useSendRequistMutation();
 
   //============================================== remove friend ===========================================================
-  const [removeFriend] =
-    useRemoveFriendMutation();
+  const [removeFriend] = useRemoveFriendMutation();
   //============================================= accept friend requist ==============================================
-  const [acceptRequest] =
-    useAcceptRequestMutation();
+  const [acceptRequest] = useAcceptRequestMutation();
   //====================================CANCEL FRIEND REQUIST ===========================================================================
-  const [cancelRequest] =
-    useCancelFriendRequistMutation();
+  const [cancelRequest] = useCancelFriendRequistMutation();
   //======================== الحصول على حالة الارسال هل تم الارسال ام لا وتظهر للمرسل بنحدد منها شكل الزرارا بتاع ارسال طلب الصداقه ====================================
-  const { data: friendshipStatus } =
-    useGetFriendshipStatusQuery(userProfile?._id, {
+  const { data: friendshipStatus } = useGetFriendshipStatusQuery(
+    userProfile?._id,
+    {
       skip: !userProfile || isMyProfile,
-    }); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
+    }
+  ); // تجاوز إذا لم يكن هناك ملف شخصي أو كان الملف الخاص بك)
 
   // حالة الطلب المرسل محلياً (لتغيير الزر فوراً)==============
   const [requestSent, setRequestSent] = useState(false);
@@ -118,7 +123,7 @@ const UserProfilePage = () => {
       setRequestSent(true); // إذا كان هناك طلب مرسل بالفعل، اضبط الحالة المحلية
     }
   }, [friendshipStatus]);
-    // =================================== دالة عرض الزر بناءً على الحالة ===================================
+  // =================================== دالة عرض الزر بناءً على الحالة ===================================
   const getFriendButtonState = () => {
     const status = friendshipStatus?.status;
     const direction = friendshipStatus?.direction;
@@ -381,6 +386,44 @@ const UserProfilePage = () => {
       });
     }
   };
+  //=================================================== delete my account ==========================
+  const handleDeleteAccount = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (result.isConfirmed) {
+      setLoadingdelete(true);
+      try {
+        await deleteMyProfile().unwrap();
+        Swal.fire({
+          title: "Deleted!",
+          text: `Your account has been deleted`,
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+        // امسح الداتا من الستور
+        dispatch(clearAuthUser());
+        // اعمل redirect
+        navigate("/signin");
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "something error",
+          text: error?.message || "something error , try again later",
+        });
+      } finally {
+        setLoadingdelete(false);
+      }
+    }
+  };
 
   useEffect(() => {
     if (userError) {
@@ -401,7 +444,7 @@ const UserProfilePage = () => {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: "2rem",p:0 }}>
+    <Container maxWidth="lg" sx={{ paddingTop: "2rem", p: 0 }}>
       {/* صفحة المستخدم */}
       <Grid container spacing={4}>
         {/* قسم معلومات المستخدم */}
@@ -446,8 +489,8 @@ const UserProfilePage = () => {
                     src={preview || userProfile?.avatar}
                     alt={userProfile?.name}
                     sx={{
-                      width: {xs:100,sm:150},
-                      height: {xs:100,sm:150},
+                      width: { xs: 100, sm: 150 },
+                      height: { xs: 100, sm: 150 },
                       mb: 2,
                       border: "3px solid #eee",
                       boxShadow: 3,
@@ -535,15 +578,45 @@ const UserProfilePage = () => {
               Email: {userProfile.email}
             </Typography>
             {isMyProfile && (
-              <Button
-                onClick={()=>{navigate("/user/friends")}}
-                variant="outlined"
-                color="inherit"
-                fullWidth
-                sx={{ marginBottom: 2 ,textTransform:"none",width:"150px"}}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
               >
-                my friends
-              </Button>
+                <Button
+                  onClick={() => {
+                    navigate("/user/friends");
+                  }}
+                  variant="outlined"
+                  color="inherit"
+                  fullWidth
+                  sx={{
+                    marginBottom: 2,
+                    textTransform: "none",
+                    width: "150px",
+                  }}
+                >
+                  my friends
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleDeleteAccount();
+                  }}
+                  variant="contained"
+                  color="error"
+                  fullWidth
+                  sx={{
+                    marginBottom: 2,
+                    textTransform: "none",
+                    width: "150px",
+                  }}
+                >
+                  {loadingDelete ? "deleting ... " : "delete account"}
+                </Button>
+              </Box>
             )}
 
             {!isMyProfile && (
@@ -601,7 +674,7 @@ const UserProfilePage = () => {
         {/* create post */}
         {isMyProfile && <PostComposer user={currentUser} />}
         <Grid sx={{ width: "100%" }}>
-          <Paper elevation={3} sx={{  width: "100%" }}>
+          <Paper elevation={3} sx={{ width: "100%" }}>
             {posts?.length > 0 && (
               <>
                 {isMyProfile && (

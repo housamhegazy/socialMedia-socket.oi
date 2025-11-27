@@ -1,246 +1,43 @@
 const express = require("express");
 const router = express.Router();
-const PostModel = require("../Models/Post.js");
-const NotificationSchema = require("../Models/notifications.js");
 const { AuthMiddleware } = require("../Middleware/AuthMiddleware.js");
-
+const {uploadPost,
+  getAllPosts,
+  getOnePost,
+  getPostsForUser,
+  editPost,
+  deletePost,
+  deleteAllPosts,
+  likeUnlikePost} = require("../comntrollers/post.js");
 const {
-  cloudinary,
-  bufferToDataUri,
   upload,
 } = require("../Utils/cloudinary.js");
 
-
 require("dotenv").config();
 
-router.post("/", AuthMiddleware, upload.single("image"), async (req, res) => {
-  try {
-    const { text } = req.body;
-    const imageFile = req.file;
-    // upload image to cloudinary
-    let imageURl = null;
-    if (!imageFile && !text) {
-      return res
-        .status(400)
-        .json({ message: "Post must contain either text or an imageFile." });
-    }
-    if (imageFile) {
-      // 1. تحويل Buffer إلى Data URI (Base64 String)
-      const dataUri = bufferToDataUri(imageFile.mimetype, imageFile.buffer);
-      const result = await cloudinary.uploader.upload(dataUri, {
-        folder: "socialmediaApp/posts",
-      });
-      //get image url from cloudinary
-      imageURl = result.secure_url;
-    }
-    // upload all data to mongoo db
-    const newPost = new PostModel({
-      owner: req.user.id,
-      text,
-      image: imageURl,
-    });
-    await newPost.save();
-    res.status(201).json(newPost);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/", AuthMiddleware, upload.single("image"), uploadPost);
 
 //get all posts for all users
-router.get("/", AuthMiddleware, async (req, res) => {
-  try {
-    const posts = await PostModel.find()
-      .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
-      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
-      .sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get("/", AuthMiddleware, getAllPosts);
 //get one post 
-router.get("/:postId", AuthMiddleware, async (req, res) => {
-  const postId = req.params.postId
-  try {
-    const post = await PostModel.findById(postId)
-      .populate("owner", "username name email avatar") // populate : لجلب بيانات المالك (اليوزر) لكل بوست
-      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
-      .sort({ createdAt: -1 });
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get("/:postId", AuthMiddleware, getOnePost);
 
 //get posts for one user
-router.get("/user/:userId", AuthMiddleware, async (req, res) => {
-  const userId = req.params.userId;
-  try {
-    // استعلام جلب المنشورات الخاصة بالمستخدم باستخدام الـ userId
-    const posts = await PostModel.find({ owner: userId }) // استخدام find للبحث عن منشورات هذا المستخدم
-      .populate("owner", "username name email avatar") // جلب بيانات صاحب المنشور
-      .populate("likes", "name avatar username") // جلب بيانات المستخدمين الذين قاموا بالإعجاب
-      .sort({ createdAt: -1 }); // ترتيب المنشورات حسب تاريخ الإنشاء بشكل تنازلي
-
-    if (!posts || posts.length === 0) {
-      console.log("No posts found for this user");
-      return res.status(200).json([]);
-    }
-
-    console.log("Posts fetched successfully");
-    res.status(200).json(posts); // ✅ حالة النجاح العادية
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: error.message }); // إرجاع رسالة الخطأ إذا فشل الاستعلام
-  }
-});
+router.get("/user/:userId", AuthMiddleware, getPostsForUser);
 //===================================== edit post ===========================================
 router.put(
   "/:postId",
   AuthMiddleware,
   upload.single("image"),
-  async (req, res) => {
-    const postId = req.params.postId;
-    try {
-      const post = await PostModel.findById(postId);
-      if (!post) return res.status(404).json({ message: "Post not found" });
-      // التحقق من ملكية البوست
-      if (post.owner.toString() !== req.user.id) {
-        return res.status(403).json({ error: "Not Authorized" });
-      }
-      // لو المستخدم اختار يحذف الصورة
-      if (req.body.removeImage === "true" && post.image) {
-        // احذف الصورة القديمة من Cloudinary
-        const publicId = post.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
-        post.image = "";
-      }
-      // لو في صورة جديدة
-      if (req.file) {
-        // حذف الصورة القديمة
-        if (post.image) {
-          const publicId = post.image.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
-        }
-        // رفع الصورة الجديدة
-        const dataUri = bufferToDataUri(req.file.mimetype, req.file.buffer);
-        const result = await cloudinary.uploader.upload(dataUri, {
-          folder: "socialmediaApp/posts",
-        });
-
-        post.image = result.secure_url;
-      }
-      // تحديث النص
-      if (req.body.text) {
-        post.text = req.body.text;
-      }
-
-      await post.save();
-      res.json(post);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: error.message });
-    }
-  }
+  editPost
 );
+//===================================== delete post ===========================================
 
-router.delete("/:postId", AuthMiddleware, async (req, res) => {
-  const postId = req.params.postId;
-  try {
-    const post = await PostModel.findOne({ _id: postId, owner: req.user.id });
-    if (post) {
-      //delete image from cloudinary
-      if (post.image) {
-        const publicId = post.image.split("/").pop().split(".")[0];
-        await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
-      }
-    } else {
-      return res.status(404).json({ message: "post not found" });
-    }
-    //delete post from mongodb
-    await PostModel.findOneAndDelete({ _id: postId, owner: req.user.id });
-    res.status(200).json({ message: "post deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.delete("/:postId", AuthMiddleware, deletePost);
 //========================= delete all posts =============================================
-router.delete("/", AuthMiddleware, async (req, res) => {
-  try {
-    const posts = await PostModel.find({ owner: req.user.id });
-    if (posts.length > 0) {
-      const deletionPromises = posts.map(async (post) => {
-        if (post.image) {
-          const publicId = post.image.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
-        }
-      });
-      await Promise.all(deletionPromises);
-    }
-    await PostModel.deleteMany({ owner: req.user.id });
-    res.status(200).json({ message: "posts deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.delete("/", AuthMiddleware, deleteAllPosts);
 
 // ================= LIKE / UNLIKE POST =================
-router.put("/like/:postId", AuthMiddleware, async (req, res) => {
-  try {
-    const postId = req.params.postId;
-    const userId = req.user.id;
-
-    const post = await PostModel.findById(postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
-
-    const liked = post.likes.includes(userId);
-
-    if (liked) {
-      // ❌ لو عامل لايك → نشيل اللايك
-      post.likes = post.likes.filter((id) => id.toString() !== userId);
-    } else {
-      // ❤️ لو مش عامل لايك → نضيف لايك
-      post.likes.push(userId);
-
-      //==============================web socket ============================
-      //Get post to find liker owner
-      // create notification if commenter not post owner
-      if (post.owner.toString() !== req.user.id) {
-        const notification = new NotificationSchema({
-          recipient: post.owner,
-          sender: req.user.id,
-          type: "like",
-          post: req.params.postId,
-        });
-
-        await notification.save();
-        const populatedNotification = await notification.populate(
-          "sender",
-          "name avatar"
-        );
-        //send realtime notification
-        const io = req.app.get("io");
-        const userSockets = req.app.get("userSockets");
-        const recipientSocketId = userSockets.get(post.owner.toString());
-        if (recipientSocketId) {
-          io.to(recipientSocketId).emit(
-            "receiveNotification",
-            populatedNotification
-          );
-        }
-      }
-      //======================= end socket ==============================================
-    }
-
-    await post.save();
-
-    res.status(200).json({
-      message: liked ? "Unliked" : "Liked",
-      likes: post.likes,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.put("/like/:postId", AuthMiddleware, likeUnlikePost);
 
 module.exports = router;

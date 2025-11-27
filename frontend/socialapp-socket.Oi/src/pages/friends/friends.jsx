@@ -124,6 +124,7 @@ const FriendsList = () => {
                 }}
               >
                 <Avatar
+                onClick={()=>{navigate(`/user/${friend.username}`)}}
                   src={friend.avatar || ""}
                   alt={friend.username}
                   sx={{

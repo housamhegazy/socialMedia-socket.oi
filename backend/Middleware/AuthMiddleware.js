@@ -1,14 +1,21 @@
 const jwt = require("jsonwebtoken");
 
 const AuthMiddleware = (req, res, next) => {
-  // 1. التحقق من التوكن في الكوكيز
+  // 1. التحقق من التوكن في الكوكيز======================================================
   const cookiesToken = req.cookies?.token;
-  // 2. التحقق من التوكن في الهيدر باستخدام Regex دقيق
+  // إذا كنت تستخدم الكوكيز لتخزين التوكن (تأكد من استخدام middleware مثل cookie-parser)
+  //  وبنستخدم في الفرونت اند axios.defaults.withCredentials = true;
+
+  // 2. التحقق من التوكن في الهيدر باستخدام Regex دقيق===============================================
   const authHeader = req.header("authorization");
   const headerMatch = authHeader ? authHeader.match(/^Bearer\s+(.*)$/i) : null;
-  const headerToken = headerMatch ? headerMatch[1] : null; // هذا إذا كنت تستخدم الكوكيز لتخزين التوكن وهو اكثر أماناً في بعض الحالات
+  const headerToken = headerMatch ? headerMatch[1] : null;
+  // أو req.headers['authorization']
+  // وبنستخدم معاها في الفرونت اند axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  // اختيار التوكن من الكوكيز أو الهيدر=========================================================
   const token = cookiesToken || headerToken;
-  // 2. إرجاع الاستجابة في حالة عدم وجود توكن
+  // 2 إرجاع الاستجابة في حالة عدم وجود توكن========================================================
   if (!token) {
     return res.status(401).json({ error: "no token provided" });
   }
@@ -26,5 +33,4 @@ const AuthMiddleware = (req, res, next) => {
   }
 };
 
-// 4. تصدير الكود بصيغة CommonJS
 module.exports = { AuthMiddleware };
