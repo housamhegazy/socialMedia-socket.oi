@@ -394,7 +394,7 @@ const UserProfilePage = () => {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes, delete account!",
     });
     if (result.isConfirmed) {
       setLoadingdelete(true);

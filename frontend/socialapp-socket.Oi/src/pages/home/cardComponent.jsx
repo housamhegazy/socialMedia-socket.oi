@@ -51,8 +51,8 @@ const CardComponent = ({ post, isMyProfile }) => {
   //=================== menu functions ============================
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-//======================= open comment box =============================
-const [openCommentBox, setOpenCommentBox] = useState(false)
+  //======================= open comment box =============================
+  const [openCommentBox, setOpenCommentBox] = useState(false);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -107,39 +107,41 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
   };
   //============================================handle share =================================
   const handleShare = (post) => {
-  if (navigator.share) {
-    navigator.share({
-      title: post?.owner?.name || "Post",
-      text: post?.text || "",
-      url: window.location.origin + "/posts/" + post._id,
-    })
-    .then(() => console.log("Shared successfully"))
-    .catch((error) => console.log("Error sharing:", error));
-  } else {
-    // Fallback للمتصفحات اللي مبتدعمش Web Share API
-    navigator.clipboard.writeText(window.location.origin + "/post/" + post._id);
-    Swal.fire({
-      icon: "success",
-      title: "Link copied!",
-      text: "Post link copied to clipboard.",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  }
-};
+    if (navigator.share) {
+      navigator
+        .share({
+          title: post?.owner?.name || "Post",
+          text: post?.text || "",
+          url: window.location.origin + "/posts/" + post._id,
+        })
+        .then(() => console.log("Shared successfully"))
+        .catch((error) => console.log("Error sharing:", error));
+    } else {
+      // Fallback للمتصفحات اللي مبتدعمش Web Share API
+      navigator.clipboard.writeText(
+        window.location.origin + "/post/" + post._id
+      );
+      Swal.fire({
+        icon: "success",
+        title: "Link copied!",
+        text: "Post link copied to clipboard.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+  };
   return (
     <Box>
       {openDialog && <DialogComp {...{ post, setOpenDialog }} />}
 
-      <Card  
+      <Card
         sx={{
-          id:post._id,
+          id: post._id,
           maxWidth: "100%",
           margin: "10px auto",
           my: 5,
           borderRadius: "20px",
           backgroundColor: theme.palette.background.default,
-          
         }}
       >
         <CardHeader
@@ -241,6 +243,7 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
             {post.text}
           </Typography>
         </CardContent>
+        {/* ========================================== start card actions ======================================================== */}
         <CardActions
           disableSpacing
           sx={{ display: "flex", justifyContent: "space-between" }}
@@ -281,7 +284,7 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
                     "&:hover": { opacity: 0.7 },
                   }}
                 >
-                  Liked by{" "}
+                  Liked by {" "}
                   <span style={{ color: "#555" }}>
                     {post.likes.length === 1
                       ? "1 person"
@@ -334,24 +337,35 @@ const [openCommentBox, setOpenCommentBox] = useState(false)
             </Dialog>
             {/* ============================================ end dialog ====================================== */}
           </Box>
-          <IconButton onClick={()=>{setOpenCommentBox(true)}}>
+          <IconButton
+            onClick={() => {
+              setOpenCommentBox(true);
+            }}
+          >
             <Comment />
           </IconButton>
           <IconButton onClick={() => handleShare(post)} aria-label="share">
             <Share />
           </IconButton>
         </CardActions>
+        {/* ========================================== end card actions ========================================================= */}
         {isError && (
           <Typography
             variant="body2"
             sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
           >
-            {error?.
-// @ts-ignore
-            data?.message || "Failed to delete post."}
+            {// @ts-ignore
+            error?.data?.message || "Failed to delete post."}
           </Typography>
         )}
-        <AddComment post={post} user={user} openCommentBox={openCommentBox} setOpenCommentBox={setOpenCommentBox} commentRefs={undefined} commentIdToHighlight={undefined} />
+        <AddComment
+          post={post}
+          user={user}
+          openCommentBox={openCommentBox}
+          setOpenCommentBox={setOpenCommentBox}
+          commentRefs={undefined}
+          commentIdToHighlight={undefined}
+        />
       </Card>
     </Box>
   );
