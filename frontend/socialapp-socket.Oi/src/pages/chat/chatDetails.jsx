@@ -22,6 +22,7 @@ const ChatDetail = () => {
   // 1. جلب الرسائل التاريخية من RTK Query=======================================================================================
   const {
     data: historyMessages,
+      refetch,
     isLoading,
     isSuccess,
     isFetching,
@@ -43,7 +44,7 @@ const ChatDetail = () => {
     // أ. الانضمام إلى غرفة المحادثة
     // هذا ضروري ليتمكن الباك إند من إرسال الرسائل إلى الغرفة الصحيحة
     socket.emit("join_chat", chatId);
-
+    refetch()
     // ب. الاستماع للرسائل الجديدة
     const handleReceiveMessage = (newMessage) => {
       // إضافة الرسالة الجديدة مباشرة إلى الحالة المحلية

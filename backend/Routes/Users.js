@@ -15,8 +15,6 @@ const {
   deleteMyAccount,
 } = require("../comntrollers/User.js");
 const {
-  cloudinary,
-  bufferToDataUri,
   upload,
 } = require("../Utils/cloudinary.js");
 

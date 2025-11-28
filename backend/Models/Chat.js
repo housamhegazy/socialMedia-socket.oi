@@ -26,6 +26,8 @@ function arrayLimit(val) {
 }
 
 // يمكن إضافة مؤشر لضمان عدم تكرار المحادثات بين نفس الطرفين
-ChatSchema.index({ members: 1, members: -1 }, { unique: true });
-
+ChatSchema.index(
+  { "members.0": 1, "members.1": 1 },
+  { unique: true }
+);
 module.exports = mongoose.model('Chat', ChatSchema);

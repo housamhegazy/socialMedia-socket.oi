@@ -35,12 +35,12 @@ export const chatApi = createApi({
       }),
       invalidatesTags: ["ChatList"],
     }), // 💬 جلب الرسائل التاريخية لمحادثة معينة (قد تدمج في ملف آخر) // GET /api/messages/:chatId
-    getMessages: builder.query({
-      query: (chatId) => `/api/messages/${chatId}`, // لا نستخدم invalidatesTags/providesTags لأن تحديث الرسائل يتم عبر السوكيت // نستخدم 'ChatMessages' فقط كمرجع إذا أردت تحديثها يدوياً
-      providesTags: (result, error, chatId) => [
-        { type: "ChatMessages", id: chatId },
-      ],
-    }),
+  getMessages: builder.query({
+    query: (chatId) => `/api/messages/${chatId}`, // لا نستخدم invalidatesTags/providesTags لأن تحديث الرسائل يتم عبر السوكيت // نستخدم 'ChatMessages' فقط كمرجع إذا أردت تحديثها يدوياً
+    providesTags: (result, error, chatId) => [
+      { type: "ChatMessages", id: chatId },
+    ],
+  }),
     deleteChat: builder.mutation({
       query: (chatId) => ({
         url: `/api/chat/delete/${chatId}`,
