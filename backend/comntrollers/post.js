@@ -7,8 +7,9 @@ const CommentModel = require("../Models/comment.js");
 require("dotenv").config();
 const uploadPost = async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, location } = req.body;
     const imageFile = req.file;
+
     // upload image to cloudinary
     let imageURl = null;
     if (!imageFile && !text) {
@@ -30,6 +31,7 @@ const uploadPost = async (req, res) => {
       owner: req.user.id,
       text,
       image: imageURl,
+      location: location,
     });
     await newPost.save();
     res.status(201).json(newPost);
@@ -142,8 +144,8 @@ const deletePost = async (req, res) => {
         const publicId = post.image.split("/").pop().split(".")[0];
         await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
       }
-      await CommentModel.deleteMany({post:post._id})
-      await NotificationSchema.deleteMany({post:post._id})
+      await CommentModel.deleteMany({ post: post._id });
+      await NotificationSchema.deleteMany({ post: post._id });
     } else {
       return res.status(404).json({ message: "post not found" });
     }
@@ -155,26 +157,25 @@ const deletePost = async (req, res) => {
   }
 };
 //========================= delete all posts(include post comments) =============================================
-const deleteAllpostsFunc = async(userId)=>{
-  const posts = await PostModel.find({ owner: userId});
-    if (posts.length > 0) {
-      const deletionPromises = posts.map(async (post) => {
-        if (post.image) {
-          const publicId = post.image.split("/").pop().split(".")[0];
-          await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
-        }
-        await CommentModel.deleteMany({post:post._id})
-        await NotificationSchema.deleteMany({post:post._id})
-      });
-      await Promise.all(deletionPromises);
-    }
-    await PostModel.deleteMany({ owner: userId});
-    
-}
+const deleteAllpostsFunc = async (userId) => {
+  const posts = await PostModel.find({ owner: userId });
+  if (posts.length > 0) {
+    const deletionPromises = posts.map(async (post) => {
+      if (post.image) {
+        const publicId = post.image.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`socialmediaApp/posts/${publicId}`);
+      }
+      await CommentModel.deleteMany({ post: post._id });
+      await NotificationSchema.deleteMany({ post: post._id });
+    });
+    await Promise.all(deletionPromises);
+  }
+  await PostModel.deleteMany({ owner: userId });
+};
 const deleteAllPosts = async (req, res) => {
-  const userId = req.user.id
+  const userId = req.user.id;
   try {
-    deleteAllpostsFunc(userId)
+    deleteAllpostsFunc(userId);
     res.status(200).json({ message: "posts deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

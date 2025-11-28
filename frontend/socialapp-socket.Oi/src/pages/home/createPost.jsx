@@ -11,23 +11,25 @@ import {
 import {
   ImageOutlined,
   GifBoxOutlined,
-  FormatListBulletedOutlined,
-  SentimentSatisfiedOutlined,
   CalendarTodayOutlined,
   LocationOnOutlined,
   Public,
+  LocationOn,
+  Close,
 } from "@mui/icons-material";
 import GrokIcon from "../../components/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
-import { useState } from "react";
-import {
-  useCreatePostMutation,
-} from "../../Api/posts/postsApi";
+import { useRef, useState } from "react";
+import { useCreatePostMutation } from "../../Api/posts/postsApi";
 import { useNavigate } from "react-router";
+import EmojiButton from "./emojiComp";
 const PostComposer = ({ user }) => {
   const theme = useTheme();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const inputRef = useRef(null); //للايموشن بوكس
+  const [location, setLocation] = useState(null);
+
   const [createPost, { isLoading }] = useCreatePostMutation();
-  
+
   //store data of post states
   const [postText, setPostText] = useState(""); // post text
   const [loadingPreview, setLoadingPreview] = useState(false); // loading preview box
@@ -36,7 +38,7 @@ const PostComposer = ({ user }) => {
   const [Message, setMessage] = useState(null); // error message
   const [status, setStatus] = useState(null); // 'success' | 'error' | null
 
-  // sort image in state 
+  // sort image in state
   const handleImage = async (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -72,13 +74,18 @@ const PostComposer = ({ user }) => {
     if (imgFile) {
       formData.append("image", imgFile);
     }
+    if (location) {
+      formData.append("location", JSON.stringify(location));
+    }
     try {
       await createPost(formData).unwrap(); // unwrap لتعامل أفضل مع الأخطاء
       setFile(null);
       setPreview(null);
       setStatus("success");
-      setPostText("")
+      setPostText("");
+      setLocation(null)
       setMessage("Post uploaded successfully!");
+
       // refetch(); // إعادة تحميل البوستات
     } catch (error) {
       console.log(error);
@@ -92,7 +99,29 @@ const PostComposer = ({ user }) => {
     setFile(null);
     setPreview(null);
   };
+  //============================================ location ==========================================
+  const handleLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
 
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const getCityName = async (lat, lon) => {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+        );
+        const data = await res.json();
+        return data.address.city || data.address.town || data.address.village;
+      };
+      const city = await getCityName(lat, lon);
+
+      setLocation(city);
+    });
+    
+  };
   // تحديد ما إذا كان زر النشر نشطاً
   const isPostButtonEnabled = postText.trim().length > 0 || !!imgFile;
   return (
@@ -109,13 +138,19 @@ const PostComposer = ({ user }) => {
         <Avatar
           alt="User"
           src={user?.avatar}
-          sx={{ width: {xs:25,sm:48}, height: {xs:25,sm:48}, mt: 1 ,cursor:"pointer"}}
-            onClick={() => navigate(`/user/${user?.username}`)}
+          sx={{
+            width: { xs: 25, sm: 48 },
+            height: { xs: 25, sm: 48 },
+            mt: 1,
+            cursor: "pointer",
+          }}
+          onClick={() => navigate(`/user/${user?.username}`)}
         />
 
         <Box sx={{ flexGrow: 1 }}>
           {/* حقل الإدخال (Text Area) */}
           <InputBase
+            inputRef={inputRef}
             placeholder="What's happening?"
             fullWidth
             multiline
@@ -128,6 +163,7 @@ const PostComposer = ({ user }) => {
               color: theme.palette.text.primary,
             }}
           />
+
           {/* ⭐️ منطقة معاينة الصورة */}
           {preview && (
             <Box
@@ -168,7 +204,17 @@ const PostComposer = ({ user }) => {
               )}
             </Box>
           )}
-
+          {location && (
+            <Typography sx={{display:"flex" ,justifyContent:"flex-start",alignItems:"center"}}>
+              <LocationOn />
+              <Typography variant="body1">{location} </Typography>
+              <Close
+                onClick={() => {
+                  setLocation(null);
+                }}
+              />
+            </Typography>
+          )}
           {/* زر تحديد الجمهور (Everyone can reply) */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Public
@@ -184,7 +230,7 @@ const PostComposer = ({ user }) => {
             <Typography
               variant="caption"
               sx={{
-                fontSize:{xs:"10px", sm:"12px"},
+                fontSize: { xs: "10px", sm: "12px" },
                 color:
                   theme.palette.mode == "dark"
                     ? theme.palette.text.secondary
@@ -218,7 +264,7 @@ const PostComposer = ({ user }) => {
                 }}
                 aria-label="upload picture"
               >
-                <ImageOutlined  sx={{fontSize: 14}}/>
+                <ImageOutlined sx={{ fontSize: 14 }} />
 
                 <input
                   onChange={(e) => {
@@ -240,7 +286,7 @@ const PostComposer = ({ user }) => {
                   }}
                 />
               </IconButton>
-              <IconButton>
+              {/* <IconButton>
                 <FormatListBulletedOutlined
                   sx={{
                     fontSize: 14,
@@ -250,18 +296,30 @@ const PostComposer = ({ user }) => {
                         : theme.palette.primary.main,
                   }}
                 />
-              </IconButton>
-              <IconButton>
-                <SentimentSatisfiedOutlined
-                  sx={{
-                    fontSize: 14,
-                    color:
-                      theme.palette.mode == "dark"
-                        ? theme.palette.text.secondary
-                        : theme.palette.primary.main,
-                  }}
-                />
-              </IconButton>
+              </IconButton> */}
+              {/* ============================================= emotions ================================================ */}
+              <EmojiButton
+                onSelectEmoji={(emoji) => {
+                  const input = inputRef.current;
+                  if (!input) {
+                    setPostText((prev) => prev + emoji);
+                    return;
+                  }
+                  const start = input.selectionStart;
+                  const end = input.selectionEnd;
+
+                  const newText =
+                    postText.slice(0, start) + emoji + postText.slice(end);
+
+                  setPostText(newText);
+                  // إعادة تركيز المؤشر بعد الإيموجي
+                  setTimeout(() => {
+                    input.focus();
+                    input.selectionStart = input.selectionEnd =
+                      start + emoji.length;
+                  }, 0);
+                }}
+              />
               <IconButton>
                 <CalendarTodayOutlined
                   sx={{
@@ -273,7 +331,12 @@ const PostComposer = ({ user }) => {
                   }}
                 />
               </IconButton>
-              <IconButton>
+              {/* =========================================== location ================================================== */}
+              <IconButton
+                onClick={() => {
+                  handleLocation();
+                }}
+              >
                 <LocationOnOutlined
                   sx={{
                     fontSize: 14,

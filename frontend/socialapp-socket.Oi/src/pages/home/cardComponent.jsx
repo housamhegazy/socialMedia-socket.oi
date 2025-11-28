@@ -6,6 +6,8 @@ import {
   DeleteForever,
   PersonAdd,
   Comment,
+  LocationCity,
+  LocationOn,
 } from "@mui/icons-material";
 import {
   Card,
@@ -70,7 +72,6 @@ const CardComponent = ({ post, isMyProfile }) => {
     setOpenDialog(true);
     setAnchorEl(null);
   };
-
   //=============================================================================
   const handleDelete = async (postId) => {
     const result = await Swal.fire({
@@ -242,6 +243,15 @@ const CardComponent = ({ post, isMyProfile }) => {
           <Typography variant="body2" sx={{ color: "text.secondary" }}>
             {post.text}
           </Typography>
+          {post?.location ? (
+            <Typography
+              variant="body2"
+              sx={{ color: "text.secondary", display: "flex", alignItems: "center",mt:5 }}
+            >
+              <LocationOn sx={{ mr: 0.5 }} />
+              {post.location}
+            </Typography>
+          ) : null}
         </CardContent>
         {/* ========================================== start card actions ======================================================== */}
         <CardActions
