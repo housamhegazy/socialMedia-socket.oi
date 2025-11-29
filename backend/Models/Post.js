@@ -14,7 +14,9 @@ const PostSchema = new mongoose.Schema(
       type: String,
     },
     location: {
-      type: String,
+      lat: Number,
+      lon: Number,
+      city: String,
     },
     likes: [
       {

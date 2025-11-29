@@ -47,6 +47,9 @@ const CardComponent = ({ post, isMyProfile }) => {
   //===================== edite dialog =================================
   const [openDialog, setOpenDialog] = useState(false);
   const [openLikesDialog, setOpenLikesDialog] = useState(false);
+  const [postDialog, setPostDialog] = useState(false);
+  const [zoom, setZoom] = useState(1);
+
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -231,6 +234,9 @@ const CardComponent = ({ post, isMyProfile }) => {
         />
         {post.image && (
           <CardMedia
+            onClick={() => {
+              setPostDialog(true);
+            }}
             component="img"
             height="194"
             image={post?.image}
@@ -246,10 +252,15 @@ const CardComponent = ({ post, isMyProfile }) => {
           {post?.location ? (
             <Typography
               variant="body2"
-              sx={{ color: "text.secondary", display: "flex", alignItems: "center",mt:5 }}
+              sx={{
+                color: "text.secondary",
+                display: "flex",
+                alignItems: "center",
+                mt: 5,
+              }}
             >
               <LocationOn sx={{ mr: 0.5 }} />
-              {post.location}
+              {post.location?.city}
             </Typography>
           ) : null}
         </CardContent>
@@ -294,7 +305,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                     "&:hover": { opacity: 0.7 },
                   }}
                 >
-                  Liked by {" "}
+                  Liked by{" "}
                   <span style={{ color: "#555" }}>
                     {post.likes.length === 1
                       ? "1 person"
@@ -346,6 +357,51 @@ const CardComponent = ({ post, isMyProfile }) => {
               </Box>
             </Dialog>
             {/* ============================================ end dialog ====================================== */}
+            {/* ============================================ post dialog ======================================= */}
+            {postDialog && (
+              <Dialog
+                open={postDialog}
+                onClose={() => {
+                  setPostDialog(false);
+                  setZoom(1); // 🔄 رجّع الزوم للوضع الطبيعي عند الغلق
+                }}
+                fullWidth
+                maxWidth="sm"
+              >
+                <Box sx=
+                  {{
+                    p: 2,
+                    overflow: "hidden",
+                    cursor: "zoom-in",
+                  }}
+                  onWheel=
+                  {(e) => {
+                    // e.preventDefault();
+
+                    setZoom((prev) => {
+                      let newZoom = prev + (e.deltaY < 0 ? 0.1 : -0.1);
+                      if (newZoom < 1) newZoom = 1; // أقل زوم
+                      if (newZoom > 4) newZoom = 4; // أعلى زوم
+                      return newZoom;
+                    });
+                  }}>
+                  
+                  <img
+                    src={post.image}
+                    alt="Post"
+                    style={{
+                      width: "100%",
+                      borderRadius: "10px",
+                      transform: `scale(${zoom})`,
+                      transformOrigin: "center center",
+                      transition: "transform 0.15s ease-out",
+                      cursor: zoom > 1 ? "zoom-out" : "zoom-in",
+                    }}
+                  />
+                </Box>
+              </Dialog>
+            )}
+            {/* ==================================== end post dialog ================================== */}
           </Box>
           <IconButton
             onClick={() => {
@@ -364,8 +420,10 @@ const CardComponent = ({ post, isMyProfile }) => {
             variant="body2"
             sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
           >
-            {// @ts-ignore
-            error?.data?.message || "Failed to delete post."}
+            {
+              // @ts-ignore
+              error?.data?.message || "Failed to delete post."
+            }
           </Typography>
         )}
         <AddComment

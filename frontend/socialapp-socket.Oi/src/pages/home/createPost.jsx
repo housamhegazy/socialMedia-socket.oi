@@ -114,11 +114,26 @@ const PostComposer = ({ user }) => {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
         );
         const data = await res.json();
-        return data.address.city || data.address.town || data.address.village;
+        const address = data.address;
+
+    return (
+      address.city ||
+      address.town ||
+      address.village ||
+      address.city_district ||
+      address.suburb ||
+      address.state ||
+      address.county ||
+      "Unknown"
+    );
       };
       const city = await getCityName(lat, lon);
 
-      setLocation(city);
+      setLocation({
+      lat,
+      lon,
+      city,
+    });
     });
     
   };
@@ -205,15 +220,17 @@ const PostComposer = ({ user }) => {
             </Box>
           )}
           {location && (
-            <Typography sx={{display:"flex" ,justifyContent:"flex-start",alignItems:"center"}}>
+            <Box sx={{display:"flex" ,justifyContent:"flex-start",alignItems:"center"}}>
               <LocationOn />
-              <Typography variant="body1">{location} </Typography>
-              <Close
+              <Typography variant="body1">{location.city} </Typography>
+              <Close sx={{cursor:"pointer"
+              }}
                 onClick={() => {
                   setLocation(null);
+                  
                 }}
               />
-            </Typography>
+            </Box>
           )}
           {/* زر تحديد الجمهور (Everyone can reply) */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>

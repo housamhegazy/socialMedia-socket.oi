@@ -7,9 +7,15 @@ const CommentModel = require("../Models/comment.js");
 require("dotenv").config();
 const uploadPost = async (req, res) => {
   try {
-    const { text, location } = req.body;
+    const { text } = req.body;
     const imageFile = req.file;
 
+    let location = null;
+
+    // parse location string from FE
+    if (req.body.location) {
+      location = JSON.parse(req.body.location);
+    }
     // upload image to cloudinary
     let imageURl = null;
     if (!imageFile && !text) {
