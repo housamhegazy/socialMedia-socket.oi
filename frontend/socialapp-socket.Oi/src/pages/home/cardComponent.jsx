@@ -2,11 +2,9 @@ import {
   MoreVert,
   Favorite,
   Share,
-  Delete,
   DeleteForever,
   PersonAdd,
   Comment,
-  LocationCity,
   LocationOn,
 } from "@mui/icons-material";
 import {
@@ -242,6 +240,7 @@ const CardComponent = ({ post, isMyProfile }) => {
             image={post?.image}
             alt="Paella dish"
             loading="lazy"
+            sx={{cursor:"pointer"}}
           />
         )}
 
