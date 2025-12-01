@@ -15,10 +15,11 @@ import {
   useDeleteReplyMutation,
   useGetPostCommentsQuery,
 } from "../../Api/comments/commentsApi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import { formatDistance } from "date-fns";
 import Swal from "sweetalert2";
+import EmojiButton from "./emojiComp";
 
 const AddComment = ({
   post,
@@ -30,6 +31,9 @@ const AddComment = ({
 }) => {
   const theme = useTheme();
   const navigate = useNavigate(); 
+    const commentRef = useRef(null); //للايموشن بوكس
+    const replyref = useRef(null); //للايموشن بوكس
+
   //===================create post ===========================
   const [createComment] =
     useCreateCommentMutation();
@@ -209,7 +213,7 @@ const AddComment = ({
                 }}
               >
                 <Typography sx={{ fontSize: "14px", fontWeight: "bold" }}>
-                  Reply to {post?.owner?.name}
+                  add comment to " {post?.owner?.name}" post
                 </Typography>
 
                 <IconButton
@@ -248,6 +252,26 @@ const AddComment = ({
                   },
                 }}
               />
+              <EmojiButton onSelectEmoji={(emoji) => {
+                  const input = commentRef.current;
+                  if (!input) {
+                    setText((prev) => prev + emoji);
+                    return;
+                  }
+                  const start = input.selectionStart;
+                  const end = input.selectionEnd;
+
+                  const newText =
+                    text.slice(0, start) + emoji + text.slice(end);
+
+                  setText(newText);
+                  // إعادة تركيز المؤشر بعد الإيموجي
+                  setTimeout(() => {
+                    input.focus();
+                    input.selectionStart = input.selectionEnd =
+                      start + emoji.length;
+                  }, 0);
+                }}/>
               <Button
                 onClick={handleSendComment}
                 variant="contained"
@@ -419,6 +443,26 @@ const AddComment = ({
                             },
                           }}
                         />
+                        <EmojiButton onSelectEmoji={(emoji) => {
+                  const input = replyref.current;
+                  if (!input) {
+                    setreplyText((prev) => prev + emoji);
+                    return;
+                  }
+                  const start = input.selectionStart;
+                  const end = input.selectionEnd;
+
+                  const newText =
+                    replyText.slice(0, start) + emoji + replyText.slice(end);
+
+                  setreplyText(newText);
+                  // إعادة تركيز المؤشر بعد الإيموجي
+                  setTimeout(() => {
+                    input.focus();
+                    input.selectionStart = input.selectionEnd =
+                      start + emoji.length;
+                  }, 0);
+                }}/>
                         <IconButton
                           onClick={() => {
                             setActiveReplyId(null);
