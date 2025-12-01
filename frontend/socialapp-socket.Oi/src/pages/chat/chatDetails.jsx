@@ -153,6 +153,7 @@ const ChatDetail = () => {
           flexGrow: 1,
           overflowY: "auto",
           p: 2,
+          pt:8,
           display: "flex",
           flexDirection: "column",
           gap: 1,

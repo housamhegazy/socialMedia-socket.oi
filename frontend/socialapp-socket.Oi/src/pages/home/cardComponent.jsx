@@ -32,10 +32,11 @@ import {
 import Swal from "sweetalert2";
 import { useGetUserByNameQuery } from "../../Api/user/userApi";
 import { formatDistance } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DialogComp from "./dialog";
 import AddComment from "./addComment";
 const CardComponent = ({ post, isMyProfile }) => {
+  const [isLikedLocally, setIsLikedLocally] = useState(false);
   // @ts-ignore
   const { user } = useSelector((state) => state.auth);
   const { refetch } = useGetUserByNameQuery();
@@ -74,6 +75,32 @@ const CardComponent = ({ post, isMyProfile }) => {
     setAnchorEl(null);
   };
   //=============================================================================
+  //================================ useEffect for likes state =================================
+  useEffect(() => {
+    // التحقق مما إذا كان المستخدم الحالي ضمن قائمة الإعجابات
+    const userHasLiked = post.likes.some(
+      (like) => String(like._id) === String(user._id)
+    );
+    setIsLikedLocally(userHasLiked);
+  }, [post.likes, user._id]); // يتم التنفيذ عند تغيير الإعجابات أو بيانات المستخدم
+
+  const handleLikeClick = async () => {
+    // 🚀 Optimistic Update: قم بتغيير الحالة المحلية فوراً
+    setIsLikedLocally((prev) => !prev);
+
+    try {
+      // أرسل طلب الـ API في الخلفية
+      await likePost(post._id).unwrap();
+      // هنا، RTK Query سيهتم بتحديث الكاش والـ UI بعد نجاح الطلب،
+      // ولكن الـ UI سيتغير بالفعل بسبب `isLikedLocally`
+    } catch (error) {
+      // ❌ Revert: في حالة فشل طلب الباك إند، رجّع الحالة المحلية مرة أخرى
+      setIsLikedLocally((prev) => !prev);
+      console.error("Like/Unlike failed:", error);
+      // قد ترغب في إظهار رسالة خطأ هنا
+    }
+  };
+  //=============================================================
   const handleDelete = async (postId) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -240,7 +267,7 @@ const CardComponent = ({ post, isMyProfile }) => {
             image={post?.image}
             alt="Paella dish"
             loading="lazy"
-            sx={{cursor:"pointer"}}
+            sx={{ cursor: "pointer" }}
           />
         )}
 
@@ -275,20 +302,13 @@ const CardComponent = ({ post, isMyProfile }) => {
               alignItems: "center",
             }}
           >
-            <IconButton
-              onClick={async () => {
-                likePost(post._id).unwrap();
-              }}
-              aria-label="likes"
-            >
+            <IconButton onClick={handleLikeClick} aria-label="likes">
               <Favorite
-                color={
-                  post.likes.some(
-                    (like) => String(like._id) === String(user._id)
-                  )
-                    ? "error"
-                    : "inherit"
-                }
+                color={isLikedLocally ? "error" : "inherit"}
+                sx={{
+                  transition: "color 0.1s ease-in",
+                  transform: isLikedLocally ? "scale(1.1)" : "scale(1)",
+                }}
               />
             </IconButton>
 
@@ -367,14 +387,13 @@ const CardComponent = ({ post, isMyProfile }) => {
                 fullWidth
                 maxWidth="sm"
               >
-                <Box sx=
-                  {{
+                <Box
+                  sx={{
                     p: 2,
                     overflow: "hidden",
                     cursor: "zoom-in",
                   }}
-                  onWheel=
-                  {(e) => {
+                  onWheel={(e) => {
                     // e.preventDefault();
 
                     setZoom((prev) => {
@@ -383,8 +402,8 @@ const CardComponent = ({ post, isMyProfile }) => {
                       if (newZoom > 4) newZoom = 4; // أعلى زوم
                       return newZoom;
                     });
-                  }}>
-                  
+                  }}
+                >
                   <img
                     src={post.image}
                     alt="Post"
