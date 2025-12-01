@@ -31,7 +31,7 @@ export default function LocationPicker({ open, onClose, onSelect }) {
           params: {
             text: value,
             // @ts-ignore
-            apiKey: "9a1a781068b440b089971e80994fd08f", // 👈 API KEY هنا
+            apiKey: import.meta.env.VITE_GEO_API_KEY, // 👈 API KEY هنا
           },
         }
       );
