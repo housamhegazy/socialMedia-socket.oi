@@ -30,13 +30,12 @@ const AddComment = ({
   commentIdToHighlight,
 }) => {
   const theme = useTheme();
-  const navigate = useNavigate(); 
-    const commentRef = useRef(null); //للايموشن بوكس
-    const replyref = useRef(null); //للايموشن بوكس
+  const navigate = useNavigate();
+  const commentRef = useRef(null); //للايموشن بوكس
+  const replyref = useRef(null); //للايموشن بوكس
 
   //===================create post ===========================
-  const [createComment] =
-    useCreateCommentMutation();
+  const [createComment] = useCreateCommentMutation();
   //================= create reply ==========================
   const [createReply] = useCreateReplyMutation();
   //==================== comments ===================================
@@ -53,7 +52,7 @@ const AddComment = ({
   //=========================== DELETE COMMENT ===============================
   const [deleteComment] = useDeleteCommentMutation();
   //=========================== delete reply =====================================
-  const [deleteReply] = useDeleteReplyMutation()
+  const [deleteReply] = useDeleteReplyMutation();
   //================================ send comment ==============================
   const handleSendComment = async () => {
     const postId = post?._id;
@@ -138,7 +137,7 @@ const AddComment = ({
   };
 
   //==================================== delete reply ======================================
-  const deleteReplyHandle = async ({commentId , replyId}) => {
+  const deleteReplyHandle = async ({ commentId, replyId }) => {
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -150,7 +149,7 @@ const AddComment = ({
     });
     if (result.isConfirmed) {
       try {
-        await deleteReply({commentId,replyId}).unwrap();
+        await deleteReply({ commentId, replyId }).unwrap();
         Swal.fire({
           title: "Deleted!",
           text: "Your reply has been deleted.",
@@ -252,7 +251,8 @@ const AddComment = ({
                   },
                 }}
               />
-              <EmojiButton onSelectEmoji={(emoji) => {
+              <EmojiButton
+                onSelectEmoji={(emoji) => {
                   const input = commentRef.current;
                   if (!input) {
                     setText((prev) => prev + emoji);
@@ -271,7 +271,8 @@ const AddComment = ({
                     input.selectionStart = input.selectionEnd =
                       start + emoji.length;
                   }, 0);
-                }}/>
+                }}
+              />
               <Button
                 onClick={handleSendComment}
                 variant="contained"
@@ -443,26 +444,30 @@ const AddComment = ({
                             },
                           }}
                         />
-                        <EmojiButton onSelectEmoji={(emoji) => {
-                  const input = replyref.current;
-                  if (!input) {
-                    setreplyText((prev) => prev + emoji);
-                    return;
-                  }
-                  const start = input.selectionStart;
-                  const end = input.selectionEnd;
+                        <EmojiButton
+                          onSelectEmoji={(emoji) => {
+                            const input = replyref.current;
+                            if (!input) {
+                              setreplyText((prev) => prev + emoji);
+                              return;
+                            }
+                            const start = input.selectionStart;
+                            const end = input.selectionEnd;
 
-                  const newText =
-                    replyText.slice(0, start) + emoji + replyText.slice(end);
+                            const newText =
+                              replyText.slice(0, start) +
+                              emoji +
+                              replyText.slice(end);
 
-                  setreplyText(newText);
-                  // إعادة تركيز المؤشر بعد الإيموجي
-                  setTimeout(() => {
-                    input.focus();
-                    input.selectionStart = input.selectionEnd =
-                      start + emoji.length;
-                  }, 0);
-                }}/>
+                            setreplyText(newText);
+                            // إعادة تركيز المؤشر بعد الإيموجي
+                            setTimeout(() => {
+                              input.focus();
+                              input.selectionStart = input.selectionEnd =
+                                start + emoji.length;
+                            }, 0);
+                          }}
+                        />
                         <IconButton
                           onClick={() => {
                             setActiveReplyId(null);
@@ -555,18 +560,18 @@ const AddComment = ({
                         <Typography sx={{ fontSize: "13px" }}>
                           {r.text}
                         </Typography>
-                        <Box sx={{display:"flex" , justifyContent:"end"}}>
+                        <Box sx={{ display: "flex", justifyContent: "end" }}>
                           {r.owner._id == user._id && (
-                          <IconButton
-                            onClick={() => {
-                              const commentId = c._id
-                              const replyId = r._id
-                              deleteReplyHandle({commentId,replyId});
-                            }}
-                          >
-                            <Delete color="error" sx={{ fontSize: "20px" }} />
-                          </IconButton>
-                        )}
+                            <IconButton
+                              onClick={() => {
+                                const commentId = c._id;
+                                const replyId = r._id;
+                                deleteReplyHandle({ commentId, replyId });
+                              }}
+                            >
+                              <Delete color="error" sx={{ fontSize: "20px" }} />
+                            </IconButton>
+                          )}
                         </Box>
                       </Box>
                     ))}
