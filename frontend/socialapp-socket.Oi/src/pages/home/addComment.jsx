@@ -1,4 +1,4 @@
-import { Delete, ImageOutlined } from "@mui/icons-material";
+import { Delete } from "@mui/icons-material";
 import {
   Box,
   Avatar,
@@ -29,7 +29,7 @@ const AddComment = ({
   commentIdToHighlight,
 }) => {
   const theme = useTheme();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   //===================create post ===========================
   const [createComment] =
     useCreateCommentMutation();

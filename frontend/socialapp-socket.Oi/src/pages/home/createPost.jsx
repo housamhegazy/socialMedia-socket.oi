@@ -17,16 +17,17 @@ import {
   LocationOn,
   Close,
 } from "@mui/icons-material";
-import GrokIcon from "../../components/grokIcon"; // أيقونة Grok المخصصة التي أرسلتها سابقاً
 import { useRef, useState } from "react";
 import { useCreatePostMutation } from "../../Api/posts/postsApi";
 import { useNavigate } from "react-router";
 import EmojiButton from "./emojiComp";
+import LocationPicker from "./LocationPicker";
 const PostComposer = ({ user }) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const inputRef = useRef(null); //للايموشن بوكس
   const [location, setLocation] = useState(null);
+  const [locationDialog, setLocationDialog] = useState(false);
 
   const [createPost, { isLoading }] = useCreatePostMutation();
 
@@ -83,7 +84,7 @@ const PostComposer = ({ user }) => {
       setPreview(null);
       setStatus("success");
       setPostText("");
-      setLocation(null)
+      setLocation(null);
       setMessage("Post uploaded successfully!");
 
       // refetch(); // إعادة تحميل البوستات
@@ -100,43 +101,42 @@ const PostComposer = ({ user }) => {
     setPreview(null);
   };
   //============================================ location ==========================================
-  const handleLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
-      return;
-    }
+  // const handleLocation = () => {
+  //   if (!navigator.geolocation) {
+  //     alert("Geolocation is not supported by your browser");
+  //     return;
+  //   }
 
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const lat = position.coords.latitude;
-      const lon = position.coords.longitude;
-      const getCityName = async (lat, lon) => {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
-        );
-        const data = await res.json();
-        const address = data.address;
+  //   navigator.geolocation.getCurrentPosition(async (position) => {
+  //     const lat = position.coords.latitude;
+  //     const lon = position.coords.longitude;
+  //     const getCityName = async (lat, lon) => {
+  //       const res = await fetch(
+  //         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+  //       );
+  //       const data = await res.json();
+  //       const address = data.address;
 
-    return (
-      address.city ||
-      address.town ||
-      address.village ||
-      address.city_district ||
-      address.suburb ||
-      address.state ||
-      address.county ||
-      "Unknown"
-    );
-      };
-      const city = await getCityName(lat, lon);
+  //       return (
+  //         address.city ||
+  //         address.town ||
+  //         address.village ||
+  //         address.city_district ||
+  //         address.suburb ||
+  //         address.state ||
+  //         address.county ||
+  //         "Unknown"
+  //       );
+  //     };
+  //     const city = await getCityName(lat, lon);
 
-      setLocation({
-      lat,
-      lon,
-      city,
-    });
-    });
-    
-  };
+  //     setLocation({
+  //       lat,
+  //       lon,
+  //       city,
+  //     });
+  //   });
+  // };
   // تحديد ما إذا كان زر النشر نشطاً
   const isPostButtonEnabled = postText.trim().length > 0 || !!imgFile;
   return (
@@ -219,19 +219,26 @@ const PostComposer = ({ user }) => {
               )}
             </Box>
           )}
+          {/* location preview */}
           {location && (
-            <Box sx={{display:"flex" ,justifyContent:"flex-start",alignItems:"center"}}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-start",
+                alignItems: "center",
+              }}
+            >
               <LocationOn />
               <Typography variant="body1">{location.city} </Typography>
-              <Close sx={{cursor:"pointer"
-              }}
+              <Close
+                sx={{ cursor: "pointer" }}
                 onClick={() => {
                   setLocation(null);
-                  
                 }}
               />
             </Box>
           )}
+
           {/* زر تحديد الجمهور (Everyone can reply) */}
           <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
             <Public
@@ -303,17 +310,6 @@ const PostComposer = ({ user }) => {
                   }}
                 />
               </IconButton>
-              {/* <IconButton>
-                <FormatListBulletedOutlined
-                  sx={{
-                    fontSize: 14,
-                    color:
-                      theme.palette.mode == "dark"
-                        ? theme.palette.text.secondary
-                        : theme.palette.primary.main,
-                  }}
-                />
-              </IconButton> */}
               {/* ============================================= emotions ================================================ */}
               <EmojiButton
                 onSelectEmoji={(emoji) => {
@@ -337,21 +333,10 @@ const PostComposer = ({ user }) => {
                   }, 0);
                 }}
               />
-              <IconButton>
-                <CalendarTodayOutlined
-                  sx={{
-                    fontSize: 14,
-                    color:
-                      theme.palette.mode == "dark"
-                        ? theme.palette.text.secondary
-                        : theme.palette.primary.main,
-                  }}
-                />
-              </IconButton>
-              {/* =========================================== location ================================================== */}
+              {/* =========================================== location button ================================================== */}
               <IconButton
                 onClick={() => {
-                  handleLocation();
+                  setLocationDialog(true);
                 }}
               >
                 <LocationOnOutlined
@@ -364,6 +349,13 @@ const PostComposer = ({ user }) => {
                   }}
                 />
               </IconButton>
+              <LocationPicker
+                open={locationDialog}
+                onClose={() => setLocationDialog(false)}
+                onSelect={(loc) => {
+                  setLocation(loc);
+                }}
+              />
             </Box>
 
             {/* زر Post */}
