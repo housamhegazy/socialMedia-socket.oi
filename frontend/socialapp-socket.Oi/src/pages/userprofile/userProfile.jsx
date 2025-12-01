@@ -443,18 +443,28 @@ const UserProfilePage = () => {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: "2rem", p: 0 }}>
+    <Box maxWidth="lg" sx={{px:0}}>
       {/* صفحة المستخدم */}
-      <Grid container spacing={4}>
+      <Grid container spacing={4} sx={{p:0}}>
         {/* قسم معلومات المستخدم */}
         <Grid sx={{ width: "100%" }}>
           <Paper
             elevation={3}
             sx={{
-              padding: 2,
+              // padding: 2,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              justifyContent:"flex-end",
+              backgroundImage: `url(${
+                isMyProfile
+                  ? currentUser?.coverPhoto?.url
+                  : userProfile?.coverPhoto?.url
+              })`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              minHeight:"400px"
             }}
           >
             {/* ================================= user avatar ============================================= */}
@@ -554,35 +564,33 @@ const UserProfilePage = () => {
             </Box>
 
             {/* ====================================== end user avatar =================================================== */}
-            <Typography variant="h5">{userProfile.name}</Typography>
-            <Typography
+            <Typography variant="h6" color="white">{userProfile.name}</Typography>
+            {/* <Typography
               variant="body1"
               color="textSecondary"
               sx={{ marginBottom: 2 }}
             >
               @{userProfile.username}
-            </Typography>
-            <Typography
-              variant="body2"
-              color="textSecondary"
-              sx={{ marginBottom: 2 }}
-            >
-              {/* {user.bio} */}
-            </Typography>
-            <Typography
+            </Typography> */}
+            {/* <Typography
               variant="body2"
               color="textSecondary"
               sx={{ marginBottom: 2 }}
             >
               Email: {userProfile.email}
-            </Typography>
-            {isMyProfile && (
+            </Typography> */}
+            
+          </Paper>
+
+        </Grid>
+        {/* ====================================================buttons =============================================== */}
+        {isMyProfile && (
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "center",
-                  flexDirection: "column",
+                  justifyContent: "space-around",
                   alignItems: "center",
+                  width: "100%",
                 }}
               >
                 <Button
@@ -666,9 +674,6 @@ const UserProfilePage = () => {
                 </Button>
               </Box>
             )}
-          </Paper>
-        </Grid>
-
         {/*===================================== قسم المنشورات ========================================================*/}
         {/* create post */}
         {isMyProfile && <PostComposer user={currentUser} />}
@@ -752,7 +757,7 @@ const UserProfilePage = () => {
           </Paper>
         </Grid>
       </Grid>
-    </Container>
+    </Box>
   );
 };
 export default UserProfilePage;
