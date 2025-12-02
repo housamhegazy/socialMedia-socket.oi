@@ -98,6 +98,7 @@ const UserProfilePage = () => {
   const [preview, setPreview] = useState(null); // save image in preview in page
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [cover, setCover] = useState(null);
+  const [coverPreview,setCoverPreview] = useState(null)
   const [uploadingCover, setUploadingCover] = useState(false);
   //=============================== import update avatar ======================================
   const [updateAvatar] = useUpdateAvatarMutation();
@@ -250,22 +251,22 @@ const UserProfilePage = () => {
       return;
     }
     setCover(coverFile); // لارسالها للباك اند
-    console.log(cover);
+    
     // الباقي دي عشان نعرضها في الصفحه قبل الارسال
-    // const reader = new FileReader();
-    // reader.onloadend = () => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
     //   // 4. تعيين المسار المؤقت (Data URL) كقيمة للمعاينة
-    //   setPreview(reader.result);
-    //   setLoadingPreview(false);
-    // };
-    // reader.onerror = () => {
+      setCoverPreview(reader.result);
+      setUploadingCover(false);
+    };
+    reader.onerror = () => {
     //   // 5. التعامل مع الخطأ (إذا فشلت القراءة)
-    //   console.error("FileReader failed to read the file.");
-    //   setLoadingPreview(false);
+      console.error("FileReader failed to read the file.");
+      setLoadingPreview(false);
     //   // يمكنك إضافة رسالة خطأ للمستخدم هنا
-    // };
-    // // 6. ⭐️ قراءة الملف كـ Data URL
-    // reader.readAsDataURL(coverFile);
+    };
+    // 6. ⭐️ قراءة الملف كـ Data URL
+    reader.readAsDataURL(coverFile);
   };
   //========================================================== edit avatar==========================================
   const handleEditeAvatar = async () => {
@@ -310,6 +311,7 @@ const UserProfilePage = () => {
       });
       // ⚠️ مهم: إزالة المعاينة بعد الرفع الناجح
       setCover(null);
+      setCoverPreview(null)
     } catch (error) {
       console.log(error);
       Swal.fire({
@@ -319,6 +321,7 @@ const UserProfilePage = () => {
       });
     } finally {
       setUploadingCover(false);
+      
     }
   };
   //==========================================remove preview====================================
@@ -537,6 +540,9 @@ const UserProfilePage = () => {
                   : `0 0px 30px rgba(255, 255, 255, 0.5), inset 0 -100px 50px -50px rgba(255, 255, 255, 1)`,
             }}
           >
+            {coverPreview && <img src={coverPreview} width={"100%"} height={"100%"} style={{zIndex:"1000",position:"absolute"}}/>}
+            
+
             {/* ==================================== edit cover =============================================== */}
             {isMyProfile && (
               <>
@@ -601,7 +607,10 @@ const UserProfilePage = () => {
                     {/* زر الإلغاء (Cancel) */}
                     <Tooltip title="إلغاء التعديل" arrow placement="top">
                       <IconButton
-                        onClick={() => setCover(null)} // ⭐️ افترض أن لديك دالة setCover لتصفير الحالة ⭐️
+                        onClick={() => {
+                          setCover(null)
+                          setCoverPreview(null)
+                        }} // ⭐️ افترض أن لديك دالة setCover لتصفير الحالة ⭐️
                         disabled={uploadingCover}
                         sx={{
                           position: "absolute",
