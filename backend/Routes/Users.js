@@ -13,6 +13,7 @@ const {
   updateAvatar,
   getUserByUsername,
   deleteMyAccount,
+  updateCover
 } = require("../comntrollers/User.js");
 const {
   upload,
@@ -35,6 +36,8 @@ router.post("/logout", AuthMiddleware, logout);
 router.get("/search", AuthMiddleware, searchUsers);
 //========================================== edit profile photo ==========================================
 router.put("/edit", AuthMiddleware, upload.single("avatar"), updateAvatar);
+//========================================== edit profile photo ==========================================
+router.put("/editCover", AuthMiddleware, upload.single("cover"), updateCover);
 
 //==================================== get user by username =============================================
 router.get("/:username", AuthMiddleware, getUserByUsername);

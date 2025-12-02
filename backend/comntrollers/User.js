@@ -9,7 +9,7 @@ const PostModel = require("../Models/Post.js");
 const NotificationSchema = require("../Models/notifications.js");
 const MessageSchema = require("../Models/Message");
 const friendRequestSchema = require("../Models/FriendRequest");
-const CommentModel = require("../Models/comment.js")
+const CommentModel = require("../Models/comment.js");
 const { deleteAllpostsFunc } = require("./post.js");
 
 const {
@@ -299,33 +299,72 @@ const deleteUserAvatar = async (userId) => {
   if (!user || !user.avatar) return;
   if (user) {
     //delete avatar from cloudinary
-      const publicId = user.avatar.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(
-        `socialmediaApp/profileImage/${publicId}`
-      );
-      user.avatar = null;
-      await user.save();
-  } 
+    const publicId = user.avatar.split("/").pop().split(".")[0];
+    await cloudinary.uploader.destroy(
+      `socialmediaApp/profileImage/${publicId}`
+    );
+    user.avatar = null;
+    await user.save();
+  }
+};
+//==================================== update cover photo ============================================
+const updateCover = async (req, res) => {
+  const userId = req.user.id;
+  const cover = req.file;
+  if (!cover) {
+    return res.status(400).json({ message: "الرجاء إرسال ملف صورة." });
+  }
+  try {
+    // تحويل الملف إلى base64
+    const dataUri = bufferToDataUri(cover.mimetype, cover.buffer);
+    const coverPublicId = `cover-${userId}`;
+    // رفع الصورة على Cloudinary
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: "socialmediaApp/coverImage",
+      public_id: coverPublicId, //  هذا هو اسم الصوره ويضمن عند رفع صوره يقوم بحذف القديمه ومن الممكن تغييره الى دالة الوقت لرفع كل صوره باسم مختلف والاحتفاظ بكل الصور
+      // upload_preset: "posts-unsigned", يتم استخدامه لما ارفع صور من الفرونت اند فقط
+    });
+    
+    const updatedUser =await User.findByIdAndUpdate(
+      { _id: userId },
+      { coverPhoto: result.secure_url },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "المستخدم غير موجود." });
+    }
+    // ✅ رجع الصورة الجديدة
+    return res.status(200).json({
+      message: "تم تحديث الصورة بنجاح",
+      coverPhoto: updatedUser.coverPhoto,
+    });
+    
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "حدث خطأ أثناء تحديث الصورة", error: error.message });
+  }
 };
 //==================================== delete my account =============================================
 const deleteMyAccount = async (req, res) => {
   const userId = req.user.id;
-  console.log("chats" , userId);
+  console.log("chats", userId);
   try {
     const user = await User.findById(userId);
     if (!user) {
       res.status(404).json({ message: "User not found" });
     }
     //====================================1-delete profile image from cloudinary ==================================================
-    console.log("chats 1" , userId);
+    console.log("chats 1", userId);
     await deleteUserAvatar(userId);
-    console.log("chats2" , userId);
+    console.log("chats2", userId);
     //====================================2- delete all posts for this user (include post comments , replys and notifications)========
     await deleteAllpostsFunc(userId);
-    console.log("chats3" , userId);
+    console.log("chats3", userId);
     // =================================== 3- delete all comments and replys of any another post in website ================================================
     await CommentModel.deleteMany({ owner: userId });
-    console.log("chats4" , userId);
+    console.log("chats4", userId);
     await CommentModel.updateMany(
       { "replies.owner": userId },
       { $pull: { replies: { owner: userId } } }
@@ -382,4 +421,5 @@ module.exports = {
   updateAvatar,
   getUserByUsername,
   deleteMyAccount,
+  updateCover,
 };

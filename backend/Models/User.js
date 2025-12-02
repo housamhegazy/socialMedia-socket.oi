@@ -81,15 +81,11 @@ const UserSchema = new mongoose.Schema(
         "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
     },
     coverPhoto: {
-      url: {
-        type: String,
-        default:
-          process.env.CLOUDINARY_DEFAULT_COVER_URL ||
-          "https://res.cloudinary.com/ditaxyrbs/image/upload/v1679171880/samples/landscapes/landscape-panorama.jpg",
-      },
-      public_id: {
-        type: String,
-      },
+      type: String,
+      public_id: String,
+      default:
+        process.env.CLOUDINARY_DEFAULT_COVER_URL ||
+        "https://res.cloudinary.com/ditaxyrbs/image/upload/v1679171880/samples/landscapes/landscape-panorama.jpg",
     },
     friends: [
       {

@@ -63,28 +63,37 @@ export const userApi = createApi({
       providesTags: ["User"],
     }),
     //send forget password email
-    sendEmailLink:builder.mutation({
-      query:(email)=>({
-        url:"/api/users/forget-password",
-        method:"POST",
-        body:email
-      })
+    sendEmailLink: builder.mutation({
+      query: (email) => ({
+        url: "/api/users/forget-password",
+        method: "POST",
+        body: email,
+      }),
     }),
     //change password
-    changePassword:builder.mutation({
-      query:({password,token})=>({
-        url:"/api/users/reset-password",
-        method:"PUT",
-        body:{password,token}
-      })
+    changePassword: builder.mutation({
+      query: ({ password, token }) => ({
+        url: "/api/users/reset-password",
+        method: "PUT",
+        body: { password, token },
+      }),
     }),
     //delete account
-    deletemyAccount:builder.mutation({
-      query:()=>({
-        url:`/api/users/deleteAccount`,
-        method:"DELETE",
-      })
-    })
+    deletemyAccount: builder.mutation({
+      query: () => ({
+        url: `/api/users/deleteAccount`,
+        method: "DELETE",
+      }),
+    }),
+    //updatecover
+    updateCover: builder.mutation({
+      query: (formData) => ({
+        url: "/api/users/editCover",
+        method: "PUT",
+        body:formData
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 // Export hooks for usage in functional components, which are
@@ -99,5 +108,6 @@ export const {
   useUpdateAvatarMutation,
   useSendEmailLinkMutation,
   useChangePasswordMutation,
-  useDeletemyAccountMutation
+  useDeletemyAccountMutation,
+  useUpdateCoverMutation,
 } = userApi;

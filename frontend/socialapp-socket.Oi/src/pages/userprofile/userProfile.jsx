@@ -12,6 +12,8 @@ import {
   ListItemIcon,
   Menu,
   MenuItem,
+  useTheme,
+  Tooltip,
 } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import LoadingPage from "../../components/loadingPage";
@@ -24,15 +26,18 @@ import {
   useDeletemyAccountMutation,
   useGetUserByUserNameQuery,
   useUpdateAvatarMutation,
+  useUpdateCoverMutation,
 } from "../../Api/user/userApi";
 import Err_404Page from "../../components/NotFound-404";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  Close,
   DeleteForever,
   Done,
   Edit,
   MoreVert,
   PersonAdd,
+  Pin,
 } from "@mui/icons-material";
 // import ProfileMenu from "../home/menuComponent";
 import Swal from "sweetalert2";
@@ -50,6 +55,7 @@ import { clearAuthUser } from "../../Api/user/authSlice";
 const UserProfilePage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   // ==================== get user data from backend and compare it with current user ===========================================
   const { username } = useParams();
@@ -58,6 +64,7 @@ const UserProfilePage = () => {
     // @ts-ignore
     (state) => state.auth
   );
+  console.log(currentUser);
   const isMyProfile = username === currentUser?.username; //  التحقق من ان اسم المستخدم ده هو نفسه المستخدم المسجل دخول
   //==============================  بيانات المستخدم اللي حابب افتح صفحته================================================
   const {
@@ -90,8 +97,12 @@ const UserProfilePage = () => {
   const [file, setFile] = useState(null); // save image to send to db
   const [preview, setPreview] = useState(null); // save image in preview in page
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [cover, setCover] = useState(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
   //=============================== import update avatar ======================================
   const [updateAvatar] = useUpdateAvatarMutation();
+  //=============================== import update cover ======================================
+  const [updateCover] = useUpdateCoverMutation();
   //================================== send frien requist =======================================
   const [sendFriendRequist, { isLoading: loadingRequist }] =
     useSendRequistMutation();
@@ -209,7 +220,7 @@ const UserProfilePage = () => {
       }
     }
   };
-  //============================================== edite avatar ===========================================================
+  //============================================== upload avatar ===========================================================
   const handleImage = async (e) => {
     const file = e.target.files[0];
     if (!file) {
@@ -231,6 +242,30 @@ const UserProfilePage = () => {
     };
     // 6. ⭐️ قراءة الملف كـ Data URL
     reader.readAsDataURL(file);
+  };
+  //============================================== upload cover ===========================================================
+  const handleCover = async (e) => {
+    const coverFile = e.target.files[0];
+    if (!coverFile) {
+      return;
+    }
+    setCover(coverFile); // لارسالها للباك اند
+    console.log(cover);
+    // الباقي دي عشان نعرضها في الصفحه قبل الارسال
+    // const reader = new FileReader();
+    // reader.onloadend = () => {
+    //   // 4. تعيين المسار المؤقت (Data URL) كقيمة للمعاينة
+    //   setPreview(reader.result);
+    //   setLoadingPreview(false);
+    // };
+    // reader.onerror = () => {
+    //   // 5. التعامل مع الخطأ (إذا فشلت القراءة)
+    //   console.error("FileReader failed to read the file.");
+    //   setLoadingPreview(false);
+    //   // يمكنك إضافة رسالة خطأ للمستخدم هنا
+    // };
+    // // 6. ⭐️ قراءة الملف كـ Data URL
+    // reader.readAsDataURL(coverFile);
   };
   //========================================================== edit avatar==========================================
   const handleEditeAvatar = async () => {
@@ -256,6 +291,34 @@ const UserProfilePage = () => {
       });
     } finally {
       setUploadingAvatar(false);
+    }
+  };
+  //============================================ send cover to database ==========================================
+  const handleCoverPhoto = async () => {
+    if (!cover) return;
+    setUploadingCover(true);
+    const formData = new FormData();
+    formData.append("cover", cover); // ✨ لازم نفس الاسم اللي السيرفر مستنيّه
+    try {
+      await updateCover(formData).unwrap();
+      
+      Swal.fire({
+        icon: "success",
+        title: "تم تحديث الصورة بنجاح!",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      // ⚠️ مهم: إزالة المعاينة بعد الرفع الناجح
+      setCover(null);
+    } catch (error) {
+      console.log(error);
+      Swal.fire({
+        icon: "error",
+        title: "حدث خطأ!",
+        text: error.message || "لم يتم رفع الصورة.",
+      });
+    } finally {
+      setUploadingCover(false);
     }
   };
   //==========================================remove preview====================================
@@ -423,6 +486,7 @@ const UserProfilePage = () => {
       }
     }
   };
+  //========================================================== handleCoverPhoto =================================================
 
   useEffect(() => {
     if (userError) {
@@ -443,9 +507,9 @@ const UserProfilePage = () => {
     return <Err_404Page />; // عرض صفحة الخطأ إذا كان المستخدم غير موجود
   }
   return (
-    <Box maxWidth="lg" sx={{px:0}}>
+    <Box maxWidth="lg" sx={{ px: 0 }}>
       {/* صفحة المستخدم */}
-      <Grid container spacing={4} sx={{p:0}}>
+      <Grid container spacing={4} sx={{ p: 0 }}>
         {/* قسم معلومات المستخدم */}
         <Grid sx={{ width: "100%" }}>
           <Paper
@@ -455,18 +519,110 @@ const UserProfilePage = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              justifyContent:"flex-end",
+              justifyContent: "flex-end",
               backgroundImage: `url(${
                 isMyProfile
-                  ? currentUser?.coverPhoto?.url
-                  : userProfile?.coverPhoto?.url
+                  ? currentUser?.coverPhoto
+                  : userProfile?.coverPhoto
               })`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
-              minHeight:"400px"
+              minHeight: "400px",
+              borderRadius: "0 0 20px 20px",
+              position: "relative",
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? `0 0px 30px rgba(0, 0, 0, 0.5), inset 0 -100px 50px -50px rgb(21, 21, 21)`
+                  : `0 0px 30px rgba(255, 255, 255, 0.5), inset 0 -100px 50px -50px rgba(255, 255, 255, 1)`,
             }}
           >
+            {/* ==================================== edit cover =============================================== */}
+            {isMyProfile && (
+              <>
+                {/* ======================= 1. زر التعديل (Edit) ======================= */}
+                {/* يظهر دائماً ويفتح نافذة اختيار الملف */}
+                <Tooltip title="تعديل الغلاف" arrow placement="top">
+                  <IconButton
+                    component="label" // يجعل الـ IconButton يعمل كـ Label للـ Input المخفي
+                    sx={{
+                      position: "absolute",
+                      bottom: "20px",
+                      right: "20px", // ⭐️ وضعنا زر التعديل على اليمين ⭐️
+                      zIndex: "1000",
+                      bgcolor: "background.paper",
+                      color: "text.primary",
+                      boxShadow: 3,
+                      "&:hover": { bgcolor: "grey.200" },
+                    }}
+                    size="small"
+                    disabled={uploadingCover}
+                  >
+                    <Edit fontSize="small" />
+                    <input
+                      onChange={handleCover}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      disabled={uploadingCover}
+                    />
+                  </IconButton>
+                </Tooltip>
+
+                {/* ======================= 2. أزرار التأكيد والإلغاء (Confirm/Cancel) ======================= */}
+                {/* تظهر فقط عند وجود ملف جديد جاهز للرفع */}
+                {cover && (
+                  <>
+                    {/* زر التأكيد (Done) */}
+                    <Tooltip title="حفظ الغلاف" arrow placement="top">
+                      <IconButton
+                        onClick={handleCoverPhoto}
+                        disabled={uploadingCover}
+                        sx={{
+                          position: "absolute",
+                          bottom: "20px",
+                          left: "20px", // ⭐️ زر التأكيد على اليسار ⭐️
+                          zIndex: "1000",
+                          bgcolor: "success.main",
+                          color: "#fff",
+                          boxShadow: 3,
+                          "&:hover": { bgcolor: "success.dark" },
+                        }}
+                        size="small"
+                      >
+                        {uploadingCover ? (
+                          <CircularProgress size={20} color="inherit" />
+                        ) : (
+                          <Done fontSize="small" />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+
+                    {/* زر الإلغاء (Cancel) */}
+                    <Tooltip title="إلغاء التعديل" arrow placement="top">
+                      <IconButton
+                        onClick={() => setCover(null)} // ⭐️ افترض أن لديك دالة setCover لتصفير الحالة ⭐️
+                        disabled={uploadingCover}
+                        sx={{
+                          position: "absolute",
+                          bottom: "20px",
+                          left: "60px", // ⭐️ بجوار زر التأكيد ⭐️
+                          zIndex: "1000",
+                          bgcolor: "error.main",
+                          color: "#fff",
+                          boxShadow: 3,
+                          "&:hover": { bgcolor: "error.dark" },
+                        }}
+                        size="small"
+                      >
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </>
+                )}
+              </>
+            )}
+
             {/* ================================= user avatar ============================================= */}
             <Box
               sx={{
@@ -564,14 +720,16 @@ const UserProfilePage = () => {
             </Box>
 
             {/* ====================================== end user avatar =================================================== */}
-            <Typography variant="h6" color="white">{userProfile.name}</Typography>
-            {/* <Typography
+            <Typography variant="h6" color="white">
+              {userProfile.name}
+            </Typography>
+            <Typography
               variant="body1"
               color="textSecondary"
               sx={{ marginBottom: 2 }}
             >
               @{userProfile.username}
-            </Typography> */}
+            </Typography>
             {/* <Typography
               variant="body2"
               color="textSecondary"
@@ -579,100 +737,99 @@ const UserProfilePage = () => {
             >
               Email: {userProfile.email}
             </Typography> */}
-            
           </Paper>
         </Grid>
         {/* ====================================================buttons =============================================== */}
         {isMyProfile && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  alignItems: "center",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  onClick={() => {
-                    navigate("/user/friends");
-                  }}
-                  variant="outlined"
-                  color="inherit"
-                  fullWidth
-                  sx={{
-                    marginBottom: 2,
-                    textTransform: "none",
-                    width: "150px",
-                  }}
-                >
-                  my friends
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleDeleteAccount();
-                  }}
-                  variant="contained"
-                  color="error"
-                  fullWidth
-                  sx={{
-                    marginBottom: 2,
-                    textTransform: "none",
-                    width: "150px",
-                  }}
-                >
-                  {loadingDelete ? "deleting ... " : "delete account"}
-                </Button>
-              </Box>
-            )}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Button
+              onClick={() => {
+                navigate("/user/friends");
+              }}
+              variant="outlined"
+              color="inherit"
+              fullWidth
+              sx={{
+                marginBottom: 2,
+                textTransform: "none",
+                width: "150px",
+              }}
+            >
+              my friends
+            </Button>
+            <Button
+              onClick={() => {
+                handleDeleteAccount();
+              }}
+              variant="contained"
+              color="error"
+              fullWidth
+              sx={{
+                marginBottom: 2,
+                textTransform: "none",
+                width: "150px",
+              }}
+            >
+              {loadingDelete ? "deleting ... " : "delete account"}
+            </Button>
+          </Box>
+        )}
 
-            {!isMyProfile && (
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  width: "100%",
-                }}
-              >
-                <Button
-                  onClick={buttonState.handler}
-                  variant="contained"
-                  // @ts-ignore
-                  color={buttonState.color}
-                  startIcon={
-                    loadingRequist ? (
-                      <CircularProgress size={20} color="inherit" />
-                    ) : (
-                      buttonState.icon
-                    )
-                  }
-                  disabled={buttonState.disabled || loadingRequist}
-                  sx={{
-                    borderRadius: "2rem",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    px: 3,
-                  }}
-                >
-                  {buttonState.text}
-                </Button>
-                <Button
-                  onClick={() => {
-                    handleSendmessage();
-                  }}
-                  variant="contained"
-                  color="primary"
-                  // startIcon=<Message />
-                  sx={{
-                    borderRadius: "2rem",
-                    textTransform: "none",
-                    fontWeight: 600,
-                    px: 3,
-                  }}
-                >
-                  Send message
-                </Button>
-              </Box>
-            )}
+        {!isMyProfile && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-around",
+              width: "100%",
+            }}
+          >
+            <Button
+              onClick={buttonState.handler}
+              variant="contained"
+              // @ts-ignore
+              color={buttonState.color}
+              startIcon={
+                loadingRequist ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : (
+                  buttonState.icon
+                )
+              }
+              disabled={buttonState.disabled || loadingRequist}
+              sx={{
+                borderRadius: "2rem",
+                textTransform: "none",
+                fontWeight: 600,
+                px: 3,
+              }}
+            >
+              {buttonState.text}
+            </Button>
+            <Button
+              onClick={() => {
+                handleSendmessage();
+              }}
+              variant="contained"
+              color="primary"
+              // startIcon=<Message />
+              sx={{
+                borderRadius: "2rem",
+                textTransform: "none",
+                fontWeight: 600,
+                px: 3,
+              }}
+            >
+              Send message
+            </Button>
+          </Box>
+        )}
         {/*===================================== قسم المنشورات ========================================================*/}
         {/* create post */}
         {isMyProfile && <PostComposer user={currentUser} />}
