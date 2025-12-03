@@ -159,11 +159,15 @@ const CardComponent = ({ post, isMyProfile }) => {
       });
     }
   };
+
   return (
     <Box>
       {openDialog && <DialogComp {...{ post, setOpenDialog }} />}
 
       <Card
+        onClick={() => {
+          navigate(`/posts/${post._id}`);
+        }}
         sx={{
           id: post._id,
           maxWidth: "100%",
@@ -174,6 +178,7 @@ const CardComponent = ({ post, isMyProfile }) => {
         }}
       >
         <CardHeader
+          onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
           avatar={
             <Avatar
               onClick={() => {
@@ -189,11 +194,16 @@ const CardComponent = ({ post, isMyProfile }) => {
           }
           //========================================= menu ================================================================================
           action={
-            <Box style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Box
+              onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
+              sx={{ display: "flex", justifyContent: "flex-end" }}
+            >
               <>
                 <IconButton
                   aria-label="settings"
-                  onClick={handleClick}
+                  onClick={(e) => {
+                    handleClick(e);
+                  }}
                   sx={{
                     color: "text.secondary",
                     "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
@@ -205,7 +215,9 @@ const CardComponent = ({ post, isMyProfile }) => {
                 <Menu
                   anchorEl={anchorEl}
                   open={open}
-                  onClose={handleClose}
+                  onClose={(e) => {
+                    handleClose();
+                  }}
                   disableScrollLock={true}
                   PaperProps={{
                     sx: {
@@ -230,7 +242,8 @@ const CardComponent = ({ post, isMyProfile }) => {
                         <Typography variant="body2">delete </Typography>
                       </MenuItem>
                       <MenuItem
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
                           openDialogFunc();
                         }}
                         sx={{ color: "inherit" }}
@@ -259,7 +272,8 @@ const CardComponent = ({ post, isMyProfile }) => {
         />
         {post.image && (
           <CardMedia
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setPostDialog(true);
             }}
             component="img"
@@ -292,6 +306,7 @@ const CardComponent = ({ post, isMyProfile }) => {
         </CardContent>
         {/* ========================================== start card actions ======================================================== */}
         <CardActions
+          onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
           disableSpacing
           sx={{ display: "flex", justifyContent: "space-between" }}
         >
@@ -302,7 +317,12 @@ const CardComponent = ({ post, isMyProfile }) => {
               alignItems: "center",
             }}
           >
-            <IconButton onClick={handleLikeClick} aria-label="likes">
+            <IconButton
+              onClick={() => {
+                handleLikeClick();
+              }}
+              aria-label="likes"
+            >
               <Favorite
                 color={isLikedLocally ? "error" : "inherit"}
                 sx={{
@@ -316,7 +336,9 @@ const CardComponent = ({ post, isMyProfile }) => {
             <Box sx={{ px: 1, mt: 0.5 }}>
               {post.likes.length > 0 && (
                 <Typography
-                  onClick={() => setOpenLikesDialog(true)}
+                  onClick={() => {
+                    setOpenLikesDialog(true);
+                  }}
                   sx={{
                     fontSize: "14px",
                     fontWeight: "bold",
@@ -335,8 +357,11 @@ const CardComponent = ({ post, isMyProfile }) => {
             </Box>
             {/*================================================= likes dialog =================================== */}
             <Dialog
+              onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
               open={openLikesDialog}
-              onClose={() => setOpenLikesDialog(false)}
+              onClose={() => {
+                setOpenLikesDialog(false);
+              }}
               fullWidth
               maxWidth="sm"
             >
@@ -361,7 +386,9 @@ const CardComponent = ({ post, isMyProfile }) => {
                         cursor: "pointer",
                         "&:hover": { background: "rgba(0,0,0,0.04)" },
                       }}
-                      onClick={() => navigate(`/user/${like.username}`)}
+                      onClick={() => {
+                        navigate(`/user/${like.username}`);
+                      }}
                     >
                       <Avatar src={like.avatar} alt={like.name} sx={{ mr: 2 }}>
                         {!like.avatar && like.name?.charAt(0)?.toUpperCase()}
@@ -379,6 +406,7 @@ const CardComponent = ({ post, isMyProfile }) => {
             {/* ============================================ post dialog ======================================= */}
             {postDialog && (
               <Dialog
+                onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
                 open={postDialog}
                 onClose={() => {
                   setPostDialog(false);
@@ -394,7 +422,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                     cursor: "zoom-in",
                   }}
                   onWheel={(e) => {
-                    // e.preventDefault();
+                    e.preventDefault();
 
                     setZoom((prev) => {
                       let newZoom = prev + (e.deltaY < 0 ? 0.1 : -0.1);
@@ -428,7 +456,12 @@ const CardComponent = ({ post, isMyProfile }) => {
           >
             <Comment />
           </IconButton>
-          <IconButton onClick={() => handleShare(post)} aria-label="share">
+          <IconButton
+            onClick={() => {
+              handleShare(post);
+            }}
+            aria-label="share"
+          >
             <Share />
           </IconButton>
         </CardActions>
@@ -444,14 +477,18 @@ const CardComponent = ({ post, isMyProfile }) => {
             }
           </Typography>
         )}
-        <AddComment
-          post={post}
-          user={user}
-          openCommentBox={openCommentBox}
-          setOpenCommentBox={setOpenCommentBox}
-          commentRefs={undefined}
-          commentIdToHighlight={undefined}
-        />
+        <Box
+          onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
+        >
+          <AddComment
+            post={post}
+            user={user}
+            openCommentBox={openCommentBox}
+            setOpenCommentBox={setOpenCommentBox}
+            commentRefs={undefined}
+            commentIdToHighlight={undefined}
+          />
+        </Box>
       </Card>
     </Box>
   );
