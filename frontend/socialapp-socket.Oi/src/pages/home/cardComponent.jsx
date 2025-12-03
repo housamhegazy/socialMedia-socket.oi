@@ -410,19 +410,28 @@ const CardComponent = ({ post, isMyProfile }) => {
                 open={postDialog}
                 onClose={() => {
                   setPostDialog(false);
-                  setZoom(1); 
+                  setZoom(1);
                 }}
-                fullWidth
-                maxWidth="lg"
+                // fullWidth
+                maxWidth="md"
+                PaperProps={{
+                  sx: {
+                    maxWidth: "90%", // عرض أقصى 90% من الشاشة
+                    width: "auto", // عرض تلقائي بناءً على المحتوى
+                    maxHeight: "90vh", // ارتفاع أقصى 90% من ارتفاع الشاشة
+                    borderRadius: "12px",
+                  },
+                }}
+                scroll="body"
               >
                 <Box
                   sx={{
-                    // p: 1,
-                    overflow: "hidden",
+                    p: 1,
+                    overflow: "auto",
                     cursor: "zoom-in",
+                    maxHeight: "85vh",
                   }}
                   onWheel={(e) => {
-                    // e.preventDefault();
                     setZoom((prev) => {
                       let newZoom = prev + (e.deltaY < 0 ? 0.1 : -0.1);
                       if (newZoom < 1) newZoom = 1; // أقل زوم
@@ -436,6 +445,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                     alt="Post"
                     style={{
                       width: "100%",
+                      height:"auto",
                       borderRadius: "10px",
                       transform: `scale(${zoom})`,
                       transformOrigin: "center center",

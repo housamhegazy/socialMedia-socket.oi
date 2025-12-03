@@ -53,6 +53,8 @@ const PostDetails = () => {
   const [likePost] = useLikePostMutation();
   //===================== edite dialog =================================
   const [openLikesDialog, setOpenLikesDialog] = useState(false);
+  const [postDialog, setPostDialog] = useState(false);
+  const [zoom, setZoom] = useState(1);
   const commentIdToHighlight = searchParams.get("comment");
   const commentRefs = useRef({});
 
@@ -241,9 +243,7 @@ const PostDetails = () => {
                         </ListItemIcon>
                         <Typography variant="body2">delete </Typography>
                       </MenuItem>
-                      <MenuItem
-                        sx={{ color: "inherit" }}
-                      >
+                      <MenuItem sx={{ color: "inherit" }}>
                         <ListItemIcon>
                           <DeleteForever fontSize="small" color="inherit" />
                         </ListItemIcon>
@@ -268,6 +268,9 @@ const PostDetails = () => {
         />
         {post?.image && (
           <CardMedia
+            onClick={() => {
+              setPostDialog(true);
+            }}
             component="img"
             height="194"
             image={post?.image}
@@ -373,6 +376,60 @@ const PostDetails = () => {
               </Box>
             </Dialog>
             {/* ============================================ end dialog ====================================== */}
+            {/* ============================================ post dialog ======================================= */}
+            {postDialog && (
+              <Dialog
+                onClick={(e) => e.stopPropagation()} // ⭐️ نوقف الانتشار هنا ⭐️
+                open={postDialog}
+                onClose={() => {
+                  setPostDialog(false);
+                  setZoom(1);
+                }}
+                // fullWidth
+                maxWidth="md"
+                PaperProps={{
+                  sx: {
+                    maxWidth: "90%", // عرض أقصى 90% من الشاشة
+                    width: "auto", // عرض تلقائي بناءً على المحتوى
+                    maxHeight: "90vh", // ارتفاع أقصى 90% من ارتفاع الشاشة
+                    borderRadius: "12px",
+                  },
+                }}
+                scroll="body"
+              >
+                <Box
+                  sx={{
+                    p: 1,
+                    overflow: "auto",
+                    cursor: "zoom-in",
+                    maxHeight: "85vh",
+                  }}
+                  onWheel={(e) => {
+                    setZoom((prev) => {
+                      let newZoom = prev + (e.deltaY < 0 ? 0.1 : -0.1);
+                      if (newZoom < 1) newZoom = 1; // أقل زوم
+                      if (newZoom > 4) newZoom = 4; // أعلى زوم
+                      return newZoom;
+                    });
+                  }}
+                >
+                  <img
+                    src={post.image}
+                    alt="Post"
+                    style={{
+                      width: "100%",
+                      height: "auto",
+                      borderRadius: "10px",
+                      transform: `scale(${zoom})`,
+                      transformOrigin: "center center",
+                      transition: "transform 0.15s ease-out",
+                      cursor: zoom > 1 ? "zoom-out" : "zoom-in",
+                    }}
+                  />
+                </Box>
+              </Dialog>
+            )}
+            {/* ==================================== end post dialog ================================== */}
           </Box>
           <IconButton
             onClick={() => {
@@ -390,9 +447,8 @@ const PostDetails = () => {
             variant="body2"
             sx={{ color: theme.palette.error.main, textAlign: "center", mt: 1 }}
           >
-            {error?.
-// @ts-ignore
-            data?.message || "Failed to delete post."}
+            {// @ts-ignore
+            error?.data?.message || "Failed to delete post."}
           </Typography>
         )}
         <AddComment
