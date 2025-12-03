@@ -215,7 +215,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                 <Menu
                   anchorEl={anchorEl}
                   open={open}
-                  onClose={(e) => {
+                  onClose={() => {
                     handleClose();
                   }}
                   disableScrollLock={true}
