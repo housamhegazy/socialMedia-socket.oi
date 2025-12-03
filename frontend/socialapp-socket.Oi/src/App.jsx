@@ -3,7 +3,6 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
-import React, { lazy, Suspense } from 'react';
 import Root from "./Root";
 import Home from "./pages/home/Home";
 import LoadingPage from "./components/loadingPage";
