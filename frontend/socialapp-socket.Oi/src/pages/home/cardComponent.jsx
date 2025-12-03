@@ -410,7 +410,7 @@ const CardComponent = ({ post, isMyProfile }) => {
                 open={postDialog}
                 onClose={() => {
                   setPostDialog(false);
-                  setZoom(1); // 🔄 رجّع الزوم للوضع الطبيعي عند الغلق
+                  setZoom(1); 
                 }}
                 fullWidth
                 maxWidth="lg"
