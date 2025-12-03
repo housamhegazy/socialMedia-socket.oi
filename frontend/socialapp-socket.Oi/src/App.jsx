@@ -3,6 +3,7 @@ import {
   Navigate,
   RouterProvider,
 } from "react-router-dom";
+import React, { lazy, Suspense } from 'react';
 import Root from "./Root";
 import Home from "./pages/home/Home";
 import LoadingPage from "./components/loadingPage";
@@ -10,9 +11,6 @@ import Err_404Page from "./components/NotFound-404";
 import SignUpForm from "./pages/signin-signup/signup";
 import LoginForm from "./pages/signin-signup/signin";
 import UserProfilePage from "./pages/userprofile/userProfile";
-import { useSelector } from "react-redux";
-import { useMemo } from "react";
-import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import getDesignTokens from "./Api/theme/getDesignTokens";
 import Notifications from "./pages/notifications/notifications";
 import PostDetails from "./pages/postDetails/postDetails";
@@ -21,7 +19,9 @@ import ChatDetail from "./pages/chat/chatDetails";
 import FriendsList from "./pages/friends/friends";
 import ForgotPassword from "./pages/resetPassword/forgetPassword";
 import ResetPassword from "./pages/resetPassword/newPassword";
-
+import { useSelector } from "react-redux";
+import { useMemo } from "react";
+import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 function App() {
   // @ts-ignore
   const { isAuthenticated } = useSelector((state) => state.auth);
