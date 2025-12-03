@@ -413,17 +413,16 @@ const CardComponent = ({ post, isMyProfile }) => {
                   setZoom(1); // 🔄 رجّع الزوم للوضع الطبيعي عند الغلق
                 }}
                 fullWidth
-                maxWidth="sm"
+                maxWidth="lg"
               >
                 <Box
                   sx={{
-                    p: 2,
+                    // p: 1,
                     overflow: "hidden",
                     cursor: "zoom-in",
                   }}
                   onWheel={(e) => {
-                    e.preventDefault();
-
+                    // e.preventDefault();
                     setZoom((prev) => {
                       let newZoom = prev + (e.deltaY < 0 ? 0.1 : -0.1);
                       if (newZoom < 1) newZoom = 1; // أقل زوم
