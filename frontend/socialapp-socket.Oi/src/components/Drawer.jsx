@@ -55,7 +55,7 @@ function ResponsiveDrawer({
     // @ts-ignore
     (state) => state.auth
   );
-  const isMobile = useMediaQuery('(max-width:900px)');
+  const isMobile = useMediaQuery("(max-width:900px)");
 
   //=========================socket notification ===========================
   const { data: unreadCountData } = useGetUnreadCountQuery(undefined, {
@@ -187,7 +187,7 @@ function ResponsiveDrawer({
       {/* <Toolbar /> */}
       <List>
         {/* search box */}
-        {isMobile ? <SearchUsers/> : null}
+        {isMobile ? <SearchUsers /> : null}
         {/* <Divider /> */}
         <>
           {myList.map((item, index) => {
@@ -222,39 +222,6 @@ function ResponsiveDrawer({
               </ListItem>
             );
           })}
-
-          {/* add post */}
-          <ListItem
-            onClick={() => {}}
-            sx={{ mt: 5, px: 0, display: "flex", justifyContent: "center" }}
-          >
-            <IconButton>
-              <PostAdd
-                color={iconColor}
-                sx={{ mr: 1, display: { xs: "none", sm: "block", md: "none" } }}
-              />
-            </IconButton>
-            <Button
-              variant="outlined"
-              sx={{
-                backgroundColor:
-                  theme.palette.mode === "dark"
-                    ? "white"
-                    : theme.palette.background.default,
-                color: theme.palette.text.default,
-                border: "none",
-                fontSize: "15px",
-                borderRadius: "10px",
-                padding: "5px 10px",
-                cursor: "pointer",
-                textTransform: "none",
-                display: { xs: "block", sm: "none", md: "block" },
-              }}
-            >
-              Add Post
-            </Button>
-          </ListItem>
-          <IconButton></IconButton>
           <ListItem sx={{ mt: 5, px: 0 }}>
             <ListItemButton
               onClick={() => {
